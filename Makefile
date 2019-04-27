@@ -16,8 +16,14 @@ CFLAGS_DBG=-c -std=c11 -O0 -Wall -Wextra -pedantic -g -DDEBUG -I./include
 TIDY_FLAGS=-checks=clang-analyzer-*,bugprone-*,cert-*,performance-*,portability-*
 TIDY_DEFINITIONS=$(CFLAGS_DBG)
 
-FILES=./source/endianness.c \
-      ./source/list.c
+FILES=./source/buffer.c \
+      ./source/endianness.c \
+      ./source/error.c \
+      ./source/list.c \
+      ./source/sound.c \
+      ./source/sound-au.c \
+      ./source/tree.c \
+      ./source/vector.c
 
 default: debug
 all: release debug
