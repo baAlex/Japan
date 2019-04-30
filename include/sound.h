@@ -35,7 +35,7 @@
 
 	struct Sound* SoundLoad(const char* filename, struct Error*);
 	struct Error SoundSaveAu(struct Sound* sound, const char* filename);
-	// struct Error SoundSaveWav(struct Sound* sound, const char* filename);
+	struct Error SoundSaveWav(struct Sound* sound, const char* filename);
 	struct Error SoundSaveRaw(struct Sound* sound, const char* filename);
 
 #endif

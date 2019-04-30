@@ -43,8 +43,8 @@ detriment.
 
  https://webrtc.googlesource.com/src/+/refs/heads/master/modules/third_party/g711/g711.h
 
- $ clang "source/sound.c" "source/sound-au.c" "source/endianness.c" "source/error.c"\
-   -I"./include" -DDEBUG -DSTANDALONE_TEST -o "./test"
+ $ clang "source/sound.c" "source/sound-au.c" "source/sound-wav.c" "source/endianness.c"\
+   "source/error.c" -I"./include" -DDEBUG -DSTANDALONE_TEST -o "./test"
 -----------------------------*/
 
 #include <stdint.h>
@@ -232,8 +232,8 @@ struct Sound* SoundLoad(const char* filename, struct Error* e)
 
 	if (CheckMagicAu(magic) == true)
 		sound = SoundLoadAu(file, filename, e);
-	// else if (CheckMagicWav(magic) == true)
-	//	sound = SoundLoadWav(file, filename, e);
+	else if (CheckMagicWav(magic) == true)
+		sound = SoundLoadWav(file, filename, e);
 	else
 	{
 		ErrorSet(e, ERROR_UNKNOWN_FORMAT, "SoundLoad", "'%s'", filename);
@@ -293,6 +293,7 @@ int main(int argc, char* argv[])
 	{
 		SoundSaveRaw(sound, "test.raw");
 		SoundSaveAu(sound, "test.au");
+		SoundSaveWav(sound, "test.wav");
 		SoundDelete(sound);
 	}
 	else

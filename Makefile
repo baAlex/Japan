@@ -19,9 +19,12 @@ TIDY_DEFINITIONS=$(CFLAGS_DBG)
 FILES=./source/buffer.c \
       ./source/endianness.c \
       ./source/error.c \
+      ./source/image.c \
+      ./source/image-sgi.c \
       ./source/list.c \
       ./source/sound.c \
       ./source/sound-au.c \
+      ./source/sound-wav.c \
       ./source/tree.c \
       ./source/vector.c
 
