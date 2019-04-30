@@ -18,4 +18,8 @@
 	struct Sound* SoundLoadAu(FILE* file, const char* filename, struct Error* e);
 	// struct Sound* SoundLoadWav(FILE* file, const char* filename, struct Error* e);
 
+	int ReadPcm(FILE* file, struct Sound* sound);
+	int ReadULaw(FILE* file, struct Sound* sound);
+	int ReadALaw(FILE* file, struct Sound* sound);
+
 #endif
