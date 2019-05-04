@@ -50,6 +50,8 @@ SOFTWARE.
 -----------------------------*/
 bool CheckMagicWav(uint32_t value)
 {
+	(void)value;
+
 	return false;
 }
 
@@ -60,6 +62,10 @@ bool CheckMagicWav(uint32_t value)
 -----------------------------*/
 struct Sound* SoundLoadWav(FILE* file, const char* filename, struct Error* e)
 {
+	(void)file;
+	(void)filename;
+	(void)e;
+
 	return NULL;
 }
 
@@ -70,6 +76,9 @@ struct Sound* SoundLoadWav(FILE* file, const char* filename, struct Error* e)
 -----------------------------*/
 export struct Error SoundSaveWav(struct Sound* sound, const char* filename)
 {
+	(void)sound;
+	(void)filename;
+
 	struct Error e = {.code = NO_ERROR};
 	return e;
 }

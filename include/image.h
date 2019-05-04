@@ -16,10 +16,10 @@
 		IMAGE_GRAYA8,
 		IMAGE_RGB8,
 		IMAGE_RGBA8,
-		IMAGE_GRAY16,
-		IMAGE_GRAYA16,
-		IMAGE_RGB16,
-		IMAGE_RGBA16
+		IMAGE_GRAY16,  // TODO: Sgi support
+		IMAGE_GRAYA16, // "
+		IMAGE_RGB16,   // "
+		IMAGE_RGBA16   // "
 	};
 
 	struct Image

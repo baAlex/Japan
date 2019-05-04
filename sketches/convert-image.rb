@@ -16,5 +16,5 @@ if ARGV.length != 0 then
 		Japan.ErrorPrint(err)
 	end
 else
-	puts("No input specified")
+	printf("No input specified\n")
 end

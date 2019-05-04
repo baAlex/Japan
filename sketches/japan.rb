@@ -47,8 +47,7 @@ module Japan
 
 	# ----------------
 
-	ImageFormat = enum(:gray8, :graya8, :rgb8, :rgba8,
-	                   :gray16, :graya16, :rgb16, :rgba16)
+	ImageFormat = enum(:gray8, :graya8, :rgb8, :rgba8)
 
 	class Image < FFI::Struct
 	layout :width, :size_t,

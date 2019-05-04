@@ -1,9 +1,7 @@
 
-// $ clang -I../include convert-sound.c ../japan-dbg.a -g -o ./convert-sound
+// $ clang -I../include convert-sound.c ../japan-dbg.a -g -O0 -o ./convert-sound
 
 #include <stdlib.h>
-
-#include "error.h"
 #include "sound.h"
 
 int main(int argc, char* argv[])

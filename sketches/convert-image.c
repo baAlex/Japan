@@ -1,9 +1,7 @@
 
-// $ clang -I../include convert-image.c ../japan-dbg.a -g -o ./convert-image
+// $ clang -I../include convert-image.c ../japan-dbg.a -O0 -g -o ./convert-image
 
 #include <stdlib.h>
-
-#include "error.h"
 #include "image.h"
 
 int main(int argc, char* argv[])

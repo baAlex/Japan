@@ -76,30 +76,30 @@ struct SgiHead
 -----------------------------*/
 static inline void sPlotPixel_8(int channel, int row, int col, struct Image* image, uint8_t value)
 {
-	if(image->format == IMAGE_GRAY8 && channel < 1)
+	if (image->format == IMAGE_GRAY8 && channel < 1)
 	{
-		struct { uint8_t c[1]; } *data = image->data;
+		struct { uint8_t c[1]; }* data = image->data;
 
 		data += col + (image->width * row);
 		data->c[channel] = value;
 	}
-	if(image->format == IMAGE_GRAYA8 && channel < 2)
+	else if (image->format == IMAGE_GRAYA8 && channel < 2)
 	{
-		struct { uint8_t c[2]; } *data = image->data;
+		struct { uint8_t c[2]; }* data = image->data;
 
 		data += col + (image->width * row);
 		data->c[channel] = value;
 	}
-	else if(image->format == IMAGE_RGB8 && channel < 3)
+	else if (image->format == IMAGE_RGB8 && channel < 3)
 	{
-		struct { uint8_t c[3]; } *data = image->data;
+		struct { uint8_t c[3]; }* data = image->data;
 
 		data += col + (image->width * row);
 		data->c[channel] = value;
 	}
-	else if(image->format == IMAGE_RGBA8 && channel < 4)
+	else if (image->format == IMAGE_RGBA8 && channel < 4)
 	{
-		struct { uint8_t c[4]; } *data = image->data;
+		struct { uint8_t c[4]; }* data = image->data;
 
 		data += col + (image->width * row);
 		data->c[channel] = value;
@@ -369,11 +369,129 @@ return_failure:
 
  ImageSaveSgi()
 -----------------------------*/
+static inline size_t sBytesPerPixel(enum ImageFormat format)
+{
+	switch (format)
+	{
+	case IMAGE_GRAY8:
+		return 1;
+	case IMAGE_GRAYA8:
+		return 2;
+	case IMAGE_RGB8:
+		return 3;
+	case IMAGE_RGBA8:
+		return 4;
+	case IMAGE_GRAY16:
+		return 2;
+	case IMAGE_GRAYA16:
+		return 4;
+	case IMAGE_RGB16:
+		return 6;
+	case IMAGE_RGBA16:
+		return 8;
+	}
+
+	return 0;
+}
+
+
 export struct Error ImageSaveSgi(struct Image* image, const char* filename)
 {
-	(void)image;
-	(void)filename;
-
 	struct Error e = {.code = NO_ERROR};
+	struct SgiHead head = {0};
+	FILE* file = NULL;
+	enum Endianness sys_endianness = EndianSystem();
+	uint16_t channels = 0;
+
+	if (image->width > UINT16_MAX || image->height > UINT16_MAX)
+	{
+		ErrorSet(&e, ERROR_UNSUPPORTED, "ImageSaveSgi", "Sgi size ('%s')", filename);
+		return e;
+	}
+
+	if ((file = fopen(filename, "wb")) == NULL)
+	{
+		ErrorSet(&e, ERROR_FS, "ImageSaveSgi", "'%s'", filename);
+		return e;
+	}
+
+	// Head
+	head.magic = EndianSystemToBig_16(SGI_MAGIC, sys_endianness);
+	head.compression = 0;
+	head.dimension = EndianSystemToBig_16(3, sys_endianness);
+
+	head.x_size = EndianSystemToBig_16(image->width, sys_endianness);
+	head.y_size = EndianSystemToBig_16(image->height, sys_endianness);
+
+	head.pixel_type = 0;
+
+	switch (image->format)
+	{
+	case IMAGE_GRAY8:
+		channels = 1;
+		head.z_size = EndianSystemToBig_16(channels, sys_endianness);
+		head.precision = 1;
+		break;
+	case IMAGE_GRAYA8:
+		channels = 2;
+		head.z_size = EndianSystemToBig_16(channels, sys_endianness);
+		head.precision = 1;
+		break;
+	case IMAGE_RGB8:
+		channels = 3;
+		head.z_size = EndianSystemToBig_16(channels, sys_endianness);
+		head.precision = 1;
+		break;
+	case IMAGE_RGBA8:
+		channels = 4;
+		head.z_size = EndianSystemToBig_16(channels, sys_endianness);
+		head.precision = 1;
+		break;
+	default:
+		ErrorSet(&e, ERROR_UNSUPPORTED, "ImageSaveSgi", "Sgi format ('%s')", filename);
+		goto return_failure;
+	}
+
+	if (fwrite(&head, sizeof(struct SgiHead), 1, file) != 1)
+	{
+		ErrorSet(&e, ERROR_IO, "ImageSaveSgi", "head ('%s')", filename);
+		goto return_failure;
+	}
+
+	// Data
+	size_t bytes = sBytesPerPixel(image->format);
+	uint8_t* src = NULL;
+
+	if (fseek(file, 512, SEEK_SET) != 0) // Data start at offset 512
+	{
+		ErrorSet(&e, ERROR_BROKEN, "ImageSaveSgi", "data seek ('%s')", filename);
+		goto return_failure;
+	}
+
+	for (uint16_t ch = 0; ch < channels; ch++)
+	{
+		// TODO: '__ssize_t' not a standard
+
+		for (__ssize_t row = (image->height - 1); row >= 0; row--)
+		{
+			src = ((uint8_t*)image->data) + (image->size / image->height) * row + ch;
+
+			for (size_t col = 0; col < image->width; col++)
+			{
+				if (fwrite(&src[col * bytes], 1, 1, file) != 1)
+				{
+					ErrorSet(&e, ERROR_IO, "ImageSaveSgi", "data ('%s')", filename);
+					goto return_failure;
+				}
+			}
+		}
+	}
+
+	// Bye!
+	fclose(file);
+	return e;
+
+return_failure:
+	fclose(file);
 	return e;
 }
