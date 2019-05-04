@@ -2,19 +2,20 @@
 .SUFFIXES: .c .o .dbg.o
 
 CC=cc
-AR=ar rcs
+LD=ld
+AR=ar
 RM=rm -f
-CLOC=cloc
-TIDY=clang-tidy
 
-OUT=japan.a
-OUT_DBG=japan-dbg.a
+OUT_STATIC=japan.a
+OUT_SHARED=japan.so
+OUT_STATIC_DBG=japan-dbg.a
+OUT_SHARED_DBG=japan-dbg.so
 
-CFLAGS=-c -O3 -flto -mtune=generic -I./include
-CFLAGS_DBG=-c -std=c11 -O0 -Wall -Wextra -pedantic -g -DDEBUG -I./include
+CFLAGS=-c -O3 -fpic -mtune=generic -I./include
+CFLAGS_DBG=-c -O0 -fpic -std=c11 -Wall -Wextra -pedantic -g -I./include -DDEBUG
 
-TIDY_FLAGS=-checks=clang-analyzer-*,bugprone-*,cert-*,performance-*,portability-*
-TIDY_DEFINITIONS=$(CFLAGS_DBG)
+LFLAGS_STATIC=rcs
+LFLAGS_SHARED=-lm -shared
 
 FILES=./source/buffer.c \
       ./source/endianness.c \
@@ -38,19 +39,29 @@ all: release debug
 	$(CC) $(CFLAGS_DBG) $< -o $@
 
 release: $(FILES:.c=.o)
-	$(AR) $(OUT) $(FILES:.c=.o)
+	$(AR) $(LFLAGS_STATIC) $(OUT_STATIC) $(FILES:.c=.o)
+	$(LD) $(FILES:.c=.o) $(LFLAGS_SHARED) -o $(OUT_SHARED)
 
 debug: $(FILES:.c=.dbg.o)
-	$(AR) $(OUT_DBG) $(FILES:.c=.dbg.o)
+	$(AR) $(LFLAGS_STATIC) $(OUT_STATIC_DBG) $(FILES:.c=.dbg.o)
+	$(LD) $(FILES:.c=.dbg.o) $(LFLAGS_SHARED) -o $(OUT_SHARED_DBG)
 
 clean:
-	$(RM) $(OUT)
-	$(RM) $(OUT_DBG)
+	$(RM) $(OUT_STATIC)
+	$(RM) $(OUT_STATIC_DBG)
+	$(RM) $(OUT_SHARED)
+	$(RM) $(OUT_SHARED_DBG)
 	$(RM) $(FILES:.c=.o)
 	$(RM) $(FILES:.c=.dbg.o)
 
+####
+
 stats:
-	$(CLOC) $(FILES)
+	cloc $(FILES)
+
+symbols: release
+	nm -D $(OUT_SHARED)
 
 tidy:
-	$(TIDY) $(TIDY_FLAGS) $(FILES) -- $(TIDY_DEFINITIONS)
+	clang-tidy -checks=clang-analyzer-*,bugprone-*,cert-*,performance-*,portability-* $(FILES) -- $(CFLAGS_DBG)
+
