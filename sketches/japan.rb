@@ -44,4 +44,22 @@ module Japan
 	attach_function :SoundSaveAu, [Japan::Sound, :string], Japan::Error.by_value
 	attach_function :SoundSaveWav, [Japan::Sound, :string], Japan::Error.by_value
 	attach_function :SoundSaveRaw, [Japan::Sound, :string], Japan::Error.by_value
+
+	# ----------------
+
+	ImageFormat = enum(:gray8, :graya8, :rgb8, :rgba8,
+	                   :gray16, :graya16, :rgb16, :rgba16)
+
+	class Image < FFI::Struct
+	layout :width, :size_t,
+	       :height, :size_t,
+	       :size, :size_t,
+	       :format, ImageFormat,
+	       :data, :pointer
+	end
+
+	attach_function :ImageLoad, [:string, Japan::Error], Japan::Image
+	attach_function :ImageDelete, [Japan::Image], :void
+	attach_function :ImageSaveSgi, [Japan::Image, :string], Japan::Error.by_value
+	attach_function :ImageSaveRaw, [Japan::Image, :string], Japan::Error.by_value
 end

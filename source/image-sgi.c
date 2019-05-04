@@ -72,11 +72,38 @@ struct SgiHead
 
 /*-----------------------------
 
- sPlotInterleavedPixel()
+ sPlotPixel_8()
 -----------------------------*/
-static void sPlotInterleavedPixel(int channel, int total_channels, int row, int col, struct Image* image, uint8_t value)
+static inline void sPlotPixel_8(int channel, int row, int col, struct Image* image, uint8_t value)
 {
-	// The old code is broken :(
+	if(image->format == IMAGE_GRAY8 && channel < 1)
+	{
+		struct { uint8_t c[1]; } *data = image->data;
+
+		data += col + (image->width * row);
+		data->c[channel] = value;
+	}
+	if(image->format == IMAGE_GRAYA8 && channel < 2)
+	{
+		struct { uint8_t c[2]; } *data = image->data;
+
+		data += col + (image->width * row);
+		data->c[channel] = value;
+	}
+	else if(image->format == IMAGE_RGB8 && channel < 3)
+	{
+		struct { uint8_t c[3]; } *data = image->data;
+
+		data += col + (image->width * row);
+		data->c[channel] = value;
+	}
+	else if(image->format == IMAGE_RGBA8 && channel < 4)
+	{
+		struct { uint8_t c[4]; } *data = image->data;
+
+		data += col + (image->width * row);
+		data->c[channel] = value;
+	}
 }
 
 
@@ -97,7 +124,7 @@ static int sReadUncompressed_8(FILE* file, struct SgiHead* head, struct Image* i
 				if (fread(&pixel, 1, 1, file) != 1)
 					return 1;
 
-				sPlotInterleavedPixel(channel, head->z_size, row, col, image, pixel);
+				sPlotPixel_8(channel, row, col, image, pixel);
 			}
 		}
 	}
@@ -168,7 +195,7 @@ static int sReadCompressed_8(FILE* file, struct SgiHead* head, struct Image* ima
 						goto return_failure;
 
 					for (uint8_t s = 0; s < steps; s++)
-						sPlotInterleavedPixel(channel, head->z_size, row, col + s, image, value);
+						sPlotPixel_8(channel, row, col + s, image, value);
 				}
 
 				// Read following bytes values for x steps
@@ -179,7 +206,7 @@ static int sReadCompressed_8(FILE* file, struct SgiHead* head, struct Image* ima
 						if (fread(&value, 1, 1, file) != 1)
 							goto return_failure;
 
-						sPlotInterleavedPixel(channel, head->z_size, row, col + s, image, value);
+						sPlotPixel_8(channel, row, col + s, image, value);
 					}
 				}
 
@@ -200,20 +227,6 @@ return_failure:
 	free(buffer);
 	return 1;
 }
-
-
-/*-----------------------------
-
- sReadUncompressed_16()
------------------------------*/
-static int sReadUncompressed_16(FILE* file, struct SgiHead* head, struct Image* image) { return 1; }
-
-
-/*-----------------------------
-
- sReadCompressed_16()
------------------------------*/
-static int sReadCompressed_16(FILE* file, struct SgiHead* head, struct Image* image) { return 1; }
 
 
 /*-----------------------------
@@ -267,13 +280,13 @@ struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Error* e)
 		switch (head.pixel_type)
 		{
 		case 1:
-			ErrorSet(e, ERROR_OBSOLETE, "ImageLoadSgi", "dithered image ('%s')", head.precision, filename);
+			ErrorSet(e, ERROR_OBSOLETE, "ImageLoadSgi", "dithered image ('%s')", filename);
 			goto return_failure;
 		case 2:
-			ErrorSet(e, ERROR_OBSOLETE, "ImageLoadSgi", "indexed image ('%s')", head.precision, filename);
+			ErrorSet(e, ERROR_OBSOLETE, "ImageLoadSgi", "indexed image ('%s')", filename);
 			goto return_failure;
 		case 3:
-			ErrorSet(e, ERROR_OBSOLETE, "ImageLoadSgi", "palette data ('%s')", head.precision, filename);
+			ErrorSet(e, ERROR_OBSOLETE, "ImageLoadSgi", "palette data ('%s')", filename);
 			goto return_failure;
 		}
 	}
@@ -319,27 +332,6 @@ struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Error* e)
 			break;
 		}
 	}
-	else if (head.precision == 2)
-	{
-		// 16 bits per component imag
-		read_function = (head.compression == 0) ? sReadUncompressed_16 : sReadCompressed_16;
-
-		switch (head.z_size)
-		{
-		case 1:
-			format = IMAGE_GRAY16;
-			break;
-		case 2:
-			format = IMAGE_GRAYA16;
-			break;
-		case 3:
-			format = IMAGE_RGB16;
-			break;
-		case 4:
-			format = IMAGE_RGBA16;
-			break;
-		}
-	}
 	else
 	{
 		ErrorSet(e, ERROR_UNSUPPORTED, "ImageLoadSgi", "precision (%i, '%s')", head.precision, filename);
@@ -379,6 +371,9 @@ return_failure:
 -----------------------------*/
 export struct Error ImageSaveSgi(struct Image* image, const char* filename)
 {
+	(void)image;
+	(void)filename;
+
 	struct Error e = {.code = NO_ERROR};
 	return e;
 }

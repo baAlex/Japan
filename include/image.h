@@ -12,7 +12,7 @@
 
 	enum ImageFormat
 	{
-		IMAGE_GRAY8,
+		IMAGE_GRAY8 = 0,
 		IMAGE_GRAYA8,
 		IMAGE_RGB8,
 		IMAGE_RGBA8,
