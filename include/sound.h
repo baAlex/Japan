@@ -12,7 +12,7 @@
 
 	enum SoundFormat
 	{
-		SOUND_I8,
+		SOUND_I8 = 0,
 		SOUND_I16,
 		SOUND_I32,
 		SOUND_F32,

@@ -39,6 +39,9 @@ export void ErrorSet(struct Error* e, enum ErrorCode code, const char* function_
 {
 	va_list args;
 
+	if(e == NULL)
+		return;
+
 	e->code = code;
 
 	if (function_name != NULL)
@@ -87,5 +90,5 @@ export int ErrorPrint(struct Error e)
 		code_message = "Unkhown error";
 	}
 
-	return fprintf(stderr, "%s : %s%s%s\n", e.function_name, code_message, (explanation) ? ", " : "", explanation);
+	return fprintf(stderr, "%s : %s%s%s\n", e.function_name, code_message, (e.explanation[0] != '\0') ? ", " : "", explanation);
 }

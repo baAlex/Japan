@@ -7,9 +7,9 @@ AR=ar
 RM=rm -f
 
 OUT_STATIC=japan.a
-OUT_SHARED=japan.so
+OUT_SHARED=libjapan.so
 OUT_STATIC_DBG=japan-dbg.a
-OUT_SHARED_DBG=japan-dbg.so
+OUT_SHARED_DBG=libjapan-dbg.so
 
 CFLAGS=-c -O3 -fpic -mtune=generic -fvisibility=hidden -I./include
 CFLAGS_DBG=-c -O0 -fpic -std=c11 -Wall -Wextra -pedantic -g -I./include -DDEBUG
@@ -64,4 +64,3 @@ symbols: release
 
 tidy:
 	clang-tidy -checks=clang-analyzer-*,bugprone-*,cert-*,performance-*,portability-* $(FILES) -- $(CFLAGS_DBG)
-

@@ -42,9 +42,6 @@ detriment.
  - Alexander Brandt 2019
 
  https://webrtc.googlesource.com/src/+/refs/heads/master/modules/third_party/g711/g711.h
-
- $ clang "source/sound.c" "source/sound-au.c" "source/sound-wav.c" "source/endianness.c"\
-   "source/error.c" -I"./include" -DDEBUG -DSTANDALONE_TEST -o "./test"
 -----------------------------*/
 
 #include <stdint.h>
@@ -276,35 +273,3 @@ export struct Error SoundSaveRaw(struct Sound* sound, const char* filename)
 	fclose(file);
 	return e;
 }
-
-
-#ifdef STANDALONE_TEST
-int main(int argc, char* argv[])
-{
-	struct Sound* sound = NULL;
-	struct Error e = {0};
-
-	if (argc == 1)
-	{
-		ErrorSet(&e, ERROR_ARGUMENT, "main", "no input specified");
-		goto return_failure;
-	}
-
-	if ((sound = SoundLoad(argv[1], &e)) != NULL)
-	{
-		SoundSaveRaw(sound, "test.raw");
-		SoundSaveAu(sound, "test.au");
-		SoundSaveWav(sound, "test.wav");
-		SoundDelete(sound);
-	}
-	else
-		goto return_failure;
-
-	// Bye
-	return EXIT_SUCCESS;
-
-return_failure:
-	ErrorPrint(e);
-	return EXIT_FAILURE;
-}
-#endif
