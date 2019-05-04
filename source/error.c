@@ -32,9 +32,10 @@ SOFTWARE.
 #include <string.h>
 
 #include "error.h"
+#include "local.h"
 
 
-void ErrorSet(struct Error* e, enum ErrorCode code, const char* function_name, const char* explanation_fmt, ...)
+export void ErrorSet(struct Error* e, enum ErrorCode code, const char* function_name, const char* explanation_fmt, ...)
 {
 	va_list args;
 
@@ -52,7 +53,7 @@ void ErrorSet(struct Error* e, enum ErrorCode code, const char* function_name, c
 }
 
 
-int ErrorPrint(struct Error e)
+export int ErrorPrint(struct Error e)
 {
 	char* explanation = (e.explanation[0] != '\0') ? e.explanation : "";
 	char* code_message = NULL;

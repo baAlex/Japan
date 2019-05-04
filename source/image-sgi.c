@@ -38,6 +38,7 @@ SOFTWARE.
 
 #include "endianness.h"
 #include "image.h"
+#include "local.h"
 
 #ifdef DEBUG
 #define DEBUG_PRINT(fmt, ...) printf(fmt, __VA_ARGS__)
@@ -232,7 +233,7 @@ bool CheckMagicSgi(uint16_t value)
 
  ImageLoadSgi()
 -----------------------------*/
-extern struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Error* e)
+struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Error* e)
 {
 	struct Image* image = NULL;
 	struct SgiHead head;
@@ -376,7 +377,7 @@ return_failure:
 
  ImageSaveSgi()
 -----------------------------*/
-struct Error ImageSaveSgi(struct Image* image, const char* filename)
+export struct Error ImageSaveSgi(struct Image* image, const char* filename)
 {
 	struct Error e = {.code = NO_ERROR};
 	return e;

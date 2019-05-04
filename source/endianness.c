@@ -31,13 +31,14 @@ SOFTWARE.
 -----------------------------*/
 
 #include "endianness.h"
+#include "local.h"
 
 
 /*-----------------------------
 
  EndianSystem()
 -----------------------------*/
-inline enum Endianness EndianSystem()
+export inline enum Endianness EndianSystem()
 {
 	int16_t i = 1;
 	int8_t* p = (int8_t*)&i;
@@ -53,7 +54,7 @@ inline enum Endianness EndianSystem()
 
  EndianReverse
 -----------------------------*/
-inline uint64_t EndianReverse_64(uint64_t value)
+export inline uint64_t EndianReverse_64(uint64_t value)
 {
 	uint8_t b1 = value & 0xFF;
 	uint8_t b2 = (value >> 8) & 0xFF;
@@ -68,7 +69,7 @@ inline uint64_t EndianReverse_64(uint64_t value)
 		   ((uint64_t)b5 << 24) | ((uint64_t)b6 << 16) | ((uint64_t)b7 << 8) | b8;
 }
 
-inline uint32_t EndianReverse_32(uint32_t value)
+export inline uint32_t EndianReverse_32(uint32_t value)
 {
 	uint8_t b1 = value & 0xFF;
 	uint8_t b2 = (value >> 8) & 0xFF;
@@ -78,7 +79,7 @@ inline uint32_t EndianReverse_32(uint32_t value)
 	return ((uint32_t)b1 << 24) | ((uint32_t)b2 << 16) | ((uint32_t)b3 << 8) | b4;
 }
 
-inline uint16_t EndianReverse_16(uint16_t value)
+export inline uint16_t EndianReverse_16(uint16_t value)
 {
 	uint8_t b1 = value & 0xFF;
 	uint8_t b2 = (value >> 8);
@@ -91,7 +92,7 @@ inline uint16_t EndianReverse_16(uint16_t value)
 
  EndianBigToSystem
 -----------------------------*/
-inline uint64_t EndianBigToSystem_64(uint64_t value, enum Endianness system)
+export inline uint64_t EndianBigToSystem_64(uint64_t value, enum Endianness system)
 {
 	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
 
@@ -101,7 +102,7 @@ inline uint64_t EndianBigToSystem_64(uint64_t value, enum Endianness system)
 	return EndianReverse_64(value);
 }
 
-inline uint32_t EndianBigToSystem_32(uint32_t value, enum Endianness system)
+export inline uint32_t EndianBigToSystem_32(uint32_t value, enum Endianness system)
 {
 	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
 
@@ -111,7 +112,7 @@ inline uint32_t EndianBigToSystem_32(uint32_t value, enum Endianness system)
 	return EndianReverse_32(value);
 }
 
-inline uint16_t EndianBigToSystem_16(uint16_t value, enum Endianness system)
+export inline uint16_t EndianBigToSystem_16(uint16_t value, enum Endianness system)
 {
 	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
 
@@ -126,7 +127,7 @@ inline uint16_t EndianBigToSystem_16(uint16_t value, enum Endianness system)
 
  EndianLittleToSystem
 -----------------------------*/
-inline uint64_t EndianLittleToSystem_64(uint64_t value, enum Endianness system)
+export inline uint64_t EndianLittleToSystem_64(uint64_t value, enum Endianness system)
 {
 	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
 
@@ -136,7 +137,7 @@ inline uint64_t EndianLittleToSystem_64(uint64_t value, enum Endianness system)
 	return EndianReverse_64(value);
 }
 
-inline uint32_t EndianLittleToSystem_32(uint32_t value, enum Endianness system)
+export inline uint32_t EndianLittleToSystem_32(uint32_t value, enum Endianness system)
 {
 	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
 
@@ -146,7 +147,7 @@ inline uint32_t EndianLittleToSystem_32(uint32_t value, enum Endianness system)
 	return EndianReverse_32(value);
 }
 
-inline uint16_t EndianLittleToSystem_16(uint16_t value, enum Endianness system)
+export inline uint16_t EndianLittleToSystem_16(uint16_t value, enum Endianness system)
 {
 	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
 
@@ -161,7 +162,7 @@ inline uint16_t EndianLittleToSystem_16(uint16_t value, enum Endianness system)
 
  EndianSystemToBig
 -----------------------------*/
-inline uint64_t EndianSystemToBig_64(uint64_t value, enum Endianness system)
+export inline uint64_t EndianSystemToBig_64(uint64_t value, enum Endianness system)
 {
 	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
 
@@ -171,7 +172,7 @@ inline uint64_t EndianSystemToBig_64(uint64_t value, enum Endianness system)
 	return EndianReverse_64(value);
 }
 
-inline uint32_t EndianSystemToBig_32(uint32_t value, enum Endianness system)
+export inline uint32_t EndianSystemToBig_32(uint32_t value, enum Endianness system)
 {
 	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
 
@@ -181,7 +182,7 @@ inline uint32_t EndianSystemToBig_32(uint32_t value, enum Endianness system)
 	return EndianReverse_32(value);
 }
 
-inline uint16_t EndianSystemToBig_16(uint16_t value, enum Endianness system)
+export inline uint16_t EndianSystemToBig_16(uint16_t value, enum Endianness system)
 {
 	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
 
@@ -196,7 +197,7 @@ inline uint16_t EndianSystemToBig_16(uint16_t value, enum Endianness system)
 
  EndianSystemToLittle
 -----------------------------*/
-inline uint64_t EndianSystemToLittle_64(uint64_t value, enum Endianness system)
+export inline uint64_t EndianSystemToLittle_64(uint64_t value, enum Endianness system)
 {
 	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
 
@@ -206,7 +207,7 @@ inline uint64_t EndianSystemToLittle_64(uint64_t value, enum Endianness system)
 	return EndianReverse_64(value);
 }
 
-inline uint32_t EndianSystemToLittle_32(uint32_t value, enum Endianness system)
+export inline uint32_t EndianSystemToLittle_32(uint32_t value, enum Endianness system)
 {
 	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
 
@@ -216,7 +217,7 @@ inline uint32_t EndianSystemToLittle_32(uint32_t value, enum Endianness system)
 	return EndianReverse_32(value);
 }
 
-inline uint16_t EndianSystemToLittle_16(uint16_t value, enum Endianness system)
+export inline uint16_t EndianSystemToLittle_16(uint16_t value, enum Endianness system)
 {
 	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
 

@@ -33,6 +33,7 @@ SOFTWARE.
 #include <stdint.h>
 
 #include "buffer.h"
+#include "local.h"
 
 #ifdef DEBUG
 #include <stdio.h>
@@ -42,7 +43,7 @@ SOFTWARE.
 #endif
 
 
-void BufferClean(struct Buffer* buffer)
+export void BufferClean(struct Buffer* buffer)
 {
 	if (buffer->data != NULL)
 		free(buffer->data);
@@ -52,7 +53,7 @@ void BufferClean(struct Buffer* buffer)
 }
 
 
-void* BufferResize(struct Buffer* buffer, size_t new_size)
+export void* BufferResize(struct Buffer* buffer, size_t new_size)
 {
 	void* old_data = buffer->data;
 	size_t old_size = buffer->size;
@@ -76,7 +77,7 @@ void* BufferResize(struct Buffer* buffer, size_t new_size)
 }
 
 
-void* BufferResizeZero(struct Buffer* buffer, size_t new_size)
+export void* BufferResizeZero(struct Buffer* buffer, size_t new_size)
 {
 	size_t old_size = buffer->size;
 

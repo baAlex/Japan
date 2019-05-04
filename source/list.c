@@ -32,6 +32,7 @@ SOFTWARE.
 #include <string.h>
 
 #include "list.h"
+#include "local.h"
 
 
 /*-----------------------------
@@ -68,7 +69,7 @@ static struct ListItem* sAllocItem(struct List* list, void* data, size_t data_si
 
  ListClean()
 -----------------------------*/
-void ListClean(struct List* list)
+export void ListClean(struct List* list)
 {
 	while (list->last != NULL)
 		ListRemove(list->last); // NOLINT(clang-analyzer-unix.Malloc)
@@ -79,7 +80,7 @@ void ListClean(struct List* list)
 
  ListAdd()
 -----------------------------*/
-struct ListItem* ListAdd(struct List* list, void* data, size_t data_size)
+export struct ListItem* ListAdd(struct List* list, void* data, size_t data_size)
 {
 	struct ListItem* new_item = NULL;
 
@@ -106,7 +107,7 @@ struct ListItem* ListAdd(struct List* list, void* data, size_t data_size)
 
  ListAddAfter()
 -----------------------------*/
-struct ListItem* ListAddAfter(struct ListItem* item, void* data, size_t data_size)
+export struct ListItem* ListAddAfter(struct ListItem* item, void* data, size_t data_size)
 {
 	struct ListItem* new_item = NULL;
 
@@ -138,7 +139,7 @@ struct ListItem* ListAddAfter(struct ListItem* item, void* data, size_t data_siz
 
  ListAddBefore()
 -----------------------------*/
-struct ListItem* ListAddBefore(struct ListItem* item, void* data, size_t data_size)
+export struct ListItem* ListAddBefore(struct ListItem* item, void* data, size_t data_size)
 {
 	struct ListItem* new_item = NULL;
 
@@ -170,7 +171,7 @@ struct ListItem* ListAddBefore(struct ListItem* item, void* data, size_t data_si
 
  ListRemove()
 -----------------------------*/
-void ListRemove(struct ListItem* item)
+export void ListRemove(struct ListItem* item)
 {
 	ListDetach(item);
 
@@ -185,7 +186,7 @@ void ListRemove(struct ListItem* item)
 
  ListDetach()
 -----------------------------*/
-int ListDetach(struct ListItem* item)
+export int ListDetach(struct ListItem* item)
 {
 	if (item->list != NULL)
 	{
@@ -216,7 +217,7 @@ int ListDetach(struct ListItem* item)
 
  ListIterate()
 -----------------------------*/
-struct ListItem* ListIterate(struct ListState* state)
+export struct ListItem* ListIterate(struct ListState* state)
 {
 	struct ListItem* to_return = NULL;
 

@@ -35,6 +35,7 @@ SOFTWARE.
 #include <string.h>
 
 #include "image.h"
+#include "local.h"
 
 extern bool CheckMagicSgi(uint16_t value);
 // extern bool CheckMagicBmp(uint16_t value);
@@ -47,7 +48,7 @@ extern struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Error
 
  ImageCreate()
 -----------------------------*/
-struct Image* ImageCreate(enum ImageFormat format, size_t width, size_t height)
+export struct Image* ImageCreate(enum ImageFormat format, size_t width, size_t height)
 {
 	struct Image* image = NULL;
 	size_t size = 0;
@@ -97,14 +98,14 @@ struct Image* ImageCreate(enum ImageFormat format, size_t width, size_t height)
 
  ImageDelete()
 -----------------------------*/
-void ImageDelete(struct Image* image) { free(image); }
+export void ImageDelete(struct Image* image) { free(image); }
 
 
 /*-----------------------------
 
  ImageLoad()
 -----------------------------*/
-struct Image* ImageLoad(const char* filename, struct Error* e)
+export struct Image* ImageLoad(const char* filename, struct Error* e)
 {
 	FILE* file = NULL;
 	struct Image* image = NULL;
@@ -150,7 +151,7 @@ return_failure:
 
  ImageSaveRaw()
 -----------------------------*/
-struct Error ImageSaveRaw(struct Image* image, const char* filename)
+export struct Error ImageSaveRaw(struct Image* image, const char* filename)
 {
 	struct Error e = {.code = NO_ERROR};
 	FILE* file = NULL;

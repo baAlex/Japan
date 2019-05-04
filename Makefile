@@ -11,7 +11,7 @@ OUT_SHARED=japan.so
 OUT_STATIC_DBG=japan-dbg.a
 OUT_SHARED_DBG=japan-dbg.so
 
-CFLAGS=-c -O3 -fpic -mtune=generic -I./include
+CFLAGS=-c -O3 -fpic -mtune=generic -fvisibility=hidden -I./include
 CFLAGS_DBG=-c -O0 -fpic -std=c11 -Wall -Wextra -pedantic -g -I./include -DDEBUG
 
 LFLAGS_STATIC=rcs

@@ -31,6 +31,7 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
+#include "local.h"
 #include "tree.h"
 
 
@@ -38,7 +39,7 @@ SOFTWARE.
 
  TreeIterate()
 -----------------------------*/
-struct Tree* TreeIterate(struct TreeState* state, struct Buffer* buffer)
+export struct Tree* TreeIterate(struct TreeState* state, struct Buffer* buffer)
 {
 	struct Tree** future_parent_heap = NULL;
 
@@ -124,7 +125,7 @@ struct Tree* TreeIterate(struct TreeState* state, struct Buffer* buffer)
 
  TreeCreate()
 -----------------------------*/
-struct Tree* TreeCreate(struct Tree* parent, void* data, size_t data_size)
+export struct Tree* TreeCreate(struct Tree* parent, void* data, size_t data_size)
 {
 	struct Tree* tree = NULL;
 
@@ -158,7 +159,7 @@ struct Tree* TreeCreate(struct Tree* parent, void* data, size_t data_size)
 
  TreeDelete()
 -----------------------------*/
-void TreeDelete(struct Tree* tree)
+export void TreeDelete(struct Tree* tree)
 {
 	struct TreeState state;
 	struct Buffer buffer = {0};
@@ -185,7 +186,7 @@ void TreeDelete(struct Tree* tree)
 
  TreeAttach()
 -----------------------------*/
-int TreeAttach(struct Tree* tree, struct Tree* new_parent)
+export int TreeAttach(struct Tree* tree, struct Tree* new_parent)
 {
 	if (tree->parent == NULL && new_parent != NULL)
 	{
@@ -225,7 +226,7 @@ int TreeAttach(struct Tree* tree, struct Tree* new_parent)
 
  TreeDetach()
 -----------------------------*/
-int TreeDetach(struct Tree* tree)
+export int TreeDetach(struct Tree* tree)
 {
 	if (tree->parent != NULL)
 	{

@@ -34,6 +34,7 @@ SOFTWARE.
 #include <string.h>
 
 #include "endianness.h"
+#include "local.h"
 #include "sound-local.h"
 
 #ifdef DEBUG
@@ -192,7 +193,7 @@ return_failure:
 
  SoundSaveAu()
 -----------------------------*/
-struct Error SoundSaveAu(struct Sound* sound, const char* filename)
+export struct Error SoundSaveAu(struct Sound* sound, const char* filename)
 {
 	struct Error e = {.code = NO_ERROR};
 	struct AuHead head;

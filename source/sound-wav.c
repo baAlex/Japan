@@ -34,6 +34,7 @@ SOFTWARE.
 #include <string.h>
 
 #include "endianness.h"
+#include "local.h"
 #include "sound-local.h"
 
 #ifdef DEBUG
@@ -67,7 +68,7 @@ struct Sound* SoundLoadWav(FILE* file, const char* filename, struct Error* e)
 
  SoundSaveWav()
 -----------------------------*/
-struct Error SoundSaveWav(struct Sound* sound, const char* filename)
+export struct Error SoundSaveWav(struct Sound* sound, const char* filename)
 {
 	struct Error e = {.code = NO_ERROR};
 	return e;
