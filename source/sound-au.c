@@ -33,7 +33,6 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
-#include "endianness.h"
 #include "local.h"
 #include "sound-local.h"
 
@@ -75,7 +74,7 @@ struct AuHead
 -----------------------------*/
 bool CheckMagicAu(uint32_t value)
 {
-	if (EndianBigToSystem_32(value, ENDIAN_UNKNOWN) == AU_MAGIC)
+	if (EndianTo_32(value, ENDIAN_BIG, ENDIAN_SYSTEM) == AU_MAGIC)
 		return true;
 
 	return false;
@@ -104,11 +103,11 @@ struct Sound* SoundLoadAu(FILE* file, const char* filename, struct Error* e)
 		goto return_failure;
 	}
 
-	head.data_offset = EndianBigToSystem_32(head.data_offset, sys_endianness);
-	head.data_size = EndianBigToSystem_32(head.data_size, sys_endianness);
-	head.format = EndianBigToSystem_32(head.format, sys_endianness);
-	head.frequency = EndianBigToSystem_32(head.frequency, sys_endianness);
-	head.channels = EndianBigToSystem_32(head.channels, sys_endianness);
+	head.data_offset = EndianTo_32(head.data_offset, ENDIAN_BIG, sys_endianness);
+	head.data_size = EndianTo_32(head.data_size, ENDIAN_BIG, sys_endianness);
+	head.format = EndianTo_32(head.format, ENDIAN_BIG, sys_endianness);
+	head.frequency = EndianTo_32(head.frequency, ENDIAN_BIG, sys_endianness);
+	head.channels = EndianTo_32(head.channels, ENDIAN_BIG, sys_endianness);
 
 	DEBUG_PRINT("(Au) '%s':\n", filename);
 	DEBUG_PRINT(" - Data offset: 0x%04X\n", head.data_offset);
@@ -212,28 +211,28 @@ export struct Error SoundSaveAu(struct Sound* sound, const char* filename)
 	}
 
 	// Head
-	head.magic = EndianSystemToBig_32(AU_MAGIC, sys_endianness);
-	head.data_offset = EndianSystemToBig_32(sizeof(struct AuHead), sys_endianness);
-	head.data_size = EndianSystemToBig_32((uint32_t)sound->size, sys_endianness);
-	head.frequency = EndianSystemToBig_32((uint32_t)sound->frequency, sys_endianness);
-	head.channels = EndianSystemToBig_32((uint32_t)sound->channels, sys_endianness);
+	head.magic = EndianTo_32(AU_MAGIC, sys_endianness, ENDIAN_BIG);
+	head.data_offset = EndianTo_32(sizeof(struct AuHead), sys_endianness, ENDIAN_BIG);
+	head.data_size = EndianTo_32((uint32_t)sound->size, sys_endianness, ENDIAN_BIG);
+	head.frequency = EndianTo_32((uint32_t)sound->frequency, sys_endianness, ENDIAN_BIG);
+	head.channels = EndianTo_32((uint32_t)sound->channels, sys_endianness, ENDIAN_BIG);
 
 	switch (sound->format)
 	{
 	case SOUND_I8:
-		head.format = EndianSystemToBig_32(AU_PCM8, sys_endianness);
+		head.format = EndianTo_32(AU_PCM8, sys_endianness, ENDIAN_BIG);
 		break;
 	case SOUND_I16:
-		head.format = EndianSystemToBig_32(AU_PCM16, sys_endianness);
+		head.format = EndianTo_32(AU_PCM16, sys_endianness, ENDIAN_BIG);
 		break;
 	case SOUND_I32:
-		head.format = EndianSystemToBig_32(AU_PCM32, sys_endianness);
+		head.format = EndianTo_32(AU_PCM32, sys_endianness, ENDIAN_BIG);
 		break;
 	case SOUND_F32:
-		head.format = EndianSystemToBig_32(AU_FLOAT, sys_endianness);
+		head.format = EndianTo_32(AU_FLOAT, sys_endianness, ENDIAN_BIG);
 		break;
 	case SOUND_F64:
-		head.format = EndianSystemToBig_32(AU_DOUBLE, sys_endianness);
+		head.format = EndianTo_32(AU_DOUBLE, sys_endianness, ENDIAN_BIG);
 		break;
 	}
 
@@ -262,11 +261,11 @@ export struct Error SoundSaveAu(struct Sound* sound, const char* filename)
 			if (sound->format == SOUND_I8)
 				sample.u8 = ((uint8_t*)src)[c];
 			else if (sound->format == SOUND_I16)
-				sample.u16 = EndianBigToSystem_16(((uint16_t*)src)[c], sys_endianness);
+				sample.u16 = EndianTo_16(((uint16_t*)src)[c], sys_endianness, ENDIAN_BIG);
 			else if (sound->format == SOUND_I32 || sound->format == SOUND_F32)
-				sample.u32 = EndianBigToSystem_32(((uint32_t*)src)[c], sys_endianness);
+				sample.u32 = EndianTo_32(((uint32_t*)src)[c], sys_endianness, ENDIAN_BIG);
 			else if (sound->format == SOUND_F64)
-				sample.u64 = EndianBigToSystem_64(((uint64_t*)src)[c], sys_endianness);
+				sample.u64 = EndianTo_64(((uint64_t*)src)[c], sys_endianness, ENDIAN_BIG);
 
 			if (fwrite(&sample, bytes, 1, file) != 1)
 			{

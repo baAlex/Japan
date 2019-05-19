@@ -90,150 +90,12 @@ export inline uint16_t EndianReverse_16(uint16_t value)
 
 /*-----------------------------
 
- EndianBigToSystem
------------------------------*/
-export inline uint64_t EndianBigToSystem_64(uint64_t value, enum Endianness system)
-{
-	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
-
-	if (system == ENDIAN_BIG)
-		return value;
-
-	return EndianReverse_64(value);
-}
-
-export inline uint32_t EndianBigToSystem_32(uint32_t value, enum Endianness system)
-{
-	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
-
-	if (system == ENDIAN_BIG)
-		return value;
-
-	return EndianReverse_32(value);
-}
-
-export inline uint16_t EndianBigToSystem_16(uint16_t value, enum Endianness system)
-{
-	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
-
-	if (system == ENDIAN_BIG)
-		return value;
-
-	return EndianReverse_16(value);
-}
-
-
-/*-----------------------------
-
- EndianLittleToSystem
------------------------------*/
-export inline uint64_t EndianLittleToSystem_64(uint64_t value, enum Endianness system)
-{
-	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
-
-	if (system == ENDIAN_LITTLE)
-		return value;
-
-	return EndianReverse_64(value);
-}
-
-export inline uint32_t EndianLittleToSystem_32(uint32_t value, enum Endianness system)
-{
-	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
-
-	if (system == ENDIAN_LITTLE)
-		return value;
-
-	return EndianReverse_32(value);
-}
-
-export inline uint16_t EndianLittleToSystem_16(uint16_t value, enum Endianness system)
-{
-	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
-
-	if (system == ENDIAN_LITTLE)
-		return value;
-
-	return EndianReverse_16(value);
-}
-
-
-/*-----------------------------
-
- EndianSystemToBig
------------------------------*/
-export inline uint64_t EndianSystemToBig_64(uint64_t value, enum Endianness system)
-{
-	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
-
-	if (system == ENDIAN_BIG)
-		return value;
-
-	return EndianReverse_64(value);
-}
-
-export inline uint32_t EndianSystemToBig_32(uint32_t value, enum Endianness system)
-{
-	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
-
-	if (system == ENDIAN_BIG)
-		return value;
-
-	return EndianReverse_32(value);
-}
-
-export inline uint16_t EndianSystemToBig_16(uint16_t value, enum Endianness system)
-{
-	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
-
-	if (system == ENDIAN_BIG)
-		return value;
-
-	return EndianReverse_16(value);
-}
-
-
-/*-----------------------------
-
- EndianSystemToLittle
------------------------------*/
-export inline uint64_t EndianSystemToLittle_64(uint64_t value, enum Endianness system)
-{
-	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
-
-	if (system == ENDIAN_LITTLE)
-		return value;
-
-	return EndianReverse_64(value);
-}
-
-export inline uint32_t EndianSystemToLittle_32(uint32_t value, enum Endianness system)
-{
-	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
-
-	if (system == ENDIAN_LITTLE)
-		return value;
-
-	return EndianReverse_32(value);
-}
-
-export inline uint16_t EndianSystemToLittle_16(uint16_t value, enum Endianness system)
-{
-	system = (system == ENDIAN_UNKNOWN) ? EndianSystem() : system;
-
-	if (system == ENDIAN_LITTLE)
-		return value;
-
-	return EndianReverse_16(value);
-}
-
-
-/*-----------------------------
-
- EndianSystemToLittle
+ EndianTo
 -----------------------------*/
 export uint64_t EndianTo_64(uint64_t value, enum Endianness from, enum Endianness to)
 {
+	to = (to == ENDIAN_SYSTEM) ? EndianSystem() : to;
+
 	if (from == to)
 		return value;
 
@@ -242,6 +104,8 @@ export uint64_t EndianTo_64(uint64_t value, enum Endianness from, enum Endiannes
 
 export uint32_t EndianTo_32(uint32_t value, enum Endianness from, enum Endianness to)
 {
+	to = (to == ENDIAN_SYSTEM) ? EndianSystem() : to;
+
 	if (from == to)
 		return value;
 
@@ -250,6 +114,8 @@ export uint32_t EndianTo_32(uint32_t value, enum Endianness from, enum Endiannes
 
 export uint16_t EndianTo_16(uint16_t value, enum Endianness from, enum Endianness to)
 {
+	to = (to == ENDIAN_SYSTEM) ? EndianSystem() : to;
+
 	if (from == to)
 		return value;
 

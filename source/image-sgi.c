@@ -159,8 +159,8 @@ static int sReadCompressed_8(FILE* file, struct SgiHead* head, struct Image* ima
 
 	for (size_t i = 0; i < table_len; i++)
 	{
-		offset_table[i] = EndianBigToSystem_32(offset_table[i], ENDIAN_UNKNOWN);
-		size_table[i] = EndianBigToSystem_32(size_table[i], ENDIAN_UNKNOWN);
+		offset_table[i] = EndianTo_32(offset_table[i], ENDIAN_BIG, ENDIAN_SYSTEM);
+		size_table[i] = EndianTo_32(size_table[i], ENDIAN_BIG, ENDIAN_SYSTEM);
 	}
 
 	// Data
@@ -235,7 +235,7 @@ return_failure:
 -----------------------------*/
 bool CheckMagicSgi(uint16_t value)
 {
-	if (EndianBigToSystem_16(value, ENDIAN_UNKNOWN) == SGI_MAGIC)
+	if (EndianTo_16(value, ENDIAN_BIG, ENDIAN_SYSTEM) == SGI_MAGIC)
 		return true;
 
 	return false;
@@ -263,11 +263,11 @@ struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Error* e)
 		goto return_failure;
 	}
 
-	head.dimension = EndianBigToSystem_16(head.dimension, sys_endianness);
-	head.x_size = EndianBigToSystem_16(head.x_size, sys_endianness);
-	head.y_size = EndianBigToSystem_16(head.y_size, sys_endianness);
-	head.z_size = EndianBigToSystem_16(head.z_size, sys_endianness);
-	head.pixel_type = EndianBigToSystem_32(head.pixel_type, sys_endianness);
+	head.dimension = EndianTo_16(head.dimension, ENDIAN_BIG, sys_endianness);
+	head.x_size = EndianTo_16(head.x_size, ENDIAN_BIG, sys_endianness);
+	head.y_size = EndianTo_16(head.y_size, ENDIAN_BIG, sys_endianness);
+	head.z_size = EndianTo_16(head.z_size, ENDIAN_BIG, sys_endianness);
+	head.pixel_type = EndianTo_32(head.pixel_type, ENDIAN_BIG, sys_endianness);
 
 	DEBUG_PRINT("(Sgi) '%s':\n", filename);
 	DEBUG_PRINT(" - Compression: %s\n", (head.compression == 0) ? "no" : "rle");
@@ -416,12 +416,12 @@ export struct Error ImageSaveSgi(struct Image* image, const char* filename)
 	}
 
 	// Head
-	head.magic = EndianSystemToBig_16(SGI_MAGIC, sys_endianness);
+	head.magic = EndianTo_16(SGI_MAGIC, sys_endianness, ENDIAN_BIG);
 	head.compression = 0;
-	head.dimension = EndianSystemToBig_16(3, sys_endianness);
+	head.dimension = EndianTo_16(3, sys_endianness, ENDIAN_BIG);
 
-	head.x_size = EndianSystemToBig_16(image->width, sys_endianness);
-	head.y_size = EndianSystemToBig_16(image->height, sys_endianness);
+	head.x_size = EndianTo_16(image->width, sys_endianness, ENDIAN_BIG);
+	head.y_size = EndianTo_16(image->height, sys_endianness, ENDIAN_BIG);
 
 	head.pixel_type = 0;
 
@@ -429,22 +429,22 @@ export struct Error ImageSaveSgi(struct Image* image, const char* filename)
 	{
 	case IMAGE_GRAY8:
 		channels = 1;
-		head.z_size = EndianSystemToBig_16(channels, sys_endianness);
+		head.z_size = EndianTo_16(channels, sys_endianness, ENDIAN_BIG);
 		head.precision = 1;
 		break;
 	case IMAGE_GRAYA8:
 		channels = 2;
-		head.z_size = EndianSystemToBig_16(channels, sys_endianness);
+		head.z_size = EndianTo_16(channels, sys_endianness, ENDIAN_BIG);
 		head.precision = 1;
 		break;
 	case IMAGE_RGB8:
 		channels = 3;
-		head.z_size = EndianSystemToBig_16(channels, sys_endianness);
+		head.z_size = EndianTo_16(channels, sys_endianness, ENDIAN_BIG);
 		head.precision = 1;
 		break;
 	case IMAGE_RGBA8:
 		channels = 4;
-		head.z_size = EndianSystemToBig_16(channels, sys_endianness);
+		head.z_size = EndianTo_16(channels, sys_endianness, ENDIAN_BIG);
 		head.precision = 1;
 		break;
 	default:

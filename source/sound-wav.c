@@ -33,7 +33,6 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
-#include "endianness.h"
 #include "local.h"
 #include "sound-local.h"
 
@@ -131,7 +130,7 @@ struct Sound* SoundLoadWav(FILE* file, const char* filename, struct Error* e)
 		goto return_failure;
 	}
 
-	temp.head.size = EndianLittleToSystem_32(temp.head.size, sys_endianness);
+	temp.head.size = EndianTo_32(temp.head.size, ENDIAN_LITTLE, sys_endianness);
 
 	if (strncmp(temp.head.id, RIFF_ID, ID_LEN) != 0 || temp.head.size < sizeof(struct RiffBlock)) // (*a)
 	{
@@ -168,7 +167,7 @@ struct Sound* SoundLoadWav(FILE* file, const char* filename, struct Error* e)
 				break; // We have all we need
 		}
 
-		temp.head.size = EndianLittleToSystem_32(temp.head.size, sys_endianness);
+		temp.head.size = EndianTo_32(temp.head.size, ENDIAN_LITTLE, sys_endianness);
 
 		// Format block
 		if (strncmp(temp.head.id, FMT_ID, ID_LEN) == 0)
@@ -185,12 +184,12 @@ struct Sound* SoundLoadWav(FILE* file, const char* filename, struct Error* e)
 				goto return_failure;
 			}
 
-			fmt.format = EndianLittleToSystem_16(fmt.format, sys_endianness);
-			fmt.channels = EndianLittleToSystem_16(fmt.channels, sys_endianness);
-			fmt.frequency = EndianLittleToSystem_32(fmt.frequency, sys_endianness);
-			fmt.avg_bytes_frequency = EndianLittleToSystem_32(fmt.avg_bytes_frequency, sys_endianness);
-			fmt.data_align_size = EndianLittleToSystem_16(fmt.data_align_size, sys_endianness);
-			fmt.bits_per_sample = EndianLittleToSystem_16(fmt.bits_per_sample, sys_endianness);
+			fmt.format = EndianTo_16(fmt.format, ENDIAN_LITTLE, sys_endianness);
+			fmt.channels = EndianTo_16(fmt.channels, ENDIAN_LITTLE, sys_endianness);
+			fmt.frequency = EndianTo_32(fmt.frequency, ENDIAN_LITTLE, sys_endianness);
+			fmt.avg_bytes_frequency = EndianTo_32(fmt.avg_bytes_frequency, ENDIAN_LITTLE, sys_endianness);
+			fmt.data_align_size = EndianTo_16(fmt.data_align_size, ENDIAN_LITTLE, sys_endianness);
+			fmt.bits_per_sample = EndianTo_16(fmt.bits_per_sample, ENDIAN_LITTLE, sys_endianness);
 
 			DEBUG_PRINT(" - Bits per sample: %u\n", fmt.bits_per_sample);
 			DEBUG_PRINT(" - Format: 0x%04X\n", fmt.format);
