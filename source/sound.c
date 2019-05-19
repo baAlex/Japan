@@ -60,7 +60,7 @@ detriment.
 
  ReadPcm()
 -----------------------------*/
-int ReadPcm(FILE* file, struct Sound* sound)
+int ReadPcm(FILE* file, struct Sound* sound, enum Endianness org_endianness)
 {
 	int8_t* dest = sound->data;
 
@@ -70,6 +70,7 @@ int ReadPcm(FILE* file, struct Sound* sound)
 	if (sound->format != SOUND_I8)
 	{
 		enum Endianness sys_endianness = EndianSystem();
+
 		size_t bytes = sound->size / sound->length / sound->channels;
 		int8_t* end = (int8_t*)sound->data + sound->size;
 
@@ -77,19 +78,19 @@ int ReadPcm(FILE* file, struct Sound* sound)
 		{
 			for (dest = sound->data; dest < end; dest += (bytes * sound->channels))
 				for (size_t c = 0; c < sound->channels; c++)
-					((uint16_t*)dest)[c] = EndianBigToSystem_16(((uint16_t*)dest)[c], sys_endianness);
+					((uint16_t*)dest)[c] = EndianTo_16(((uint16_t*)dest)[c], org_endianness, sys_endianness);
 		}
 		else if (sound->format == SOUND_I32 || sound->format == SOUND_F32)
 		{
 			for (dest = sound->data; dest < end; dest += (bytes * sound->channels))
 				for (size_t c = 0; c < sound->channels; c++)
-					((uint32_t*)dest)[c] = EndianBigToSystem_32(((uint32_t*)dest)[c], sys_endianness);
+					((uint32_t*)dest)[c] = EndianTo_32(((uint32_t*)dest)[c], org_endianness, sys_endianness);
 		}
 		else if (sound->format == SOUND_F64)
 		{
 			for (dest = sound->data; dest < end; dest += (bytes * sound->channels))
 				for (size_t c = 0; c < sound->channels; c++)
-					((uint64_t*)dest)[c] = EndianBigToSystem_64(((uint64_t*)dest)[c], sys_endianness);
+					((uint64_t*)dest)[c] = EndianTo_64(((uint64_t*)dest)[c], org_endianness, sys_endianness);
 		}
 	}
 
@@ -101,8 +102,10 @@ int ReadPcm(FILE* file, struct Sound* sound)
 
  ReadULaw()
 -----------------------------*/
-int ReadULaw(FILE* file, struct Sound* sound)
+int ReadULaw(FILE* file, struct Sound* sound, enum Endianness org_endianness)
 {
+	(void)org_endianness;
+
 	int16_t* end = (int16_t*)sound->data + (sound->length * sound->channels);
 	uint8_t compressed = 0;
 	int t;
@@ -126,8 +129,10 @@ int ReadULaw(FILE* file, struct Sound* sound)
 
  ReadALaw()
 -----------------------------*/
-int ReadALaw(FILE* file, struct Sound* sound)
+int ReadALaw(FILE* file, struct Sound* sound, enum Endianness org_endianness)
 {
+	(void)org_endianness;
+
 	int16_t* end = (int16_t*)sound->data + (sound->length * sound->channels);
 	uint8_t compressed = 0;
 	int i, seg;

@@ -226,3 +226,32 @@ export inline uint16_t EndianSystemToLittle_16(uint16_t value, enum Endianness s
 
 	return EndianReverse_16(value);
 }
+
+
+/*-----------------------------
+
+ EndianSystemToLittle
+-----------------------------*/
+export uint64_t EndianTo_64(uint64_t value, enum Endianness from, enum Endianness to)
+{
+	if (from == to)
+		return value;
+
+	return EndianReverse_64(value);
+}
+
+export uint32_t EndianTo_32(uint32_t value, enum Endianness from, enum Endianness to)
+{
+	if (from == to)
+		return value;
+
+	return EndianReverse_32(value);
+}
+
+export uint16_t EndianTo_16(uint16_t value, enum Endianness from, enum Endianness to)
+{
+	if (from == to)
+		return value;
+
+	return EndianReverse_16(value);
+}

@@ -38,4 +38,8 @@
 	uint32_t EndianSystemToLittle_32(uint32_t value, enum Endianness system);
 	uint16_t EndianSystemToLittle_16(uint16_t value, enum Endianness system);
 
+	uint64_t EndianTo_64(uint64_t value, enum Endianness from, enum Endianness to);
+	uint32_t EndianTo_32(uint32_t value, enum Endianness from, enum Endianness to);
+	uint16_t EndianTo_16(uint16_t value, enum Endianness from, enum Endianness to);
+
 #endif

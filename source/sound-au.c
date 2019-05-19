@@ -93,7 +93,7 @@ struct Sound* SoundLoadAu(FILE* file, const char* filename, struct Error* e)
 	enum Endianness sys_endianness = EndianSystem();
 	size_t length = 0;
 	enum SoundFormat format = 0;
-	int (*read_function)(FILE*, struct Sound*);
+	int (*read_function)(FILE*, struct Sound*, enum Endianness);
 
 	ErrorSet(e, NO_ERROR, NULL, NULL);
 
@@ -104,7 +104,6 @@ struct Sound* SoundLoadAu(FILE* file, const char* filename, struct Error* e)
 		goto return_failure;
 	}
 
-	head.magic = EndianBigToSystem_32(head.magic, sys_endianness);
 	head.data_offset = EndianBigToSystem_32(head.data_offset, sys_endianness);
 	head.data_size = EndianBigToSystem_32(head.data_size, sys_endianness);
 	head.format = EndianBigToSystem_32(head.format, sys_endianness);
@@ -172,7 +171,7 @@ struct Sound* SoundLoadAu(FILE* file, const char* filename, struct Error* e)
 	if ((sound = SoundCreate(format, length, head.channels, head.frequency)) == NULL)
 		goto return_failure;
 
-	if (read_function(file, sound) != 0)
+	if (read_function(file, sound, ENDIAN_BIG) != 0)
 	{
 		ErrorSet(e, ERROR_BROKEN, "SoundLoadAu", "data ('%s')", filename);
 		goto return_failure;
