@@ -14,7 +14,7 @@
 	{
 		SOUND_I8 = 0,
 		SOUND_I16,
-		SOUND_I32,
+		SOUND_I32, // TODO: Wav support
 		SOUND_F32,
 		SOUND_F64
 	};

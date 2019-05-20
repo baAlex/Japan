@@ -33,14 +33,7 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
-#include "local.h"
-#include "sound-local.h"
-
-#ifdef DEBUG
-#define DEBUG_PRINT(fmt, ...) printf(fmt, __VA_ARGS__)
-#else
-#define DEBUG_PRINT(fmt, ...)
-#endif
+#include "sound-private.h"
 
 #define AU_MAGIC 0x2E736E64
 
@@ -191,7 +184,7 @@ return_failure:
 
  SoundSaveAu()
 -----------------------------*/
-export struct Error SoundSaveAu(struct Sound* sound, const char* filename)
+EXPORT struct Error SoundSaveAu(struct Sound* sound, const char* filename)
 {
 	struct Error e = {.code = NO_ERROR};
 	struct AuHead head;

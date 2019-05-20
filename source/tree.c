@@ -31,15 +31,20 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
-#include "local.h"
 #include "tree.h"
+
+#ifdef EXPORT_SYMBOLS
+#define EXPORT __attribute__((visibility("default")))
+#else
+#define EXPORT // Whitespace
+#endif
 
 
 /*-----------------------------
 
  TreeIterate()
 -----------------------------*/
-export struct Tree* TreeIterate(struct TreeState* state, struct Buffer* buffer)
+EXPORT struct Tree* TreeIterate(struct TreeState* state, struct Buffer* buffer)
 {
 	struct Tree** future_parent_heap = NULL;
 
@@ -125,7 +130,7 @@ export struct Tree* TreeIterate(struct TreeState* state, struct Buffer* buffer)
 
  TreeCreate()
 -----------------------------*/
-export struct Tree* TreeCreate(struct Tree* parent, void* data, size_t data_size)
+EXPORT struct Tree* TreeCreate(struct Tree* parent, void* data, size_t data_size)
 {
 	struct Tree* tree = NULL;
 
@@ -159,7 +164,7 @@ export struct Tree* TreeCreate(struct Tree* parent, void* data, size_t data_size
 
  TreeDelete()
 -----------------------------*/
-export void TreeDelete(struct Tree* tree)
+EXPORT void TreeDelete(struct Tree* tree)
 {
 	struct TreeState state;
 	struct Buffer buffer = {0};
@@ -186,7 +191,7 @@ export void TreeDelete(struct Tree* tree)
 
  TreeAttach()
 -----------------------------*/
-export int TreeAttach(struct Tree* tree, struct Tree* new_parent)
+EXPORT int TreeAttach(struct Tree* tree, struct Tree* new_parent)
 {
 	if (tree->parent == NULL && new_parent != NULL)
 	{
@@ -226,7 +231,7 @@ export int TreeAttach(struct Tree* tree, struct Tree* new_parent)
 
  TreeDetach()
 -----------------------------*/
-export int TreeDetach(struct Tree* tree)
+EXPORT int TreeDetach(struct Tree* tree)
 {
 	if (tree->parent != NULL)
 	{

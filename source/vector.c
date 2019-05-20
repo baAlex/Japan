@@ -29,78 +29,83 @@ SOFTWARE.
 -----------------------------*/
 
 #include <math.h>
-#include "local.h"
 #include "vector.h"
 
+#ifdef EXPORT_SYMBOLS
+#define EXPORT __attribute__((visibility("default")))
+#else
+#define EXPORT // Whitespace
+#endif
 
-export inline struct Vector VectorClean()
+
+EXPORT inline struct Vector VectorClean()
 {
 	return (struct Vector){0.0, 0.0, 0.0};
 }
 
 
-export inline struct Vector VectorSet(float x, float y, float z)
+EXPORT inline struct Vector VectorSet(float x, float y, float z)
 {
 	return (struct Vector){x, y, z};
 }
 
 
-export inline struct Vector VectorAdd(struct Vector a, struct Vector b)
+EXPORT inline struct Vector VectorAdd(struct Vector a, struct Vector b)
 {
 	return (struct Vector){(a.x + b.x), (a.y + b.y), (a.z + b.z)};
 }
 
 
-export inline struct Vector VectorSubtract(struct Vector a, struct Vector b)
+EXPORT inline struct Vector VectorSubtract(struct Vector a, struct Vector b)
 {
 	return (struct Vector){(a.x - b.x), (a.y - b.y), (a.z - b.z)};
 }
 
 
-export inline struct Vector VectorMultiply(struct Vector a, struct Vector b)
+EXPORT inline struct Vector VectorMultiply(struct Vector a, struct Vector b)
 {
 	return (struct Vector){(a.x * b.x), (a.y * b.y), (a.z * b.z)};
 }
 
 
-export inline struct Vector VectorDivide(struct Vector a, struct Vector b)
+EXPORT inline struct Vector VectorDivide(struct Vector a, struct Vector b)
 {
 	return (struct Vector){(a.x / b.x), (a.y / b.y), (a.z / b.z)};
 }
 
 
-export inline struct Vector VectorInvert(struct Vector v)
+EXPORT inline struct Vector VectorInvert(struct Vector v)
 {
 	return (struct Vector){(-v.x), (-v.y), (-v.z)};
 }
 
 
-export inline struct Vector VectorScale(struct Vector v, float scale)
+EXPORT inline struct Vector VectorScale(struct Vector v, float scale)
 {
 	return (struct Vector){(v.x * scale), (v.y * scale), (v.z * scale)};
 }
 
 
-export inline struct Vector VectorNormalize(struct Vector v)
+EXPORT inline struct Vector VectorNormalize(struct Vector v)
 {
 	float length = VectorLength(v);
 	return (struct Vector){(v.x / length), (v.y / length), (v.z / length)};
 }
 
 
-export inline float VectorLength(struct Vector v)
+EXPORT inline float VectorLength(struct Vector v)
 {
 	return sqrtf(powf(v.x, 2.0) + powf(v.y, 2.0) + powf(v.z, 2.0));
 }
 
 
-export inline float VectorDistance(struct Vector a, struct Vector b)
+EXPORT inline float VectorDistance(struct Vector a, struct Vector b)
 {
 	return sqrtf(powf(b.x - a.x, 2.0) + powf(b.y - a.y, 2.0) + powf(b.z - a.z, 2.0));
 }
 
 
-export inline bool VectorEquals(struct Vector a, struct Vector b)
+EXPORT inline bool VectorEquals(struct Vector a, struct Vector b)
 {
 	if (a.x != b.x || a.y != b.y || a.z != b.z)
 		return false;

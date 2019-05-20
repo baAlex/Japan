@@ -33,7 +33,6 @@ SOFTWARE.
 #include <stdint.h>
 
 #include "buffer.h"
-#include "local.h"
 
 #ifdef DEBUG
 #include <stdio.h>
@@ -42,8 +41,15 @@ SOFTWARE.
 #define DEBUG_PRINT(fmt, ...)
 #endif
 
+#ifdef EXPORT_SYMBOLS
+#define EXPORT __attribute__((visibility("default")))
+#else
+#define EXPORT // Whitespace
+#endif
 
-export void BufferClean(struct Buffer* buffer)
+
+
+EXPORT void BufferClean(struct Buffer* buffer)
 {
 	if (buffer->data != NULL)
 		free(buffer->data);
@@ -53,7 +59,7 @@ export void BufferClean(struct Buffer* buffer)
 }
 
 
-export void* BufferResize(struct Buffer* buffer, size_t new_size)
+EXPORT void* BufferResize(struct Buffer* buffer, size_t new_size)
 {
 	void* old_data = buffer->data;
 	size_t old_size = buffer->size;
@@ -77,7 +83,7 @@ export void* BufferResize(struct Buffer* buffer, size_t new_size)
 }
 
 
-export void* BufferResizeZero(struct Buffer* buffer, size_t new_size)
+EXPORT void* BufferResizeZero(struct Buffer* buffer, size_t new_size)
 {
 	size_t old_size = buffer->size;
 

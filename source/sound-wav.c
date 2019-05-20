@@ -33,20 +33,13 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
-#include "local.h"
-#include "sound-local.h"
-
-#ifdef DEBUG
-#define DEBUG_PRINT(fmt, ...) printf(fmt, __VA_ARGS__)
-#else
-#define DEBUG_PRINT(fmt, ...)
-#endif
+#include "sound-private.h"
 
 #define WAVE_FORMAT_PCM 0x0001
 #define WAVE_FORMAT_IEEE_FLOAT 0x0003 // Requires a Fact block, ignored here
 #define WAVE_FORMAT_ALAW 0x0006		  // Same as above
 #define WAVE_FORMAT_ULAW 0x0007		  // Same as above
-#define WAVE_FORMAT_SUBFORMAT 0xFFFE
+#define WAVE_FORMAT_EXTENSIBLE 0xFFFE
 
 #define ID_LEN 4
 #define RIFF_ID "RIFF" // Antecedes RiffBlock
@@ -164,7 +157,7 @@ struct Sound* SoundLoadWav(FILE* file, const char* filename, struct Error* e)
 				goto return_failure;
 			}
 			else
-				break; // We have all we need
+				break; // We have all what we need
 		}
 
 		temp.head.size = EndianTo_32(temp.head.size, ENDIAN_LITTLE, sys_endianness);
@@ -218,11 +211,11 @@ struct Sound* SoundLoadWav(FILE* file, const char* filename, struct Error* e)
 				read_function = ReadPcm;
 
 				if (fmt.bits_per_sample == 8)
-					format = SOUND_I8; // FIXME, Wav uses unsigned
+					format = SOUND_I8; // FIXME, Wav uses unsigned :(
 				else if (fmt.bits_per_sample == 16)
 					format = SOUND_I16;
-				else if (fmt.bits_per_sample == 32)
-					format = SOUND_I32;
+				// else if (fmt.bits_per_sample == 32) // TODO, more than 16bits uses WAVE_FORMAT_EXTENSIBLE
+				// format = SOUND_I32;
 				else
 				{
 					ErrorSet(e, ERROR_UNSUPPORTED, "SoundLoadWav", "pcm format ('%s')", filename);
@@ -300,7 +293,7 @@ return_failure:
 
  SoundSaveWav()
 -----------------------------*/
-export struct Error SoundSaveWav(struct Sound* sound, const char* filename)
+EXPORT struct Error SoundSaveWav(struct Sound* sound, const char* filename)
 {
 	(void)sound;
 	(void)filename;

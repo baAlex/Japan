@@ -11,8 +11,8 @@ OUT_SHARED=libjapan.so
 OUT_STATIC_DBG=japan-dbg.a
 OUT_SHARED_DBG=libjapan-dbg.so
 
-CFLAGS=-c -O3 -fpic -mtune=generic -fvisibility=hidden -I./include
-CFLAGS_DBG=-c -O0 -fpic -std=c11 -Wall -Wextra -pedantic -g -I./include -DDEBUG
+CFLAGS=-c -O3 -fpic -mtune=generic -fvisibility=hidden -I./include -DEXPORT_SYMBOLS
+CFLAGS_DBG=-c -O0 -fpic -std=c11 -Wall -Wextra -pedantic -g -I./include -DDEBUG -DEXPORT_SYMBOLS
 
 LFLAGS_STATIC=rcs
 LFLAGS_SHARED=-lm -shared

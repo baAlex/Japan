@@ -49,8 +49,7 @@ detriment.
 #include <string.h>
 
 #include "endianness.h"
-#include "local.h"
-#include "sound-local.h"
+#include "sound-private.h"
 
 #define ULAW_BIAS 0x84
 #define ALAW_AMI_MASK 0x55
@@ -162,7 +161,7 @@ int ReadALaw(FILE* file, struct Sound* sound, enum Endianness org_endianness)
 
  SoundCreate()
 -----------------------------*/
-export struct Sound* SoundCreate(enum SoundFormat format, size_t length, size_t channels, size_t frequency)
+EXPORT struct Sound* SoundCreate(enum SoundFormat format, size_t length, size_t channels, size_t frequency)
 {
 	struct Sound* sound = NULL;
 	size_t size = 0;
@@ -204,14 +203,14 @@ export struct Sound* SoundCreate(enum SoundFormat format, size_t length, size_t 
 
  SoundDelete()
 -----------------------------*/
-export void SoundDelete(struct Sound* sound) { free(sound); }
+EXPORT void SoundDelete(struct Sound* sound) { free(sound); }
 
 
 /*-----------------------------
 
  SoundLoad()
 -----------------------------*/
-export struct Sound* SoundLoad(const char* filename, struct Error* e)
+EXPORT struct Sound* SoundLoad(const char* filename, struct Error* e)
 {
 	FILE* file = NULL;
 	struct Sound* sound = NULL;
@@ -257,7 +256,7 @@ return_failure:
 
  SoundSaveRaw()
 -----------------------------*/
-export struct Error SoundSaveRaw(struct Sound* sound, const char* filename)
+EXPORT struct Error SoundSaveRaw(struct Sound* sound, const char* filename)
 {
 	struct Error e = {.code = NO_ERROR};
 	FILE* file = NULL;

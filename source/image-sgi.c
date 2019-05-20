@@ -38,12 +38,17 @@ SOFTWARE.
 
 #include "endianness.h"
 #include "image.h"
-#include "local.h"
 
 #ifdef DEBUG
 #define DEBUG_PRINT(fmt, ...) printf(fmt, __VA_ARGS__)
 #else
 #define DEBUG_PRINT(fmt, ...)
+#endif
+
+#ifdef EXPORT_SYMBOLS
+#define EXPORT __attribute__((visibility("default")))
+#else
+#define EXPORT // Whitespace
 #endif
 
 #define SGI_MAGIC 474
@@ -395,7 +400,7 @@ static inline size_t sBytesPerPixel(enum ImageFormat format)
 }
 
 
-export struct Error ImageSaveSgi(struct Image* image, const char* filename)
+EXPORT struct Error ImageSaveSgi(struct Image* image, const char* filename)
 {
 	struct Error e = {.code = NO_ERROR};
 	struct SgiHead head = {0};

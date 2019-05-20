@@ -32,10 +32,15 @@ SOFTWARE.
 #include <string.h>
 
 #include "error.h"
-#include "local.h"
+
+#ifdef EXPORT_SYMBOLS
+#define EXPORT __attribute__((visibility("default")))
+#else
+#define EXPORT // Whitespace
+#endif
 
 
-export void ErrorSet(struct Error* e, enum ErrorCode code, const char* function_name, const char* explanation_fmt, ...)
+EXPORT void ErrorSet(struct Error* e, enum ErrorCode code, const char* function_name, const char* explanation_fmt, ...)
 {
 	va_list args;
 
@@ -56,7 +61,7 @@ export void ErrorSet(struct Error* e, enum ErrorCode code, const char* function_
 }
 
 
-export int ErrorPrint(struct Error e)
+EXPORT int ErrorPrint(struct Error e)
 {
 	char* explanation = (e.explanation[0] != '\0') ? e.explanation : "";
 	char* code_message = NULL;

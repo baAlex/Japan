@@ -32,7 +32,12 @@ SOFTWARE.
 #include <string.h>
 
 #include "list.h"
-#include "local.h"
+
+#ifdef EXPORT_SYMBOLS
+#define EXPORT __attribute__((visibility("default")))
+#else
+#define EXPORT // Whitespace
+#endif
 
 
 /*-----------------------------
@@ -69,7 +74,7 @@ static struct ListItem* sAllocItem(struct List* list, void* data, size_t data_si
 
  ListClean()
 -----------------------------*/
-export void ListClean(struct List* list)
+EXPORT void ListClean(struct List* list)
 {
 	while (list->last != NULL)
 		ListRemove(list->last); // NOLINT(clang-analyzer-unix.Malloc)
@@ -80,7 +85,7 @@ export void ListClean(struct List* list)
 
  ListAdd()
 -----------------------------*/
-export struct ListItem* ListAdd(struct List* list, void* data, size_t data_size)
+EXPORT struct ListItem* ListAdd(struct List* list, void* data, size_t data_size)
 {
 	struct ListItem* new_item = NULL;
 
@@ -107,7 +112,7 @@ export struct ListItem* ListAdd(struct List* list, void* data, size_t data_size)
 
  ListAddAfter()
 -----------------------------*/
-export struct ListItem* ListAddAfter(struct ListItem* item, void* data, size_t data_size)
+EXPORT struct ListItem* ListAddAfter(struct ListItem* item, void* data, size_t data_size)
 {
 	struct ListItem* new_item = NULL;
 
@@ -139,7 +144,7 @@ export struct ListItem* ListAddAfter(struct ListItem* item, void* data, size_t d
 
  ListAddBefore()
 -----------------------------*/
-export struct ListItem* ListAddBefore(struct ListItem* item, void* data, size_t data_size)
+EXPORT struct ListItem* ListAddBefore(struct ListItem* item, void* data, size_t data_size)
 {
 	struct ListItem* new_item = NULL;
 
@@ -171,7 +176,7 @@ export struct ListItem* ListAddBefore(struct ListItem* item, void* data, size_t 
 
  ListRemove()
 -----------------------------*/
-export void ListRemove(struct ListItem* item)
+EXPORT void ListRemove(struct ListItem* item)
 {
 	ListDetach(item);
 
@@ -186,7 +191,7 @@ export void ListRemove(struct ListItem* item)
 
  ListDetach()
 -----------------------------*/
-export int ListDetach(struct ListItem* item)
+EXPORT int ListDetach(struct ListItem* item)
 {
 	if (item->list != NULL)
 	{
@@ -217,7 +222,7 @@ export int ListDetach(struct ListItem* item)
 
  ListIterate()
 -----------------------------*/
-export struct ListItem* ListIterate(struct ListState* state)
+EXPORT struct ListItem* ListIterate(struct ListState* state)
 {
 	struct ListItem* to_return = NULL;
 
