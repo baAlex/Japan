@@ -100,6 +100,7 @@ EXPORT inline uint16_t EndianReverse_16(uint16_t value)
 EXPORT uint64_t EndianTo_64(uint64_t value, enum Endianness from, enum Endianness to)
 {
 	to = (to == ENDIAN_SYSTEM) ? EndianSystem() : to;
+	from = (from == ENDIAN_SYSTEM) ? EndianSystem() : from;
 
 	if (from == to)
 		return value;
@@ -110,6 +111,7 @@ EXPORT uint64_t EndianTo_64(uint64_t value, enum Endianness from, enum Endiannes
 EXPORT uint32_t EndianTo_32(uint32_t value, enum Endianness from, enum Endianness to)
 {
 	to = (to == ENDIAN_SYSTEM) ? EndianSystem() : to;
+	from = (from == ENDIAN_SYSTEM) ? EndianSystem() : from;
 
 	if (from == to)
 		return value;
@@ -120,6 +122,7 @@ EXPORT uint32_t EndianTo_32(uint32_t value, enum Endianness from, enum Endiannes
 EXPORT uint16_t EndianTo_16(uint16_t value, enum Endianness from, enum Endianness to)
 {
 	to = (to == ENDIAN_SYSTEM) ? EndianSystem() : to;
+	from = (from == ENDIAN_SYSTEM) ? EndianSystem() : from;
 
 	if (from == to)
 		return value;

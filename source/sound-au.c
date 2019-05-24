@@ -269,9 +269,6 @@ EXPORT struct Error SoundSaveAu(struct Sound* sound, const char* filename)
 	}
 
 	// Bye!
-	fclose(file);
-	return e;
-
 return_failure:
 	fclose(file);
 	return e;
