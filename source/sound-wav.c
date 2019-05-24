@@ -259,6 +259,7 @@ static struct Sound* sReadDataBlock(size_t block_size, FILE* file, const char* f
 		}
 
 		// FIXME
+		return NULL;
 	}
 	else
 	{
@@ -306,7 +307,7 @@ struct Sound* SoundLoadWav(FILE* file, const char* filename, struct Error* e)
 	bool fmt_read = false;
 	bool data_read = false;
 
-	struct GenericHead head = {0};
+	struct GenericHead head;
 	struct FmtBlock fmt = {0};
 
 	ErrorSet(e, NO_ERROR, NULL, NULL);
@@ -399,7 +400,7 @@ EXPORT struct Error SoundSaveWav(struct Sound* sound, const char* filename)
 	struct Error e = {.code = NO_ERROR};
 	FILE* file = NULL;
 	enum Endianness sys_endianness = EndianSystem();
-	struct GenericHead head = {0};
+	struct GenericHead head;
 
 	if ((file = fopen(filename, "wb")) == NULL)
 	{
@@ -411,7 +412,8 @@ EXPORT struct Error SoundSaveWav(struct Sound* sound, const char* filename)
 	{
 		struct RiffBlock riff = {0};
 
-		size_t size = sizeof(struct RiffBlock); // Generic head ignored because the idea of
+		size_t size = sizeof(struct RiffBlock); // Generic head size ignored because blocks on the riff format follow a
+												// inheritance (tree like) arrange
 		size += sizeof(struct GenericHead) + sizeof(struct FactBlock);
 		size += sizeof(struct GenericHead) + 16;		  // FmtBlock
 		size += sizeof(struct GenericHead) + sound->size; // DataBlock
@@ -509,7 +511,7 @@ EXPORT struct Error SoundSaveWav(struct Sound* sound, const char* filename)
 		}
 	}
 
-	// Data block
+	// Data block (FIXME: data endianness!!!)
 	{
 		memcpy(head.id, DATA_ID, ID_LEN);
 		head.size = EndianTo_32(sound->size, sys_endianness, ENDIAN_LITTLE);
