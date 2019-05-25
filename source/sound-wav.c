@@ -126,7 +126,7 @@ static int sReadU8Pcm(FILE* file, struct Sound* sound, enum Endianness org_endia
 -----------------------------*/
 static int WriteU8Pcm(FILE* file, struct Sound* sound)
 {
-	uint8_t* org = sound->data;
+	uint8_t* org = NULL;
 	uint8_t* end = (uint8_t*)sound->data + sound->size;
 
 	int8_t sample = 0;

@@ -23,6 +23,7 @@ FILES=./source/buffer.c \
       ./source/image.c \
       ./source/image-sgi.c \
       ./source/list.c \
+      ./source/matrix.c \
       ./source/sound.c \
       ./source/sound-au.c \
       ./source/sound-wav.c \

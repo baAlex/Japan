@@ -38,76 +38,138 @@ SOFTWARE.
 #endif
 
 
-EXPORT inline struct Vector VectorClean()
+/*-----------------------------
+
+ Vector3
+-----------------------------*/
+EXPORT inline struct Vector3 Vector3Clean()
 {
-	return (struct Vector){0.0, 0.0, 0.0};
+	return (struct Vector3){0.0, 0.0, 0.0};
 }
 
-
-EXPORT inline struct Vector VectorSet(float x, float y, float z)
+EXPORT inline struct Vector3 Vector3Set(float x, float y, float z)
 {
-	return (struct Vector){x, y, z};
+	return (struct Vector3){x, y, z};
 }
 
-
-EXPORT inline struct Vector VectorAdd(struct Vector a, struct Vector b)
+EXPORT inline struct Vector3 Vector3Add(struct Vector3 a, struct Vector3 b)
 {
-	return (struct Vector){(a.x + b.x), (a.y + b.y), (a.z + b.z)};
+	return (struct Vector3){(a.x + b.x), (a.y + b.y), (a.z + b.z)};
 }
 
-
-EXPORT inline struct Vector VectorSubtract(struct Vector a, struct Vector b)
+EXPORT inline struct Vector3 Vector3Subtract(struct Vector3 a, struct Vector3 b)
 {
-	return (struct Vector){(a.x - b.x), (a.y - b.y), (a.z - b.z)};
+	return (struct Vector3){(a.x - b.x), (a.y - b.y), (a.z - b.z)};
 }
 
-
-EXPORT inline struct Vector VectorMultiply(struct Vector a, struct Vector b)
+EXPORT inline struct Vector3 Vector3Multiply(struct Vector3 a, struct Vector3 b)
 {
-	return (struct Vector){(a.x * b.x), (a.y * b.y), (a.z * b.z)};
+	return (struct Vector3){(a.x * b.x), (a.y * b.y), (a.z * b.z)};
 }
 
-
-EXPORT inline struct Vector VectorDivide(struct Vector a, struct Vector b)
+EXPORT inline struct Vector3 Vector3Divide(struct Vector3 a, struct Vector3 b)
 {
-	return (struct Vector){(a.x / b.x), (a.y / b.y), (a.z / b.z)};
+	return (struct Vector3){(a.x / b.x), (a.y / b.y), (a.z / b.z)};
 }
 
-
-EXPORT inline struct Vector VectorInvert(struct Vector v)
+EXPORT inline struct Vector3 Vector3Invert(struct Vector3 v)
 {
-	return (struct Vector){(-v.x), (-v.y), (-v.z)};
+	return (struct Vector3){(-v.x), (-v.y), (-v.z)};
 }
 
-
-EXPORT inline struct Vector VectorScale(struct Vector v, float scale)
+EXPORT inline struct Vector3 Vector3Scale(struct Vector3 v, float scale)
 {
-	return (struct Vector){(v.x * scale), (v.y * scale), (v.z * scale)};
+	return (struct Vector3){(v.x * scale), (v.y * scale), (v.z * scale)};
 }
 
-
-EXPORT inline struct Vector VectorNormalize(struct Vector v)
+EXPORT inline struct Vector3 Vector3Normalize(struct Vector3 v)
 {
-	float length = VectorLength(v);
-	return (struct Vector){(v.x / length), (v.y / length), (v.z / length)};
+	float length = Vector3Length(v);
+	return (struct Vector3){(v.x / length), (v.y / length), (v.z / length)};
 }
 
-
-EXPORT inline float VectorLength(struct Vector v)
+EXPORT inline float Vector3Length(struct Vector3 v)
 {
 	return sqrtf(powf(v.x, 2.0) + powf(v.y, 2.0) + powf(v.z, 2.0));
 }
 
-
-EXPORT inline float VectorDistance(struct Vector a, struct Vector b)
+EXPORT inline float Vector3Distance(struct Vector3 a, struct Vector3 b)
 {
 	return sqrtf(powf(b.x - a.x, 2.0) + powf(b.y - a.y, 2.0) + powf(b.z - a.z, 2.0));
 }
 
-
-EXPORT inline bool VectorEquals(struct Vector a, struct Vector b)
+EXPORT inline bool Vector3Equals(struct Vector3 a, struct Vector3 b)
 {
 	if (a.x != b.x || a.y != b.y || a.z != b.z)
+		return false;
+
+	return true;
+}
+
+
+/*-----------------------------
+
+ Vector4
+-----------------------------*/
+EXPORT inline struct Vector4 Vector4Clean()
+{
+	return (struct Vector4){0.0, 0.0, 0.0, 0.0};
+}
+
+EXPORT inline struct Vector4 Vector4Set(float x, float y, float z, float u)
+{
+	return (struct Vector4){x, y, z, u};
+}
+
+EXPORT inline struct Vector4 Vector4Add(struct Vector4 a, struct Vector4 b)
+{
+	return (struct Vector4){(a.x + b.x), (a.y + b.y), (a.z + b.z), (a.u + b.u)};
+}
+
+EXPORT inline struct Vector4 Vector4Subtract(struct Vector4 a, struct Vector4 b)
+{
+	return (struct Vector4){(a.x - b.x), (a.y - b.y), (a.z - b.z), (a.u - b.u)};
+}
+
+EXPORT inline struct Vector4 Vector4Multiply(struct Vector4 a, struct Vector4 b)
+{
+	return (struct Vector4){(a.x * b.x), (a.y * b.y), (a.z * b.z), (a.u * b.u)};
+}
+
+EXPORT inline struct Vector4 Vector4Divide(struct Vector4 a, struct Vector4 b)
+{
+	return (struct Vector4){(a.x / b.x), (a.y / b.y), (a.z / b.z), (a.u / b.u)};
+}
+
+EXPORT inline struct Vector4 Vector4Invert(struct Vector4 v)
+{
+	return (struct Vector4){(-v.x), (-v.y), (-v.z), (-v.u)};
+}
+
+EXPORT inline struct Vector4 Vector4Scale(struct Vector4 v, float scale)
+{
+	return (struct Vector4){(v.x * scale), (v.y * scale), (v.z * scale), (v.u * scale)};
+}
+
+EXPORT inline struct Vector4 Vector4Normalize(struct Vector4 v)
+{
+	float length = Vector4Length(v);
+	return (struct Vector4){(v.x / length), (v.y / length), (v.z / length), (v.u / length)};
+}
+
+EXPORT inline float Vector4Length(struct Vector4 v)
+{
+	return sqrtf(powf(v.x, 2.0) + powf(v.y, 2.0) + powf(v.z, 2.0) + powf(v.u, 2.0));
+}
+
+EXPORT inline float Vector4Distance(struct Vector4 a, struct Vector4 b)
+{
+	return sqrtf(powf(b.x - a.x, 2.0) + powf(b.y - a.y, 2.0) + powf(b.z - a.z, 2.0) + powf(b.u - a.u, 2.0));
+}
+
+EXPORT inline bool Vector4Equals(struct Vector4 a, struct Vector4 b)
+{
+	if (a.x != b.x || a.y != b.y || a.z != b.z || a.u != b.u)
 		return false;
 
 	return true;
