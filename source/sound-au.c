@@ -236,36 +236,10 @@ EXPORT struct Error SoundSaveAu(struct Sound* sound, const char* filename)
 	}
 
 	// Data
-	size_t bytes = sound->size / sound->length / sound->channels;
-	int8_t* src = NULL;
-	int8_t* end = (int8_t*)sound->data + sound->size;
-
-	union {
-		uint64_t u64;
-		uint32_t u32;
-		uint16_t u16;
-		uint8_t u8;
-	} sample;
-
-	for (src = sound->data; src < end; src += (bytes * sound->channels))
+	if (WritePcm(file, sound, ENDIAN_BIG) != 0)
 	{
-		for (size_t c = 0; c < sound->channels; c++)
-		{
-			if (sound->format == SOUND_I8)
-				sample.u8 = ((uint8_t*)src)[c];
-			else if (sound->format == SOUND_I16)
-				sample.u16 = EndianTo_16(((uint16_t*)src)[c], sys_endianness, ENDIAN_BIG);
-			else if (sound->format == SOUND_I32 || sound->format == SOUND_F32)
-				sample.u32 = EndianTo_32(((uint32_t*)src)[c], sys_endianness, ENDIAN_BIG);
-			else if (sound->format == SOUND_F64)
-				sample.u64 = EndianTo_64(((uint64_t*)src)[c], sys_endianness, ENDIAN_BIG);
-
-			if (fwrite(&sample, bytes, 1, file) != 1)
-			{
-				ErrorSet(&e, ERROR_IO, "SoundSaveAu", "data ('%s')", filename);
-				goto return_failure;
-			}
-		}
+		ErrorSet(&e, ERROR_IO, "SoundSaveAu", "data ('%s')", filename);
+		goto return_failure;
 	}
 
 	// Bye!

@@ -16,7 +16,7 @@
 	#ifdef DEBUG
 	#define DEBUG_PRINT(fmt, ...) printf(fmt, __VA_ARGS__)
 	#else
-	#define DEBUG_PRINT(fmt, ...)
+	#define DEBUG_PRINT(fmt, ...) // Whitespace
 	#endif
 
 	#ifdef EXPORT_SYMBOLS
@@ -34,5 +34,7 @@
 	int ReadPcm(FILE* file, struct Sound* sound, enum Endianness);
 	int ReadULaw(FILE* file, struct Sound* sound, enum Endianness);
 	int ReadALaw(FILE* file, struct Sound* sound, enum Endianness);
+
+	int WritePcm(FILE* file, struct Sound* sound, enum Endianness);
 
 #endif

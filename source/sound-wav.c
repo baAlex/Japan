@@ -103,7 +103,7 @@ struct FactBlock
 
  sReadU8Pcm()
 -----------------------------*/
-int sReadU8Pcm(FILE* file, struct Sound* sound, enum Endianness org_endianness)
+static int sReadU8Pcm(FILE* file, struct Sound* sound, enum Endianness org_endianness)
 {
 	(void)org_endianness;
 
@@ -115,6 +115,29 @@ int sReadU8Pcm(FILE* file, struct Sound* sound, enum Endianness org_endianness)
 
 	for (dest = sound->data; dest < end; dest++)
 		*dest = *dest + 0x80;
+
+	return 0;
+}
+
+
+/*-----------------------------
+
+ WriteU8Pcm()
+-----------------------------*/
+static int WriteU8Pcm(FILE* file, struct Sound* sound)
+{
+	uint8_t* org = sound->data;
+	uint8_t* end = (uint8_t*)sound->data + sound->size;
+
+	int8_t sample = 0;
+
+	for (org = sound->data; org < end; org++)
+	{
+		sample = *org + 0x80;
+
+		if (fwrite(&sample, 1, 1, file) != 1)
+			return 1;
+	}
 
 	return 0;
 }
@@ -258,7 +281,8 @@ static struct Sound* sReadDataBlock(size_t block_size, FILE* file, const char* f
 			return NULL;
 		}
 
-		// FIXME
+		// TODO
+		ErrorSet(e, ERROR_UNSUPPORTED, "SoundSaveWav", "extensible ('%s')", filename);
 		return NULL;
 	}
 	else
@@ -419,7 +443,7 @@ EXPORT struct Error SoundSaveWav(struct Sound* sound, const char* filename)
 		size += sizeof(struct GenericHead) + sound->size; // DataBlock
 
 		memcpy(head.id, RIFF_ID, ID_LEN);
-		head.size = EndianTo_32(size, sys_endianness, ENDIAN_LITTLE); // TODO: (*a)
+		head.size = EndianTo_32(size, sys_endianness, ENDIAN_LITTLE); // (*a)
 
 		if (fwrite(&head, sizeof(struct GenericHead), 1, file) != 1)
 		{
@@ -511,8 +535,10 @@ EXPORT struct Error SoundSaveWav(struct Sound* sound, const char* filename)
 		}
 	}
 
-	// Data block (FIXME: data endianness!!!)
+	// Data block
 	{
+		int ret = 0;
+
 		memcpy(head.id, DATA_ID, ID_LEN);
 		head.size = EndianTo_32(sound->size, sys_endianness, ENDIAN_LITTLE);
 
@@ -522,7 +548,9 @@ EXPORT struct Error SoundSaveWav(struct Sound* sound, const char* filename)
 			goto return_failure;
 		}
 
-		if (fwrite(sound->data, sound->size, 1, file) != 1)
+		ret = (sound->format == SOUND_I8) ? WriteU8Pcm(file, sound) : WritePcm(file, sound, ENDIAN_LITTLE);
+
+		if (ret != 1)
 		{
 			ErrorSet(&e, ERROR_IO, "SoundSaveWav", "data block ('%s')", filename);
 			goto return_failure;
