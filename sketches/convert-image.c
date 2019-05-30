@@ -7,15 +7,15 @@
 int main(int argc, char* argv[])
 {
 	struct Image* img = NULL;
-	struct Error e = {0};
+	struct Status st = {0};
 
 	if (argc == 1)
 	{
-		ErrorSet(&e, ERROR_ARGUMENT, "main", "no input specified");
+		StatusSet(&st, "main", STATUS_INVALID_ARGUMENT, "no input specified");
 		goto return_failure;
 	}
 
-	if ((img = ImageLoad(argv[1], &e)) != NULL)
+	if ((img = ImageLoad(argv[1], &st)) != NULL)
 	{
 		ImageSaveSgi(img, "/tmp/test.sgi");
 		ImageSaveRaw(img, "/tmp/test.data");
@@ -28,6 +28,6 @@ int main(int argc, char* argv[])
 	return EXIT_SUCCESS;
 
 return_failure:
-	ErrorPrint(e);
+	StatusPrint(st);
 	return EXIT_FAILURE;
 }

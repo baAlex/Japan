@@ -6,14 +6,14 @@ require "./japan.rb"
 if ARGV.length != 0 then
 
 	snd = nil
-	err = Japan::Error.new()
+	st = Japan::Status.new()
 
-	if (snd = Japan.ImageLoad(ARGV[0], err)) != nil then
+	if (snd = Japan.ImageLoad(ARGV[0], st)) != nil then
 		Japan.ImageSaveSgi(snd, "#{ARGV[0]}-conversion.sgi")
 		Japan.ImageSaveRaw(snd, "#{ARGV[0]}-conversion.data")
 		Japan.SoundDelete(snd)
 	else
-		Japan.ErrorPrint(err)
+		Japan.StatusPrint(st)
 	end
 else
 	printf("No input specified\n")

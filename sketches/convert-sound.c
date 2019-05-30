@@ -7,15 +7,15 @@
 int main(int argc, char* argv[])
 {
 	struct Sound* snd = NULL;
-	struct Error e = {0};
+	struct Status st = {0};
 
 	if (argc == 1)
 	{
-		ErrorSet(&e, ERROR_ARGUMENT, "main", "no input specified");
+		StatusSet(&st, "main", STATUS_INVALID_ARGUMENT, "no input specified");
 		goto return_failure;
 	}
 
-	if ((snd = SoundLoad(argv[1], &e)) != NULL)
+	if ((snd = SoundLoad(argv[1], &st)) != NULL)
 	{
 		SoundSaveAu(snd, "/tmp/test.au");
 		SoundSaveWav(snd, "/tmp/test.wav");
@@ -29,6 +29,6 @@ int main(int argc, char* argv[])
 	return EXIT_SUCCESS;
 
 return_failure:
-	ErrorPrint(e);
+	StatusPrint(st);
 	return EXIT_FAILURE;
 }

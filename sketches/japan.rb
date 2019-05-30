@@ -8,23 +8,25 @@ module Japan
 
 	# ----------------
 
-	ErrorCode = enum(:no_error,
-	                 :unkhown,
-	                 :filesystem,
-	                 :input_output,
-	                 :broken,
-	                 :unsupported,
-	                 :unkhown_format,
-	                 :obsolete,
-	                 :argument)
+	StatusCode = enum(:success,
+					 :error,
+					 :filesystem_error,
+					 :input_output_error,
+					 :unexpected_eof,
+					 :unexpected_data,
+					 :unknown_file_format,
+					 :unsupported_feature,
+					 :obsolete_feature,
+			 		 :unknown_data_format,
+					 :invalid_argument)
 
-	class Error < FFI::Struct
-	layout :code, ErrorCode,
+	class Status < FFI::Struct
+	layout :code, StatusCode,
 	       :function, [:char, 32],
 	       :explanation, [:char, 224]
 	end
 
-	attach_function :ErrorPrint, [Japan::Error.by_value], :int
+	attach_function :StatusPrint, [Japan::Status.by_value], :int
 
 	# ----------------
 

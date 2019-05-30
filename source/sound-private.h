@@ -28,8 +28,8 @@
 	bool CheckMagicAu(uint32_t value);
 	bool CheckMagicWav(uint32_t value);
 
-	struct Sound* SoundLoadAu(FILE* file, const char* filename, struct Error* e);
-	struct Sound* SoundLoadWav(FILE* file, const char* filename, struct Error* e);
+	struct Sound* SoundLoadAu(FILE* file, const char* filename, struct Status* st);
+	struct Sound* SoundLoadWav(FILE* file, const char* filename, struct Status* st);
 
 	int ReadPcm(FILE* file, struct Sound* sound, enum Endianness);
 	int ReadULaw(FILE* file, struct Sound* sound, enum Endianness);

@@ -251,7 +251,7 @@ bool CheckMagicSgi(uint16_t value)
 
  ImageLoadSgi()
 -----------------------------*/
-struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Error* e)
+struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Status* st)
 {
 	struct Image* image = NULL;
 	struct SgiHead head;
@@ -259,12 +259,12 @@ struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Error* e)
 	enum ImageFormat format = 0;
 	int (*read_function)(FILE*, struct SgiHead*, struct Image*);
 
-	ErrorSet(e, NO_ERROR, NULL, NULL);
+	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
 
 	// Head
 	if (fread(&head, sizeof(struct SgiHead), 1, file) != 1)
 	{
-		ErrorSet(e, ERROR_BROKEN, "ImageLoadSgi", "head ('%s')", filename);
+		StatusSet(st, "ImageLoadSgi", STATUS_UNEXPECTED_EOF, "near head ('%s')", filename);
 		goto return_failure;
 	}
 
@@ -285,13 +285,13 @@ struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Error* e)
 		switch (head.pixel_type)
 		{
 		case 1:
-			ErrorSet(e, ERROR_OBSOLETE, "ImageLoadSgi", "dithered image ('%s')", filename);
+			StatusSet(st, "ImageLoadSgi", STATUS_OBSOLETE_FEATURE, "dithered image ('%s')", filename);
 			goto return_failure;
 		case 2:
-			ErrorSet(e, ERROR_OBSOLETE, "ImageLoadSgi", "indexed image ('%s')", filename);
+			StatusSet(st, "ImageLoadSgi", STATUS_OBSOLETE_FEATURE, "indexed image ('%s')", filename);
 			goto return_failure;
 		case 3:
-			ErrorSet(e, ERROR_OBSOLETE, "ImageLoadSgi", "palette data ('%s')", filename);
+			StatusSet(st, "ImageLoadSgi", STATUS_OBSOLETE_FEATURE, "palette data ('%s')", filename);
 			goto return_failure;
 		}
 	}
@@ -312,7 +312,7 @@ struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Error* e)
 
 	if (head.z_size != 1 && head.z_size != 2 && head.z_size != 3 && head.z_size != 4)
 	{
-		ErrorSet(e, ERROR_UNSUPPORTED, "ImageLoadSgi", "channels (%i, '%s')", head.z_size, filename);
+		StatusSet(st, "ImageLoadSgi", STATUS_UNSUPPORTED_FEATURE, "number of channels (%i, '%s')", head.z_size, filename);
 		goto return_failure;
 	}
 
@@ -339,14 +339,14 @@ struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Error* e)
 	}
 	else
 	{
-		ErrorSet(e, ERROR_UNSUPPORTED, "ImageLoadSgi", "precision (%i, '%s')", head.precision, filename);
+		StatusSet(st, "ImageLoadSgi", STATUS_UNSUPPORTED_FEATURE, "precision (%i, '%s')", head.precision, filename);
 		goto return_failure;
 	}
 
 	// Data
 	if (fseek(file, 512, SEEK_SET) != 0) // Data start at offset 512
 	{
-		ErrorSet(e, ERROR_BROKEN, "ImageLoadSgi", "data seek ('%s')", filename);
+		StatusSet(st, "ImageLoadSgi", STATUS_UNEXPECTED_EOF, "at data seek ('%s')", filename);
 		goto return_failure;
 	}
 
@@ -355,7 +355,7 @@ struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Error* e)
 
 	if (read_function(file, &head, image) != 0)
 	{
-		ErrorSet(e, ERROR_BROKEN, "ImageLoadSgi", "data ('%s')", filename);
+		StatusSet(st, "ImageLoadSgi", STATUS_UNEXPECTED_EOF, "reading data ('%s')", filename);
 		goto return_failure;
 	}
 
@@ -400,9 +400,9 @@ static inline size_t sBytesPerPixel(enum ImageFormat format)
 }
 
 
-EXPORT struct Error ImageSaveSgi(struct Image* image, const char* filename)
+EXPORT struct Status ImageSaveSgi(struct Image* image, const char* filename)
 {
-	struct Error e = {.code = NO_ERROR};
+	struct Status st = {.code = STATUS_SUCCESS};
 	struct SgiHead head = {0};
 	FILE* file = NULL;
 	enum Endianness sys_endianness = EndianSystem();
@@ -410,14 +410,14 @@ EXPORT struct Error ImageSaveSgi(struct Image* image, const char* filename)
 
 	if (image->width > UINT16_MAX || image->height > UINT16_MAX)
 	{
-		ErrorSet(&e, ERROR_UNSUPPORTED, "ImageSaveSgi", "Sgi size ('%s')", filename);
-		return e;
+		StatusSet(&st, "ImageSaveSgi", STATUS_UNSUPPORTED_FEATURE, "image dimensions ('%s')", filename);
+		return st;
 	}
 
 	if ((file = fopen(filename, "wb")) == NULL)
 	{
-		ErrorSet(&e, ERROR_FS, "ImageSaveSgi", "'%s'", filename);
-		return e;
+		StatusSet(&st, "ImageSaveSgi", STATUS_FS_ERROR, "'%s'", filename);
+		return st;
 	}
 
 	// Head
@@ -453,13 +453,13 @@ EXPORT struct Error ImageSaveSgi(struct Image* image, const char* filename)
 		head.precision = 1;
 		break;
 	default:
-		ErrorSet(&e, ERROR_UNSUPPORTED, "ImageSaveSgi", "Sgi format ('%s')", filename);
+		StatusSet(&st, "ImageSaveSgi", STATUS_UNSUPPORTED_FEATURE, "format ('%s')", filename);
 		goto return_failure;
 	}
 
 	if (fwrite(&head, sizeof(struct SgiHead), 1, file) != 1)
 	{
-		ErrorSet(&e, ERROR_IO, "ImageSaveSgi", "head ('%s')", filename);
+		StatusSet(&st, "ImageSaveSgi", STATUS_IO_ERROR, "head ('%s')", filename);
 		goto return_failure;
 	}
 
@@ -469,7 +469,7 @@ EXPORT struct Error ImageSaveSgi(struct Image* image, const char* filename)
 
 	if (fseek(file, 512, SEEK_SET) != 0) // Data start at offset 512
 	{
-		ErrorSet(&e, ERROR_BROKEN, "ImageSaveSgi", "data seek ('%s')", filename);
+		StatusSet(&st, "ImageSaveSgi", STATUS_IO_ERROR, "at data seek ('%s')", filename);
 		goto return_failure;
 	}
 
@@ -485,7 +485,7 @@ EXPORT struct Error ImageSaveSgi(struct Image* image, const char* filename)
 			{
 				if (fwrite(&src[col * bytes], 1, 1, file) != 1)
 				{
-					ErrorSet(&e, ERROR_IO, "ImageSaveSgi", "data ('%s')", filename);
+					StatusSet(&st, "ImageSaveSgi", STATUS_IO_ERROR, "data ('%s')", filename);
 					goto return_failure;
 				}
 			}
@@ -494,9 +494,9 @@ EXPORT struct Error ImageSaveSgi(struct Image* image, const char* filename)
 
 	// Bye!
 	fclose(file);
-	return e;
+	return st;
 
 return_failure:
 	fclose(file);
-	return e;
+	return st;
 }

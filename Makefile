@@ -19,7 +19,6 @@ LFLAGS_SHARED=-lm -shared
 
 FILES=./source/buffer.c \
       ./source/endianness.c \
-      ./source/error.c \
       ./source/image.c \
       ./source/image-sgi.c \
       ./source/list.c \
@@ -27,6 +26,7 @@ FILES=./source/buffer.c \
       ./source/sound.c \
       ./source/sound-au.c \
       ./source/sound-wav.c \
+      ./source/status.c \
       ./source/tree.c \
       ./source/vector.c
 

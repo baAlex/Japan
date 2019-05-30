@@ -45,8 +45,8 @@ SOFTWARE.
 extern bool CheckMagicSgi(uint16_t value);
 // extern bool CheckMagicBmp(uint16_t value);
 
-extern struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Error* e);
-// extern struct Image* ImageLoadBmp(FILE* file, const char* filename, struct Error* e);
+extern struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Status* st);
+// extern struct Image* ImageLoadBmp(FILE* file, const char* filename, struct Status* st);
 
 
 /*-----------------------------
@@ -110,35 +110,35 @@ EXPORT void ImageDelete(struct Image* image) { free(image); }
 
  ImageLoad()
 -----------------------------*/
-EXPORT struct Image* ImageLoad(const char* filename, struct Error* e)
+EXPORT struct Image* ImageLoad(const char* filename, struct Status* st)
 {
 	FILE* file = NULL;
 	struct Image* image = NULL;
 	uint16_t magic = 0;
 
-	ErrorSet(e, NO_ERROR, NULL, NULL);
+	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
 
 	if ((file = fopen(filename, "rb")) == NULL)
 	{
-		ErrorSet(e, ERROR_FS, "ImageLoad", "'%s'", filename);
+		StatusSet(st, "ImageLoad", STATUS_FS_ERROR, "'%s'", filename);
 		return NULL;
 	}
 
 	if (fread(&magic, sizeof(uint16_t), 1, file) != 1)
 	{
-		ErrorSet(e, ERROR_BROKEN, "ImageLoad", "magic ('%s')", filename);
+		StatusSet(st, "ImageLoad", STATUS_UNEXPECTED_EOF, "near magic ('%s')", filename);
 		goto return_failure;
 	}
 
 	fseek(file, 0, SEEK_SET);
 
 	if (CheckMagicSgi(magic) == true)
-		image = ImageLoadSgi(file, filename, e);
+		image = ImageLoadSgi(file, filename, st);
 	// else if (CheckMagicBmp(magic) == true)
-	//	image = ImageLoadBmp(file, filename, e);
+	//	image = ImageLoadBmp(file, filename, st;
 	else
 	{
-		ErrorSet(e, ERROR_UNKNOWN_FORMAT, "ImageLoad", "'%s'", filename);
+		StatusSet(st, "ImageLoad", STATUS_UNKNOWN_FILE_FORMAT, "'%s'", filename);
 		goto return_failure;
 	}
 
@@ -156,24 +156,24 @@ return_failure:
 
  ImageSaveRaw()
 -----------------------------*/
-EXPORT struct Error ImageSaveRaw(struct Image* image, const char* filename)
+EXPORT struct Status ImageSaveRaw(struct Image* image, const char* filename)
 {
-	struct Error e = {.code = NO_ERROR};
+	struct Status st = {.code = STATUS_SUCCESS};
 	FILE* file = NULL;
 
 	if ((file = fopen(filename, "wb")) == NULL)
 	{
-		ErrorSet(&e, ERROR_FS, "ImageSaveRaw", "'%s'", filename);
-		return e;
+		StatusSet(&st, "ImageSaveRaw", STATUS_FS_ERROR, "'%s'", filename);
+		return st;
 	}
 
 	if (fwrite(image->data, image->size, 1, file) != 1)
 	{
-		ErrorSet(&e, ERROR_IO, "ImageSaveRaw", "'%s'", filename);
+		StatusSet(&st, "ImageSaveRaw", STATUS_IO_ERROR, "'%s'", filename);
 		fclose(file);
-		return e;
+		return st;
 	}
 
 	fclose(file);
-	return e;
+	return st;
 }

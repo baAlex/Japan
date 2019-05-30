@@ -8,7 +8,7 @@
 #define IMAGE_H
 
 	#include <stddef.h>
-	#include "error.h"
+	#include "status.h"
 
 	enum ImageFormat
 	{
@@ -35,9 +35,9 @@
 	struct Image* ImageCreate(enum ImageFormat, size_t width, size_t height);
 	void ImageDelete(struct Image* image);
 
-	struct Image* ImageLoad(const char* filename, struct Error*);
-	struct Error ImageSaveSgi(struct Image* image, const char* filename);
-	// struct Error ImageSaveBmp(struct Image* image, const char* filename);
-	struct Error ImageSaveRaw(struct Image* image, const char* filename);
+	struct Image* ImageLoad(const char* filename, struct Status*);
+	struct Status ImageSaveSgi(struct Image* image, const char* filename);
+	// struct Status ImageSaveBmp(struct Image* image, const char* filename);
+	struct Status ImageSaveRaw(struct Image* image, const char* filename);
 
 #endif

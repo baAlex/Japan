@@ -8,7 +8,7 @@
 #define SOUND_H
 
 	#include <stddef.h>
-	#include "error.h"
+	#include "status.h"
 
 	enum SoundFormat
 	{
@@ -33,9 +33,9 @@
 	struct Sound* SoundCreate(enum SoundFormat, size_t length, size_t channels, size_t frequency);
 	void SoundDelete(struct Sound* sound);
 
-	struct Sound* SoundLoad(const char* filename, struct Error*);
-	struct Error SoundSaveAu(struct Sound* sound, const char* filename);
-	struct Error SoundSaveWav(struct Sound* sound, const char* filename);
-	struct Error SoundSaveRaw(struct Sound* sound, const char* filename);
+	struct Sound* SoundLoad(const char* filename, struct Status*);
+	struct Status SoundSaveAu(struct Sound* sound, const char* filename);
+	struct Status SoundSaveWav(struct Sound* sound, const char* filename);
+	struct Status SoundSaveRaw(struct Sound* sound, const char* filename);
 
 #endif

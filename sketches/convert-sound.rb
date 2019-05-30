@@ -6,15 +6,15 @@ require "./japan.rb"
 if ARGV.length != 0 then
 
 	snd = nil
-	err = Japan::Error.new()
+	st = Japan::Status.new()
 
-	if (snd = Japan.SoundLoad(ARGV[0], err)) != nil then
+	if (snd = Japan.SoundLoad(ARGV[0], st)) != nil then
 		Japan.SoundSaveAu(snd, "#{ARGV[0]}-conversion.au")
 		Japan.SoundSaveWav(snd, "#{ARGV[0]}-conversion.wav")
 		Japan.SoundSaveRaw(snd, "#{ARGV[0]}-conversion.data")
 		Japan.SoundDelete(snd)
 	else
-		Japan.ErrorPrint(err)
+		Japan.StatusPrint(st)
 	end
 else
 	printf("No input specified\n")

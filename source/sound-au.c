@@ -78,7 +78,7 @@ bool CheckMagicAu(uint32_t value)
 
  SoundLoadAu()
 -----------------------------*/
-struct Sound* SoundLoadAu(FILE* file, const char* filename, struct Error* e)
+struct Sound* SoundLoadAu(FILE* file, const char* filename, struct Status* st)
 {
 	struct Sound* sound = NULL;
 	struct AuHead head;
@@ -87,12 +87,12 @@ struct Sound* SoundLoadAu(FILE* file, const char* filename, struct Error* e)
 	enum SoundFormat format = 0;
 	int (*read_function)(FILE*, struct Sound*, enum Endianness);
 
-	ErrorSet(e, NO_ERROR, NULL, NULL);
+	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
 
 	// Head
 	if (fread(&head, sizeof(struct AuHead), 1, file) != 1)
 	{
-		ErrorSet(e, ERROR_BROKEN, "SoundLoadAu", "head ('%s')", filename);
+		StatusSet(st, "SoundLoadAu", STATUS_UNEXPECTED_EOF, "head ('%s')", filename);
 		goto return_failure;
 	}
 
@@ -149,14 +149,14 @@ struct Sound* SoundLoadAu(FILE* file, const char* filename, struct Error* e)
 		break;
 
 	default:
-		ErrorSet(e, ERROR_UNSUPPORTED, "SoundLoadAu", "data format ('%s')", filename);
+		StatusSet(st, "SoundLoadAu", STATUS_UNKNOWN_DATA_FORMAT, "%s", filename);
 		goto return_failure;
 	}
 
 	// Data
 	if (fseek(file, head.data_offset, SEEK_SET) != 0)
 	{
-		ErrorSet(e, ERROR_BROKEN, "SoundLoadAu", "data seek ('%s')", filename);
+		StatusSet(st, "SoundLoadAu", STATUS_UNEXPECTED_EOF, "at data seek ('%s')", filename);
 		goto return_failure;
 	}
 
@@ -165,7 +165,7 @@ struct Sound* SoundLoadAu(FILE* file, const char* filename, struct Error* e)
 
 	if (read_function(file, sound, ENDIAN_BIG) != 0)
 	{
-		ErrorSet(e, ERROR_BROKEN, "SoundLoadAu", "data ('%s')", filename);
+		StatusSet(st, "SoundLoadAu", STATUS_UNEXPECTED_EOF, "reading data ('%s')", filename);
 		goto return_failure;
 	}
 
@@ -184,23 +184,23 @@ return_failure:
 
  SoundSaveAu()
 -----------------------------*/
-EXPORT struct Error SoundSaveAu(struct Sound* sound, const char* filename)
+EXPORT struct Status SoundSaveAu(struct Sound* sound, const char* filename)
 {
-	struct Error e = {.code = NO_ERROR};
+	struct Status st = {.code = STATUS_SUCCESS};
 	struct AuHead head;
 	FILE* file = NULL;
 	enum Endianness sys_endianness = EndianSystem();
 
 	if (sound->channels > UINT32_MAX || sound->frequency > UINT32_MAX || sound->size > UINT32_MAX)
 	{
-		ErrorSet(&e, ERROR_UNSUPPORTED, "SoundSaveAu", "Au format ('%s')", filename);
-		return e;
+		StatusSet(&st, "SoundSaveAu", STATUS_UNSUPPORTED_FEATURE, "format ('%s')", filename);
+		return st;
 	}
 
 	if ((file = fopen(filename, "wb")) == NULL)
 	{
-		ErrorSet(&e, ERROR_FS, "SoundSaveAu", "'%s'", filename);
-		return e;
+		StatusSet(&st, "SoundSaveAu", STATUS_FS_ERROR, "'%s'", filename);
+		return st;
 	}
 
 	// Head
@@ -231,19 +231,19 @@ EXPORT struct Error SoundSaveAu(struct Sound* sound, const char* filename)
 
 	if (fwrite(&head, sizeof(struct AuHead), 1, file) != 1)
 	{
-		ErrorSet(&e, ERROR_IO, "SoundSaveAu", "head ('%s')", filename);
+		StatusSet(&st, "SoundSaveAu", STATUS_IO_ERROR, "head ('%s')", filename);
 		goto return_failure;
 	}
 
 	// Data
 	if (WritePcm(file, sound, ENDIAN_BIG) != 0)
 	{
-		ErrorSet(&e, ERROR_IO, "SoundSaveAu", "data ('%s')", filename);
+		StatusSet(&st, "SoundSaveAu", STATUS_IO_ERROR, "data ('%s')", filename);
 		goto return_failure;
 	}
 
 	// Bye!
 return_failure:
 	fclose(file);
-	return e;
+	return st;
 }

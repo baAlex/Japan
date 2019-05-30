@@ -24,14 +24,14 @@ SOFTWARE.
 
 -------------------------------
 
- [error.c]
+ [status.c]
  - Alexander Brandt 2019
 -----------------------------*/
 
 #include <stdio.h>
 #include <string.h>
 
-#include "error.h"
+#include "status.h"
 
 #ifdef EXPORT_SYMBOLS
 #define EXPORT __attribute__((visibility("default")))
@@ -40,60 +40,70 @@ SOFTWARE.
 #endif
 
 
-EXPORT void ErrorSet(struct Error* e, enum ErrorCode code, const char* function_name, const char* explanation_fmt, ...)
+EXPORT void StatusSet(struct Status* st, const char* function_name, enum StatusCode code, const char* explanation_fmt, ...)
 {
 	va_list args;
 
-	if(e == NULL)
+	if (st == NULL)
 		return;
 
-	e->code = code;
+	st->code = code;
 
 	if (function_name != NULL)
-		strncpy(e->function_name, function_name, ERROR_FUNCTION_NAME_LENGTH);
+		strncpy(st->function_name, function_name, STATUS_FUNCTION_NAME_LENGTH);
 
 	if (explanation_fmt != NULL)
 	{
 		va_start(args, explanation_fmt);
-		vsnprintf(e->explanation, ERROR_EXPLANATION_LENGTH, explanation_fmt, args); // NOLINT(clang-analyzer-valist.Uninitialized)
+		vsnprintf(st->explanation, STATUS_EXPLANATION_LENGTH, explanation_fmt, args); // NOLINT(clang-analyzer-valist.Uninitialized)
 		va_end(args);
 	}
 }
 
 
-EXPORT int ErrorPrint(struct Error e)
+EXPORT int StatusPrint(struct Status st)
 {
-	char* explanation = (e.explanation[0] != '\0') ? e.explanation : "";
+	char* explanation = (st.explanation[0] != '\0') ? st.explanation : "";
 	char* code_message = NULL;
 
-	switch (e.code)
+	switch (st.code)
 	{
-	case NO_ERROR:
-		return 0;
-	case ERROR_FS:
+	case STATUS_SUCCESS:
+		code_message = "Success";
+		break;
+	case STATUS_ERROR:
+		code_message = "Unknown error";
+		break;
+	case STATUS_FS_ERROR:
 		code_message = "Filesystem error";
 		break;
-	case ERROR_IO:
-		code_message = "Input/Output error";
+	case STATUS_IO_ERROR:
+		code_message = "File Input/Output error";
 		break;
-	case ERROR_BROKEN:
-		code_message = "Corrupted data";
+	case STATUS_UNEXPECTED_EOF:
+		code_message = "End of file prematurely reached";
 		break;
-	case ERROR_UNSUPPORTED:
+	case STATUS_UNEXPECTED_DATA:
+		code_message = "Unexpected data";
+		break;
+	case STATUS_UNKNOWN_FILE_FORMAT:
+		code_message = "Unknown file format";
+		break;
+	case STATUS_UNSUPPORTED_FEATURE:
 		code_message = "Unsupported feature";
 		break;
-	case ERROR_UNKNOWN_FORMAT:
-		code_message = "Unkhown format";
-		break;
-	case ERROR_OBSOLETE:
+	case STATUS_OBSOLETE_FEATURE:
 		code_message = "Obsolete feature";
 		break;
-	case ERROR_ARGUMENT:
-		code_message = "Argument error";
+	case STATUS_UNKNOWN_DATA_FORMAT:
+		code_message = "Unknown data format";
+		break;
+	case STATUS_INVALID_ARGUMENT:
+		code_message = "Invalid argument";
 		break;
 	default:
-		code_message = "Unkhown error";
+		code_message = "Unknown status";
 	}
 
-	return fprintf(stderr, "%s : %s%s%s\n", e.function_name, code_message, (e.explanation[0] != '\0') ? ", " : "", explanation);
+	return fprintf(stderr, "%s : %s%s%s.\n", st.function_name, code_message, (st.explanation[0] != '\0') ? ", " : "", explanation);
 }

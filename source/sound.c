@@ -250,35 +250,35 @@ EXPORT void SoundDelete(struct Sound* sound) { free(sound); }
 
  SoundLoad()
 -----------------------------*/
-EXPORT struct Sound* SoundLoad(const char* filename, struct Error* e)
+EXPORT struct Sound* SoundLoad(const char* filename, struct Status* st)
 {
 	FILE* file = NULL;
 	struct Sound* sound = NULL;
 	uint32_t magic = 0;
 
-	ErrorSet(e, NO_ERROR, NULL, NULL);
+	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
 
 	if ((file = fopen(filename, "rb")) == NULL)
 	{
-		ErrorSet(e, ERROR_FS, "SoundLoad", "'%s'", filename);
+		StatusSet(st, "SoundLoad", STATUS_FS_ERROR, "'%s'", filename);
 		return NULL;
 	}
 
 	if (fread(&magic, sizeof(uint32_t), 1, file) != 1)
 	{
-		ErrorSet(e, ERROR_BROKEN, "SoundLoad", "magic ('%s')", filename);
+		StatusSet(st, "SoundLoad", STATUS_UNEXPECTED_EOF, "near magic ('%s')", filename);
 		goto return_failure;
 	}
 
 	fseek(file, 0, SEEK_SET);
 
 	if (CheckMagicAu(magic) == true)
-		sound = SoundLoadAu(file, filename, e);
+		sound = SoundLoadAu(file, filename, st);
 	else if (CheckMagicWav(magic) == true)
-		sound = SoundLoadWav(file, filename, e);
+		sound = SoundLoadWav(file, filename, st);
 	else
 	{
-		ErrorSet(e, ERROR_UNKNOWN_FORMAT, "SoundLoad", "'%s'", filename);
+		StatusSet(st, "SoundLoad", STATUS_UNKNOWN_FILE_FORMAT, "'%s'", filename);
 		goto return_failure;
 	}
 
@@ -296,24 +296,24 @@ return_failure:
 
  SoundSaveRaw()
 -----------------------------*/
-EXPORT struct Error SoundSaveRaw(struct Sound* sound, const char* filename)
+EXPORT struct Status SoundSaveRaw(struct Sound* sound, const char* filename)
 {
-	struct Error e = {.code = NO_ERROR};
+	struct Status st = {.code = STATUS_SUCCESS};
 	FILE* file = NULL;
 
 	if ((file = fopen(filename, "wb")) == NULL)
 	{
-		ErrorSet(&e, ERROR_FS, "SoundSaveRaw", "'%s'", filename);
-		return e;
+		StatusSet(&st, "SoundSaveRaw", STATUS_FS_ERROR, "'%s'", filename);
+		return st;
 	}
 
 	if (fwrite(sound->data, sound->size, 1, file) != 1)
 	{
-		ErrorSet(&e, ERROR_IO, "SoundSaveRaw", "'%s'", filename);
+		StatusSet(&st, "SoundSaveRaw", STATUS_IO_ERROR, "'%s'", filename);
 		fclose(file);
-		return e;
+		return st;
 	}
 
 	fclose(file);
-	return e;
+	return st;
 }
