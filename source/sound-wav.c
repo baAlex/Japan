@@ -147,29 +147,28 @@ static int WriteU8Pcm(FILE* file, struct Sound* sound)
 
  sReadRiffBlock()
 -----------------------------*/
-static int sReadRiffBlock(size_t block_size, FILE* file, const char* filename, struct Status* st)
+static int sReadRiffBlock(size_t block_size, FILE* file, struct Status* st)
 {
 	struct RiffBlock riff = {0};
 
 	if (block_size < sizeof(struct RiffBlock)) // (*a)
 	{
-		StatusSet(st, "SoundLoadWav", STATUS_UNKNOWN_DATA_FORMAT, "riff block ('%s')", filename);
+		StatusSet(st, "SoundExLoadWav", STATUS_UNKNOWN_DATA_FORMAT, "riff block");
 		return 1;
 	}
 
 	if (fread(&riff, sizeof(struct RiffBlock), 1, file) != 1)
 	{
-		StatusSet(st, "SoundLoadWav", STATUS_UNEXPECTED_EOF, "at riff block ('%s')", filename);
-		return 2;
+		StatusSet(st, "SoundExLoadWav", STATUS_UNEXPECTED_EOF, "at riff block");
+		return 1;
 	}
 
 	if (strncmp(riff.wave_signature, WAVE_SIGNATURE, ID_LEN) != 0)
 	{
-		StatusSet(st, "SoundLoadWav", STATUS_UNKNOWN_FILE_FORMAT, "invalid wave signature ('%s')", filename);
-		return 3;
+		StatusSet(st, "SoundExLoadWav", STATUS_UNKNOWN_FILE_FORMAT, "invalid wave signature");
+		return 1;
 	}
 
-	DEBUG_PRINT("(Wav) '%s':\n", filename);
 	return 0;
 }
 
@@ -178,35 +177,83 @@ static int sReadRiffBlock(size_t block_size, FILE* file, const char* filename, s
 
  sReadFmtBlock()
 -----------------------------*/
-static int sReadFmtBlock(size_t block_size, FILE* file, const char* filename, struct FmtBlock* out, struct Status* st)
+static int sReadFmtBlock(size_t block_size, FILE* file, struct SoundEx* out, struct Status* st)
 {
+	// Audacity ignores Microsoft (2016) advice?:
+	// "If wFormatTag is WAVE_FORMAT_PCM, then wBitsPerSample should be equal to 8 or 16."
+
 	enum Endianness sys_endianness = EndianSystem();
+	struct FmtBlock fmt;
 
 	if (block_size != 16 && block_size != 18 && block_size != 40)
 	{
-		StatusSet(st, "SoundLoadWav", STATUS_UNKNOWN_DATA_FORMAT, "fmt block ('%s')", filename);
+		StatusSet(st, "SoundExLoadWav", STATUS_UNKNOWN_DATA_FORMAT, "fmt block");
 		return 1;
 	}
 
-	if (fread(out, block_size, 1, file) != 1)
+	if (fread(&fmt, block_size, 1, file) != 1)
 	{
-		StatusSet(st, "SoundLoadWav", STATUS_UNEXPECTED_EOF, "at fmt block ('%s')", filename);
-		return 2;
+		StatusSet(st, "SoundExLoadWav", STATUS_UNEXPECTED_EOF, "at fmt block");
+		return 1;
 	}
 
-	out->format = EndianTo_16(out->format, ENDIAN_LITTLE, sys_endianness);
-	out->channels = EndianTo_16(out->channels, ENDIAN_LITTLE, sys_endianness);
-	out->frequency = EndianTo_32(out->frequency, ENDIAN_LITTLE, sys_endianness);
-	out->avg_bytes_frequency = EndianTo_32(out->avg_bytes_frequency, ENDIAN_LITTLE, sys_endianness);
-	out->data_align_size = EndianTo_16(out->data_align_size, ENDIAN_LITTLE, sys_endianness);
-	out->bits_per_sample = EndianTo_16(out->bits_per_sample, ENDIAN_LITTLE, sys_endianness);
+	out->frequency = EndianTo_32(fmt.frequency, ENDIAN_LITTLE, sys_endianness);
+	out->channels = EndianTo_16(fmt.channels, ENDIAN_LITTLE, sys_endianness);
+	out->endianness = ENDIAN_LITTLE;
 
-	DEBUG_PRINT(" - Block size: %lu\n", block_size);
-	DEBUG_PRINT(" - Bits per sample: %u\n", out->bits_per_sample);
-	DEBUG_PRINT(" - Format: 0x%04X\n", out->format);
-	DEBUG_PRINT(" - Frequency: %u hz\n", out->frequency);
-	DEBUG_PRINT(" - Channels: %u\n", out->channels);
-	DEBUG_PRINT(" - Align: %u\n", out->data_align_size);
+	fmt.format = EndianTo_16(fmt.format, ENDIAN_LITTLE, sys_endianness);
+	fmt.bits_per_sample = EndianTo_16(fmt.bits_per_sample, ENDIAN_LITTLE, sys_endianness);
+
+	if (fmt.format == WAVE_FORMAT_ULAW)
+	{
+		out->format = SOUND_I16;
+		out->compression = SOUND_ULAW;
+	}
+	else if (fmt.format == WAVE_FORMAT_ALAW)
+	{
+		out->format = SOUND_I16;
+		out->compression = SOUND_ALAW;
+	}
+	else if (fmt.format == WAVE_FORMAT_PCM)
+	{
+		out->compression = SOUND_UNCOMPRESSED;
+
+		if (fmt.bits_per_sample == 8)
+			out->format = SOUND_I8;
+		else if (fmt.bits_per_sample == 16)
+			out->format = SOUND_I16;
+		else if (fmt.bits_per_sample == 32)
+			out->format = SOUND_I32;
+		else
+		{
+			StatusSet(st, "SoundExLoadWav", STATUS_UNSUPPORTED_FEATURE, "pcm bits per sample");
+			return 1;
+		}
+	}
+	else if (fmt.format == WAVE_FORMAT_IEEE_FLOAT)
+	{
+		out->compression = SOUND_UNCOMPRESSED;
+
+		if (fmt.bits_per_sample == 32)
+			out->format = SOUND_F32;
+		else if (fmt.bits_per_sample == 64)
+			out->format = SOUND_F64;
+		else
+		{
+			StatusSet(st, "SoundExLoadWav", STATUS_UNSUPPORTED_FEATURE, "float bits per sample");
+			return 1;
+		}
+	}
+	else if (fmt.format == WAVE_FORMAT_EXTENSIBLE)
+	{
+		StatusSet(st, "SoundExLoadWav", STATUS_UNSUPPORTED_FEATURE, "extensible format");
+		return 1;
+	}
+	else
+	{
+		StatusSet(st, "SoundExLoadWav", STATUS_UNKNOWN_DATA_FORMAT, NULL);
+		return 1;
+	}
 
 	return 0;
 }
@@ -216,93 +263,37 @@ static int sReadFmtBlock(size_t block_size, FILE* file, const char* filename, st
 
  sReadDataBlock()
 -----------------------------*/
-static struct Sound* sReadDataBlock(size_t block_size, FILE* file, const char* filename, struct FmtBlock* fmt,
-									struct Status* st)
+static int sReadDataBlock(size_t block_size, FILE* file, struct SoundEx* out, struct Status* st)
 {
-	struct Sound* sound = NULL;
+	size_t bits_per_sample = 0;
 
-	enum SoundFormat format;
-	int (*read_function)(FILE*, struct Sound*, enum Endianness);
-
-	if (fmt->format == WAVE_FORMAT_ALAW)
+	switch (out->format)
 	{
-		read_function = ReadALaw;
-		format = SOUND_I16;
-	}
-	else if (fmt->format == WAVE_FORMAT_ULAW)
-	{
-		read_function = ReadULaw;
-		format = SOUND_I16;
-	}
-	else if (fmt->format == WAVE_FORMAT_IEEE_FLOAT)
-	{
-		read_function = ReadPcm;
-
-		if (fmt->bits_per_sample == 32)
-			format = SOUND_F32;
-		else if (fmt->bits_per_sample == 64)
-			format = SOUND_F64;
-		else
-		{
-			StatusSet(st, "SoundLoadWav", STATUS_UNSUPPORTED_FEATURE, "float format (%u, '%s')", fmt->bits_per_sample, filename);
-			return NULL;
-		}
-	}
-	else if (fmt->format == WAVE_FORMAT_PCM)
-	{
-		if (fmt->bits_per_sample == 8)
-		{
-			format = SOUND_I8;
-			read_function = sReadU8Pcm;
-		}
-		else if (fmt->bits_per_sample == 16)
-		{
-			format = SOUND_I16;
-			read_function = ReadPcm;
-		}
-		else if (fmt->bits_per_sample == 32)
-		{
-			// Audacity ignores Microsoft (2016) advice?:
-			// "If wFormatTag is WAVE_FORMAT_PCM, then wBitsPerSample should be equal to 8 or 16."
-			format = SOUND_I32;
-			read_function = ReadPcm;
-		}
-		else
-		{
-			StatusSet(st, "SoundLoadWav", STATUS_UNSUPPORTED_FEATURE, "pcm format (%u, '%s')", fmt->bits_per_sample, filename);
-			return NULL;
-		}
-	}
-	else if (fmt->format == WAVE_FORMAT_EXTENSIBLE)
-	{
-		if (fmt->extension_size < 22)
-		{
-			StatusSet(st, "SoundLoadWav", STATUS_UNEXPECTED_EOF, "extensible format section ('%s')", filename);
-			return NULL;
-		}
-
-		// TODO
-		StatusSet(st, "SoundSaveWav", STATUS_UNSUPPORTED_FEATURE, "extensible format ('%s')", filename);
-		return NULL;
-	}
-	else
-	{
-		StatusSet(st, "SoundLoadWav", STATUS_UNKNOWN_DATA_FORMAT, "'%s'", filename);
-		return NULL;
+	case SOUND_I8:
+		bits_per_sample = 8;
+		break;
+	case SOUND_I16:
+		bits_per_sample = 16;
+		break;
+	case SOUND_I32:
+	case SOUND_F32:
+		bits_per_sample = 32;
+		break;
+	case SOUND_F64:
+		bits_per_sample = 64;
 	}
 
-	// Read!
-	if ((sound = SoundCreate(format, block_size / fmt->channels / (fmt->bits_per_sample / 8), fmt->channels,
-							 fmt->frequency)) == NULL)
-		return NULL;
+	out->length = block_size / out->channels / (bits_per_sample / 8);
+	out->size = block_size;
+	out->data_offset = ftell(file);
 
-	if (read_function(file, sound, ENDIAN_LITTLE) != 0)
+	if (fseek(file, block_size, SEEK_CUR) != 0)
 	{
-		StatusSet(st, "SoundLoadWav", STATUS_UNEXPECTED_EOF, "at data block ('%s')", filename);
-		return NULL;
+		StatusSet(st, "SoundExLoadWav", STATUS_UNEXPECTED_EOF, "at generic seek");
+		return 1;
 	}
 
-	return sound;
+	return 0;
 }
 
 
@@ -325,83 +316,48 @@ bool CheckMagicWav(uint32_t value)
 -----------------------------*/
 struct Sound* SoundLoadWav(FILE* file, const char* filename, struct Status* st)
 {
+	struct SoundEx ex = {0};
 	struct Sound* sound = NULL;
-
-	bool riff_read = false;
-	bool fmt_read = false;
-	bool data_read = false;
-
-	struct GenericHead head;
-	struct FmtBlock fmt = {0};
+	int (*read_function)(FILE*, struct Sound*, enum Endianness);
 
 	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
 
-	while (1)
+	if (SoundExLoadWav(file, &ex, st) != 0)
+		goto return_failure;
+
+	DEBUG_PRINT("(Wav) '%s':\n", filename);
+	DEBUG_PRINT(" - Data size: %lu bytes\n", ex.size);
+	DEBUG_PRINT(" - Format: %u\n", ex.format);
+	DEBUG_PRINT(" - Frequency: %lu hz\n", ex.frequency);
+	DEBUG_PRINT(" - Channels: %lu\n", ex.channels);
+	DEBUG_PRINT(" - Data offset: 0x%zX\n", ex.data_offset);
+
+	if (ex.compression == SOUND_ULAW)
+		read_function = ReadULaw;
+	else if (ex.compression == SOUND_ALAW)
+		read_function = ReadALaw;
+	else
 	{
-		// Generic head
-		if (fread(&head, sizeof(struct GenericHead), 1, file) != 1)
-		{
-			if (riff_read == false || fmt_read == false || data_read == false)
-			{
-				StatusSet(st, "SoundLoadWav", STATUS_UNEXPECTED_EOF, "at generic head ('%s')", filename);
-				goto return_failure;
-			}
-			else
-				break; // We have all what we need
-		}
-
-		head.size = EndianTo_32(head.size, ENDIAN_LITTLE, ENDIAN_SYSTEM);
-
-		// Riff block
-		if (strncmp(head.id, RIFF_ID, ID_LEN) == 0)
-		{
-			if (sReadRiffBlock(head.size, file, filename, st) != 0)
-				goto return_failure;
-
-			riff_read = true;
-		}
-
-		// Format block
-		else if (strncmp(head.id, FMT_ID, ID_LEN) == 0)
-		{
-			if (riff_read == false)
-			{
-				StatusSet(st, "SoundLoadWav", STATUS_UNEXPECTED_DATA, "expected riff block ('%s')", filename);
-				goto return_failure;
-			}
-
-			if (sReadFmtBlock(head.size, file, filename, &fmt, st) != 0)
-				goto return_failure;
-
-			fmt_read = true;
-		}
-
-		// Data block
-		else if (strncmp(head.id, DATA_ID, ID_LEN) == 0)
-		{
-			if (fmt_read == false)
-			{
-				StatusSet(st, "SoundLoadWav", STATUS_UNEXPECTED_DATA, "expected fmt block ('%s')", filename);
-				goto return_failure;
-			}
-
-			if ((sound = sReadDataBlock(head.size, file, filename, &fmt, st)) == NULL)
-				goto return_failure;
-
-			data_read = true;
-		}
-
-		// Ignored block
+		if (ex.format == SOUND_I8)
+			read_function = sReadU8Pcm;
 		else
-		{
-			DEBUG_PRINT("Ignored '%c%c%c%c' block\n", head.id[0], head.id[1], head.id[2], head.id[3]);
+			read_function = ReadPcm;
+	}
 
-			if (fseek(file, head.size, SEEK_CUR) != 0)
-			{
-				StatusSet(st, "SoundLoadWav", STATUS_UNEXPECTED_EOF, "at generic seek ('%s')", filename);
-				goto return_failure;
-			}
-		}
+	// Data
+	if (fseek(file, ex.data_offset, SEEK_SET) != 0)
+	{
+		StatusSet(st, "SoundLoadWav", STATUS_UNEXPECTED_EOF, "at data seek ('%s')", filename);
+		goto return_failure;
+	}
+
+	if ((sound = SoundCreate(ex.format, ex.length, ex.channels, ex.frequency)) == NULL)
+		goto return_failure;
+
+	if (read_function(file, sound, ex.endianness) != 0)
+	{
+		StatusSet(st, "SoundLoadWav", STATUS_UNEXPECTED_EOF, "reading data ('%s')", filename);
+		goto return_failure;
 	}
 
 	// Bye!
@@ -412,6 +368,90 @@ return_failure:
 		SoundDelete(sound);
 
 	return NULL;
+}
+
+
+/*-----------------------------
+
+ SoundExLoadWav()
+-----------------------------*/
+int SoundExLoadWav(FILE* file, struct SoundEx* out, struct Status* st)
+{
+	bool riff_read = false;
+	bool fmt_read = false;
+	bool data_read = false; // Not the actual data, but the data block
+
+	struct GenericHead head;
+
+	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
+
+	while (1)
+	{
+		// Generic head
+		if (fread(&head, sizeof(struct GenericHead), 1, file) != 1)
+		{
+			if (riff_read == false || fmt_read == false || data_read == false)
+			{
+				StatusSet(st, "SoundExLoadWav", STATUS_UNEXPECTED_EOF, "at generic head");
+				return 1;
+			}
+			else
+				break; // We have all what we need
+		}
+
+		head.size = EndianTo_32(head.size, ENDIAN_LITTLE, ENDIAN_SYSTEM);
+
+		// Riff block
+		if (strncmp(head.id, RIFF_ID, ID_LEN) == 0)
+		{
+			if (sReadRiffBlock(head.size, file, st) != 0)
+				return 1;
+
+			riff_read = true;
+		}
+
+		// Format block
+		else if (strncmp(head.id, FMT_ID, ID_LEN) == 0)
+		{
+			if (riff_read == false)
+			{
+				StatusSet(st, "SoundExLoadWav", STATUS_UNEXPECTED_DATA, "expected riff block");
+				return 1;
+			}
+
+			if (sReadFmtBlock(head.size, file, out, st) != 0)
+				return 1;
+
+			fmt_read = true;
+		}
+
+		// Data block
+		else if (strncmp(head.id, DATA_ID, ID_LEN) == 0)
+		{
+			if (fmt_read == false)
+			{
+				StatusSet(st, "SoundExLoadWav", STATUS_UNEXPECTED_DATA, "expected fmt block");
+				return 1;
+			}
+
+			if (sReadDataBlock(head.size, file, out, st) != 1)
+				data_read = true;
+		}
+
+		// Ignored block
+		else
+		{
+			DEBUG_PRINT("Ignored '%c%c%c%c' block\n", head.id[0], head.id[1], head.id[2], head.id[3]);
+
+			if (fseek(file, head.size, SEEK_CUR) != 0)
+			{
+				StatusSet(st, "SoundExLoadWav", STATUS_UNEXPECTED_EOF, "at generic seek");
+				return 1;
+			}
+		}
+	}
+
+	return 0;
 }
 
 

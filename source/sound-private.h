@@ -31,6 +31,9 @@
 	struct Sound* SoundLoadAu(FILE* file, const char* filename, struct Status* st);
 	struct Sound* SoundLoadWav(FILE* file, const char* filename, struct Status* st);
 
+	int SoundExLoadAu(FILE* file, struct SoundEx* out, struct Status* st);
+	int SoundExLoadWav(FILE* file, struct SoundEx* out, struct Status* st);
+
 	int ReadPcm(FILE* file, struct Sound* sound, enum Endianness);
 	int ReadULaw(FILE* file, struct Sound* sound, enum Endianness);
 	int ReadALaw(FILE* file, struct Sound* sound, enum Endianness);

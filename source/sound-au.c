@@ -80,90 +80,40 @@ bool CheckMagicAu(uint32_t value)
 -----------------------------*/
 struct Sound* SoundLoadAu(FILE* file, const char* filename, struct Status* st)
 {
+	struct SoundEx ex = {0};
 	struct Sound* sound = NULL;
-	struct AuHead head;
-	enum Endianness sys_endianness = EndianSystem();
-	size_t length = 0;
-	enum SoundFormat format = 0;
 	int (*read_function)(FILE*, struct Sound*, enum Endianness);
 
 	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
 
-	// Head
-	if (fread(&head, sizeof(struct AuHead), 1, file) != 1)
-	{
-		StatusSet(st, "SoundLoadAu", STATUS_UNEXPECTED_EOF, "head ('%s')", filename);
+	if (SoundExLoadAu(file, &ex, st) != 0)
 		goto return_failure;
-	}
-
-	head.data_offset = EndianTo_32(head.data_offset, ENDIAN_BIG, sys_endianness);
-	head.data_size = EndianTo_32(head.data_size, ENDIAN_BIG, sys_endianness);
-	head.format = EndianTo_32(head.format, ENDIAN_BIG, sys_endianness);
-	head.frequency = EndianTo_32(head.frequency, ENDIAN_BIG, sys_endianness);
-	head.channels = EndianTo_32(head.channels, ENDIAN_BIG, sys_endianness);
 
 	DEBUG_PRINT("(Au) '%s':\n", filename);
-	DEBUG_PRINT(" - Data offset: 0x%04X\n", head.data_offset);
-	DEBUG_PRINT(" - Data size: %u bytes\n", head.data_size);
-	DEBUG_PRINT(" - Format: %u\n", head.format);
-	DEBUG_PRINT(" - Frequency: %u hz\n", head.frequency);
-	DEBUG_PRINT(" - Channels: %u\n", head.channels);
+	DEBUG_PRINT(" - Data size: %lu bytes\n", ex.size);
+	DEBUG_PRINT(" - Format: %u\n", ex.format);
+	DEBUG_PRINT(" - Frequency: %lu hz\n", ex.frequency);
+	DEBUG_PRINT(" - Channels: %lu\n", ex.channels);
+	DEBUG_PRINT(" - Data offset: 0x%zX\n", ex.data_offset);
 
-	switch (head.format)
-	{
-	case AU_PCM8:
-		length = head.data_size / head.channels;
-		format = SOUND_I8;
-		read_function = ReadPcm;
-		break;
-	case AU_PCM16:
-		length = head.data_size / sizeof(int16_t) / head.channels;
-		format = SOUND_I16;
-		read_function = ReadPcm;
-		break;
-	case AU_PCM32:
-		length = head.data_size / sizeof(int32_t) / head.channels;
-		format = SOUND_I32;
-		read_function = ReadPcm;
-		break;
-	case AU_FLOAT:
-		length = head.data_size / sizeof(float) / head.channels;
-		format = SOUND_F32;
-		read_function = ReadPcm;
-		break;
-	case AU_DOUBLE:
-		length = head.data_size / sizeof(double) / head.channels;
-		format = SOUND_F64;
-		read_function = ReadPcm;
-		break;
-
-	case AU_ULAW:
-		length = head.data_size / head.channels;
-		format = SOUND_I16;
+	if (ex.compression == SOUND_ULAW)
 		read_function = ReadULaw;
-		break;
-	case AU_ALAW:
-		length = head.data_size / head.channels;
-		format = SOUND_I16;
+	else if (ex.compression == SOUND_ALAW)
 		read_function = ReadALaw;
-		break;
-
-	default:
-		StatusSet(st, "SoundLoadAu", STATUS_UNKNOWN_DATA_FORMAT, "%s", filename);
-		goto return_failure;
-	}
+	else
+		read_function = ReadPcm;
 
 	// Data
-	if (fseek(file, head.data_offset, SEEK_SET) != 0)
+	if (fseek(file, ex.data_offset, SEEK_SET) != 0)
 	{
 		StatusSet(st, "SoundLoadAu", STATUS_UNEXPECTED_EOF, "at data seek ('%s')", filename);
 		goto return_failure;
 	}
 
-	if ((sound = SoundCreate(format, length, head.channels, head.frequency)) == NULL)
+	if ((sound = SoundCreate(ex.format, ex.length, ex.channels, ex.frequency)) == NULL)
 		goto return_failure;
 
-	if (read_function(file, sound, ENDIAN_BIG) != 0)
+	if (read_function(file, sound, ex.endianness) != 0)
 	{
 		StatusSet(st, "SoundLoadAu", STATUS_UNEXPECTED_EOF, "reading data ('%s')", filename);
 		goto return_failure;
@@ -177,6 +127,76 @@ return_failure:
 		SoundDelete(sound);
 
 	return NULL;
+}
+
+
+/*-----------------------------
+
+ SoundExLoadAu()
+-----------------------------*/
+int SoundExLoadAu(FILE* file, struct SoundEx* out, struct Status* st)
+{
+	struct AuHead head;
+	enum Endianness sys_endianness = EndianSystem();
+
+	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
+
+	if (fread(&head, sizeof(struct AuHead), 1, file) != 1)
+	{
+		StatusSet(st, "SoundExLoadAu", STATUS_UNEXPECTED_EOF, "head");
+		return 1;
+	}
+
+	out->frequency = EndianTo_32(head.frequency, ENDIAN_BIG, sys_endianness);
+	out->channels = EndianTo_32(head.channels, ENDIAN_BIG, sys_endianness);
+	out->size = EndianTo_32(head.data_size, ENDIAN_BIG, sys_endianness); // FIXME! is optional
+	out->endianness = ENDIAN_BIG;
+	out->data_offset = EndianTo_32(head.data_offset, ENDIAN_BIG, sys_endianness);
+
+	switch (EndianTo_32(head.format, ENDIAN_BIG, sys_endianness))
+	{
+	case AU_PCM8:
+		out->length = out->size / out->channels;
+		out->format = SOUND_I8;
+		out->compression = SOUND_UNCOMPRESSED;
+		break;
+	case AU_PCM16:
+		out->length = out->size / sizeof(int16_t) / out->channels;
+		out->format = SOUND_I16;
+		out->compression = SOUND_UNCOMPRESSED;
+		break;
+	case AU_PCM32:
+		out->length = out->size / sizeof(int32_t) / out->channels;
+		out->format = SOUND_I32;
+		out->compression = SOUND_UNCOMPRESSED;
+		break;
+	case AU_FLOAT:
+		out->length = out->size / sizeof(float) / out->channels;
+		out->format = SOUND_F32;
+		out->compression = SOUND_UNCOMPRESSED;
+		break;
+	case AU_DOUBLE:
+		out->length = out->size / sizeof(double) / out->channels;
+		out->format = SOUND_F64;
+		out->compression = SOUND_UNCOMPRESSED;
+		break;
+	case AU_ULAW:
+		out->length = out->size / out->channels;
+		out->format = SOUND_I16;
+		out->compression = SOUND_ULAW;
+		break;
+	case AU_ALAW:
+		out->length = out->size / out->channels;
+		out->format = SOUND_I16;
+		out->compression = SOUND_ALAW;
+		break;
+
+	default:
+		StatusSet(st, "SoundExLoadAu", STATUS_UNKNOWN_DATA_FORMAT, NULL);
+		return 1;
+	}
+
+	return 0;
 }
 
 

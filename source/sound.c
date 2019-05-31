@@ -317,3 +317,32 @@ EXPORT struct Status SoundSaveRaw(struct Sound* sound, const char* filename)
 	fclose(file);
 	return st;
 }
+
+
+/*-----------------------------
+
+ SoundExLoad()
+-----------------------------*/
+EXPORT int SoundExLoad(FILE* file, struct SoundEx* out, struct Status* st)
+{
+	uint32_t magic = 0;
+
+	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
+
+	if (fread(&magic, sizeof(uint32_t), 1, file) != 1)
+	{
+		StatusSet(st, "SoundExLoad", STATUS_UNEXPECTED_EOF, "near magic");
+		return 1;
+	}
+
+	fseek(file, 0, SEEK_SET);
+
+	if (CheckMagicAu(magic) == true)
+		return SoundExLoadAu(file, out, st);
+	else if (CheckMagicWav(magic) == true)
+		return SoundExLoadWav(file, out, st);
+
+	// Unsuccessfully bye!
+	StatusSet(st, "SoundExLoad", STATUS_UNKNOWN_FILE_FORMAT, NULL);
+	return 1;
+}
