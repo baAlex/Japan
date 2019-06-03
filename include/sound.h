@@ -42,6 +42,9 @@
 
 	struct SoundEx
 	{
+		// TODO: SoundExLoad() returns compressed size, while SoundLoad() uncompressed
+		// the later behaviour is desired. Compare with ImageExLoad()
+
 		size_t frequency;
 		size_t channels;
 		size_t length; // In frames

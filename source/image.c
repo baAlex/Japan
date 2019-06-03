@@ -46,7 +46,9 @@ extern bool CheckMagicSgi(uint16_t value);
 // extern bool CheckMagicBmp(uint16_t value);
 
 extern struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Status* st);
+extern int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st);
 // extern struct Image* ImageLoadBmp(FILE* file, const char* filename, struct Status* st);
+// extern int ImageExLoadBmp(FILE* file, struct ImageEx* out, struct Status* st);
 
 
 /*-----------------------------
@@ -176,4 +178,33 @@ EXPORT struct Status ImageSaveRaw(struct Image* image, const char* filename)
 
 	fclose(file);
 	return st;
+}
+
+
+/*-----------------------------
+
+ ImageExLoad()
+-----------------------------*/
+EXPORT int ImageExLoad(FILE* file, struct ImageEx* out, struct Status* st)
+{
+	uint16_t magic = 0;
+
+	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
+
+	if (fread(&magic, sizeof(uint16_t), 1, file) != 1)
+	{
+		StatusSet(st, "ImageExLoad", STATUS_UNEXPECTED_EOF, "near magic");
+		return 1;
+	}
+
+	fseek(file, 0, SEEK_SET);
+
+	if (CheckMagicSgi(magic) == true)
+		return ImageExLoadSgi(file, out, st);
+	// else if (CheckMagicBmp(magic) == true)
+	//	return ImageExLoadBmp(file, out, st);
+
+	// Unsuccessfully bye!
+	StatusSet(st, "ImageExLoad", STATUS_UNKNOWN_FILE_FORMAT, NULL);
+	return 1;
 }

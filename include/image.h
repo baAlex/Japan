@@ -7,8 +7,18 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
+	#include <stdio.h>
 	#include <stddef.h>
+
+	#include "endianness.h"
 	#include "status.h"
+
+	enum ImageCompression
+	{
+		IMAGE_UNCOMPRESSED_INTERLEAVED = 0, // (r, g, b), (r, g, b), (r, g, b)...
+		IMAGE_UNCOMPRESSED_PLANAR,			// (r, r, r...), (g, g, g...), (b, b, b...)
+		IMAGE_SGI_RLE
+	};
 
 	enum ImageFormat
 	{
@@ -32,6 +42,19 @@
 		void* data;
 	};
 
+	struct ImageEx
+	{
+		size_t width;
+		size_t height;
+		size_t size; // In bytes
+
+		enum Endianness endianness;
+		enum ImageCompression compression;
+		enum ImageFormat format;
+
+		size_t data_offset;
+	};
+
 	struct Image* ImageCreate(enum ImageFormat, size_t width, size_t height);
 	void ImageDelete(struct Image* image);
 
@@ -39,5 +62,7 @@
 	struct Status ImageSaveSgi(struct Image* image, const char* filename);
 	// struct Status ImageSaveBmp(struct Image* image, const char* filename);
 	struct Status ImageSaveRaw(struct Image* image, const char* filename);
+
+	int ImageExLoad(FILE* file, struct ImageEx* out, struct Status*);
 
 #endif
