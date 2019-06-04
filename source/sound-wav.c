@@ -179,7 +179,7 @@ static int sReadFmtBlock(size_t block_size, FILE* file, struct SoundEx* out, str
 	out->frequency = EndianTo_32(fmt.frequency, ENDIAN_LITTLE, sys_endianness);
 	out->channels = EndianTo_16(fmt.channels, ENDIAN_LITTLE, sys_endianness);
 	out->endianness = ENDIAN_LITTLE;
-	out->oddities.unsigned_8bit = 1;
+	out->unsigned_8bit = true;
 
 	fmt.format = EndianTo_16(fmt.format, ENDIAN_LITTLE, sys_endianness);
 	fmt.bits_per_sample = EndianTo_16(fmt.bits_per_sample, ENDIAN_LITTLE, sys_endianness);
@@ -188,15 +188,18 @@ static int sReadFmtBlock(size_t block_size, FILE* file, struct SoundEx* out, str
 	{
 		out->format = SOUND_I16;
 		out->compression = SOUND_ULAW;
+		out->minimum_unit_size = sizeof(int16_t);
 	}
 	else if (fmt.format == WAVE_FORMAT_ALAW)
 	{
 		out->format = SOUND_I16;
 		out->compression = SOUND_ALAW;
+		out->minimum_unit_size = sizeof(int16_t);
 	}
 	else if (fmt.format == WAVE_FORMAT_PCM)
 	{
 		out->compression = SOUND_UNCOMPRESSED;
+		out->minimum_unit_size = fmt.bits_per_sample / 8;
 
 		if (fmt.bits_per_sample == 8)
 			out->format = SOUND_I8;
@@ -213,6 +216,7 @@ static int sReadFmtBlock(size_t block_size, FILE* file, struct SoundEx* out, str
 	else if (fmt.format == WAVE_FORMAT_IEEE_FLOAT)
 	{
 		out->compression = SOUND_UNCOMPRESSED;
+		out->minimum_unit_size = fmt.bits_per_sample / 8;
 
 		if (fmt.bits_per_sample == 32)
 			out->format = SOUND_F32;
@@ -245,26 +249,10 @@ static int sReadFmtBlock(size_t block_size, FILE* file, struct SoundEx* out, str
 -----------------------------*/
 static int sReadDataBlock(size_t block_size, FILE* file, struct SoundEx* out, struct Status* st)
 {
-	size_t bits_per_sample = 0;
+	size_t bps = BytesPerSample(out->format);
 
-	switch (out->format)
-	{
-	case SOUND_I8:
-		bits_per_sample = 8;
-		break;
-	case SOUND_I16:
-		bits_per_sample = 16;
-		break;
-	case SOUND_I32:
-	case SOUND_F32:
-		bits_per_sample = 32;
-		break;
-	case SOUND_F64:
-		bits_per_sample = 64;
-	}
-
-	out->length = block_size / out->channels / (bits_per_sample / 8);
-	out->size = block_size;
+	out->length = block_size / out->channels / bps;
+	out->uncompressed_size = block_size; // FIXME, not necessary uncompressed
 	out->data_offset = ftell(file);
 
 	if (fseek(file, block_size, SEEK_CUR) != 0)

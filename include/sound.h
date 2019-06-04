@@ -9,6 +9,7 @@
 
 	#include <stdio.h>
 	#include <stddef.h>
+	#include <stdbool.h>
 
 	#include "endianness.h"
 	#include "status.h"
@@ -42,18 +43,13 @@
 
 	struct SoundEx
 	{
-		// TODO: SoundExLoad() returns compressed size, while SoundLoad() uncompressed
-		// the later behaviour is desired. Compare with ImageExLoad()
-
 		size_t frequency;
 		size_t channels;
-		size_t length; // In frames
-		size_t size;   // In bytes
+		size_t length;			  // In frames
+		size_t uncompressed_size; // In bytes
+		size_t minimum_unit_size; // In bytes
 
-		struct
-		{
-			int unsigned_8bit;
-		} oddities;
+		bool unsigned_8bit;
 
 		enum Endianness endianness;
 		enum SoundCompression compression;
@@ -71,6 +67,6 @@
 	struct Status SoundSaveRaw(struct Sound* sound, const char* filename);
 
 	int SoundExLoad(FILE* file, struct SoundEx* out, struct Status*);
-	int SoundExRead(FILE* file, struct SoundEx ex, size_t out_size, void* out, struct Status*);
+	size_t SoundExRead(FILE* file, struct SoundEx ex, size_t out_size, void* out, struct Status*);
 
 #endif

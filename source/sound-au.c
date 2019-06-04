@@ -93,47 +93,54 @@ int SoundExLoadAu(FILE* file, struct SoundEx* out, struct Status* st)
 
 	out->frequency = EndianTo_32(head.frequency, ENDIAN_BIG, sys_endianness);
 	out->channels = EndianTo_32(head.channels, ENDIAN_BIG, sys_endianness);
-	out->size = EndianTo_32(head.data_size, ENDIAN_BIG, sys_endianness); // FIXME! is optional
+	out->uncompressed_size = EndianTo_32(head.data_size, ENDIAN_BIG, sys_endianness); // FIXME, is optional and in compressed form
 	out->endianness = ENDIAN_BIG;
 	out->data_offset = EndianTo_32(head.data_offset, ENDIAN_BIG, sys_endianness);
-	out->oddities.unsigned_8bit = 0;
+	out->unsigned_8bit = false;
 
 	switch (EndianTo_32(head.format, ENDIAN_BIG, sys_endianness))
 	{
 	case AU_PCM8:
-		out->length = out->size / out->channels;
+		out->length = out->uncompressed_size / out->channels;
 		out->format = SOUND_I8;
 		out->compression = SOUND_UNCOMPRESSED;
+		out->minimum_unit_size = sizeof(int8_t);
 		break;
 	case AU_PCM16:
-		out->length = out->size / sizeof(int16_t) / out->channels;
+		out->length = out->uncompressed_size / sizeof(int16_t) / out->channels;
 		out->format = SOUND_I16;
 		out->compression = SOUND_UNCOMPRESSED;
+		out->minimum_unit_size = sizeof(int16_t);
 		break;
 	case AU_PCM32:
-		out->length = out->size / sizeof(int32_t) / out->channels;
+		out->length = out->uncompressed_size / sizeof(int32_t) / out->channels;
 		out->format = SOUND_I32;
 		out->compression = SOUND_UNCOMPRESSED;
+		out->minimum_unit_size = sizeof(int32_t);
 		break;
 	case AU_FLOAT:
-		out->length = out->size / sizeof(float) / out->channels;
+		out->length = out->uncompressed_size / sizeof(float) / out->channels;
 		out->format = SOUND_F32;
 		out->compression = SOUND_UNCOMPRESSED;
+		out->minimum_unit_size = sizeof(float);
 		break;
 	case AU_DOUBLE:
-		out->length = out->size / sizeof(double) / out->channels;
+		out->length = out->uncompressed_size / sizeof(double) / out->channels;
 		out->format = SOUND_F64;
 		out->compression = SOUND_UNCOMPRESSED;
+		out->minimum_unit_size = sizeof(double);
 		break;
 	case AU_ULAW:
-		out->length = out->size / out->channels;
+		out->length = out->uncompressed_size / out->channels;
 		out->format = SOUND_I16;
 		out->compression = SOUND_ULAW;
+		out->minimum_unit_size = sizeof(int16_t);
 		break;
 	case AU_ALAW:
-		out->length = out->size / out->channels;
+		out->length = out->uncompressed_size / out->channels;
 		out->format = SOUND_I16;
 		out->compression = SOUND_ALAW;
+		out->minimum_unit_size = sizeof(int16_t);
 		break;
 
 	default:

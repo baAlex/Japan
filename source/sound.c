@@ -55,7 +55,7 @@ detriment.
 #define ALAW_AMI_MASK 0x55
 
 
-static inline int sBytesPerSample(enum SoundFormat format)
+int BytesPerSample(enum SoundFormat format)
 {
 	switch (format)
 	{
@@ -81,9 +81,7 @@ static inline int sBytesPerSample(enum SoundFormat format)
 int WritePcm(FILE* file, struct Sound* sound, enum Endianness dest_endianness)
 {
 	enum Endianness sys_endianness = EndianSystem();
-	size_t bytes = sound->size / sound->length / sound->channels;
-	int8_t* src = NULL;
-	int8_t* end = (int8_t*)sound->data + sound->size;
+	int bps = BytesPerSample(sound->format);
 
 	union {
 		uint64_t u64;
@@ -92,20 +90,42 @@ int WritePcm(FILE* file, struct Sound* sound, enum Endianness dest_endianness)
 		uint8_t u8;
 	} sample;
 
-	for (src = sound->data; src < end; src += (bytes * sound->channels))
-	{
-		for (size_t c = 0; c < sound->channels; c++)
-		{
-			if (sound->format == SOUND_I8)
-				sample.u8 = ((uint8_t*)src)[c];
-			else if (sound->format == SOUND_I16)
-				sample.u16 = EndianTo_16(((uint16_t*)src)[c], sys_endianness, dest_endianness);
-			else if (sound->format == SOUND_I32 || sound->format == SOUND_F32)
-				sample.u32 = EndianTo_32(((uint32_t*)src)[c], sys_endianness, dest_endianness);
-			else if (sound->format == SOUND_F64)
-				sample.u64 = EndianTo_64(((uint64_t*)src)[c], sys_endianness, dest_endianness);
+	union {
+		void* raw;
+		uint64_t* u64;
+		uint32_t* u32;
+		uint16_t* u16;
+		uint8_t* u8;
+	} src;
 
-			if (fwrite(&sample, bytes, 1, file) != 1)
+	src.raw = sound->data;
+
+	if (sound->format == SOUND_I8)
+	{
+		if (fwrite(sound->data, sound->size, 1, file) != 1)
+			return 1;
+	}
+	else
+	{
+		for (size_t i = 0; i < sound->size; i += bps)
+		{
+			if (sound->format == SOUND_I16)
+			{
+				sample.u16 = EndianTo_16(*src.u16, sys_endianness, dest_endianness);
+				src.u16++;
+			}
+			else if (sound->format == SOUND_I32 || sound->format == SOUND_F32)
+			{
+				sample.u32 = EndianTo_32(*src.u32, sys_endianness, dest_endianness);
+				src.u32++;
+			}
+			else if (sound->format == SOUND_F64)
+			{
+				sample.u64 = EndianTo_64(*src.u64, sys_endianness, dest_endianness);
+				src.u64++;
+			}
+
+			if (fwrite(&sample, bps, 1, file) != 1)
 				return 1;
 		}
 	}
@@ -121,26 +141,7 @@ int WritePcm(FILE* file, struct Sound* sound, enum Endianness dest_endianness)
 EXPORT struct Sound* SoundCreate(enum SoundFormat format, size_t length, size_t channels, size_t frequency)
 {
 	struct Sound* sound = NULL;
-	size_t size = 0;
-
-	switch (format)
-	{
-	case SOUND_I8:
-		size = sizeof(int8_t) * length * channels;
-		break;
-	case SOUND_I16:
-		size = sizeof(int16_t) * length * channels;
-		break;
-	case SOUND_I32:
-		size = sizeof(int32_t) * length * channels;
-		break;
-	case SOUND_F32:
-		size = sizeof(float) * length * channels;
-		break;
-	case SOUND_F64:
-		size = sizeof(double) * length * channels;
-		break;
-	}
+	size_t size = BytesPerSample(format) * length * channels;
 
 	if ((sound = malloc(sizeof(struct Sound) + size)) != NULL)
 	{
@@ -211,10 +212,14 @@ EXPORT struct Sound* SoundLoad(const char* filename, struct Status* st)
 		goto return_failure;
 	}
 
-	DEBUG_PRINT(" - Data size: %lu bytes\n", ex.size);
-	DEBUG_PRINT(" - Format: %u\n", ex.format);
-	DEBUG_PRINT(" - Frequency: %lu hz\n", ex.frequency);
-	DEBUG_PRINT(" - Channels: %lu\n", ex.channels);
+	DEBUG_PRINT(" - Frequency: %zu hz\n", ex.frequency);
+	DEBUG_PRINT(" - Channels: %zu\n", ex.channels);
+	DEBUG_PRINT(" - Frames: %zu\n", ex.length);
+	DEBUG_PRINT(" - Size: %zu bytes\n", ex.uncompressed_size);
+	DEBUG_PRINT(" - Minimum unit: %zu bytes\n", ex.minimum_unit_size);
+	DEBUG_PRINT(" - Endianness: %s\n", (ex.endianness == ENDIAN_LITTLE) ? "little" : "big");
+	DEBUG_PRINT(" - Compression: %i\n", ex.compression);
+	DEBUG_PRINT(" - Format: %i\n", ex.format);
 	DEBUG_PRINT(" - Data offset: 0x%zX\n", ex.data_offset);
 
 	// Data
@@ -227,11 +232,8 @@ EXPORT struct Sound* SoundLoad(const char* filename, struct Status* st)
 	if ((sound = SoundCreate(ex.format, ex.length, ex.channels, ex.frequency)) == NULL)
 		goto return_failure;
 
-	if (SoundExRead(file, ex, sound->size, sound->data, st) != 0)
-	{
-		StatusSet(st, "SoundLoad", STATUS_UNEXPECTED_EOF, "reading data ('%s')", filename);
+	if (SoundExRead(file, ex, sound->size, sound->data, st) != sound->size)
 		goto return_failure;
-	}
 
 	// Bye!
 	fclose(file);
@@ -307,14 +309,11 @@ EXPORT int SoundExLoad(FILE* file, struct SoundEx* out, struct Status* st)
 
  SoundExRead()
 -----------------------------*/
-EXPORT int SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, void* out, struct Status* st)
+EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, void* out, struct Status* st)
 {
 	enum Endianness sys_endianness = EndianSystem();
-	size_t bps = sBytesPerSample(ex.format);
-
-	uint8_t compressed = 0;
-	int t;
-	int seg;
+	size_t bps = BytesPerSample(ex.format);
+	size_t bytes_write = 0;
 
 	union {
 		void* raw;
@@ -328,19 +327,27 @@ EXPORT int SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, void*
 	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
 	dest.raw = out;
 
+	if((size_to_read % ex.minimum_unit_size) != 0)
+	{
+		StatusSet(st, "SoundExRead", STATUS_INVALID_ARGUMENT, NULL);
+		size_to_read -= (size_to_read % ex.minimum_unit_size);
+	}
+
 	if (ex.compression == SOUND_UNCOMPRESSED)
 	{
 		if (fread(dest.raw, size_to_read, 1, file) != 1)
 		{
 			StatusSet(st, "SoundExRead", STATUS_UNEXPECTED_EOF, NULL);
-			return 1;
+			goto return_failure;
 		}
+
+		bytes_write = size_to_read;
 
 		for (size_t i = 0; i < size_to_read; i += bps)
 		{
 			if (ex.format == SOUND_I8)
 			{
-				if (ex.oddities.unsigned_8bit == 0)
+				if (ex.unsigned_8bit == false)
 					break;
 
 				*dest.i8 = *dest.i8 + 0x80;
@@ -356,7 +363,7 @@ EXPORT int SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, void*
 					*dest.i16 = EndianTo_16(*dest.i16, ex.endianness, sys_endianness);
 					dest.i16++;
 				}
-				else if (ex.format == SOUND_I32 || SOUND_F32)
+				else if (ex.format == SOUND_I32 || ex.format == SOUND_F32)
 				{
 					*dest.i32 = EndianTo_32(*dest.i32, ex.endianness, sys_endianness);
 					dest.i32++;
@@ -369,40 +376,47 @@ EXPORT int SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, void*
 			}
 		}
 	}
-	else if (ex.compression == SOUND_ALAW)
+	else
 	{
-		for (size_t i = 0; i < size_to_read; i += sizeof(int16_t))
+		uint8_t compressed = 0;
+		int t, seg;
+
+		for (bytes_write = 0; bytes_write < size_to_read; bytes_write += sizeof(int16_t))
 		{
 			if (fread(&compressed, sizeof(int8_t), 1, file) != 1)
-				return 1;
+			{
+				StatusSet(st, "SoundExRead", STATUS_UNEXPECTED_EOF, NULL);
+				goto return_failure;
+			}
 
-			compressed ^= ALAW_AMI_MASK;
-			i = ((compressed & 0x0F) << 4);
-			seg = (((int)compressed & 0x70) >> 4);
+			if (ex.compression == SOUND_ALAW)
+			{
+				compressed ^= ALAW_AMI_MASK;
+				t = ((compressed & 0x0F) << 4);
+				seg = (((int)compressed & 0x70) >> 4);
 
-			if (seg)
-				i = (i + 0x108) << (seg - 1);
-			else
-				i += 8;
+				if (seg)
+					t = (t + 0x108) << (seg - 1);
+				else
+					t += 8;
 
-			*dest.i16 = (int16_t)((compressed & 0x80) ? i : -i);
-			dest.i16++;
+				*dest.i16 = (int16_t)((compressed & 0x80) ? t : -t);
+				dest.i16++;
+			}
+			else if (ex.compression == SOUND_ULAW)
+			{
+				compressed = ~compressed;
+				t = (((compressed & 0x0F) << 3) + ULAW_BIAS) << (((int)compressed & 0x70) >> 4);
+
+				*dest.i16 = (int16_t)((compressed & 0x80) ? (ULAW_BIAS - t) : (t - ULAW_BIAS));
+				dest.i16++;
+			}
 		}
 	}
-	else if (ex.compression == SOUND_ULAW)
-	{
-		for (size_t i = 0; i < size_to_read; i += sizeof(int16_t))
-		{
-			if (fread(&compressed, sizeof(int8_t), 1, file) != 1)
-				return 1;
 
-			compressed = ~compressed;
-			t = (((compressed & 0x0F) << 3) + ULAW_BIAS) << (((int)compressed & 0x70) >> 4);
+	// Bye!
+	return bytes_write;
 
-			*dest.i16 = (int16_t)((compressed & 0x80) ? (ULAW_BIAS - t) : (t - ULAW_BIAS));
-			dest.i16++;
-		}
-	}
-
-	return 0;
+return_failure:
+	return bytes_write;
 }
