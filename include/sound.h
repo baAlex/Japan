@@ -50,6 +50,11 @@
 		size_t length; // In frames
 		size_t size;   // In bytes
 
+		struct
+		{
+			int unsigned_8bit;
+		} oddities;
+
 		enum Endianness endianness;
 		enum SoundCompression compression;
 		enum SoundFormat format;
@@ -66,5 +71,6 @@
 	struct Status SoundSaveRaw(struct Sound* sound, const char* filename);
 
 	int SoundExLoad(FILE* file, struct SoundEx* out, struct Status*);
+	int SoundExRead(FILE* file, struct SoundEx ex, size_t out_size, void* out, struct Status*);
 
 #endif

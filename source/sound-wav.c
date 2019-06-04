@@ -101,27 +101,6 @@ struct FactBlock
 
 /*-----------------------------
 
- sReadU8Pcm()
------------------------------*/
-static int sReadU8Pcm(FILE* file, struct Sound* sound, enum Endianness org_endianness)
-{
-	(void)org_endianness;
-
-	uint8_t* dest = sound->data;
-	uint8_t* end = (uint8_t*)sound->data + sound->size;
-
-	if (fread(dest, sound->size, 1, file) != 1)
-		return 1;
-
-	for (dest = sound->data; dest < end; dest++)
-		*dest = *dest + 0x80;
-
-	return 0;
-}
-
-
-/*-----------------------------
-
  WriteU8Pcm()
 -----------------------------*/
 static int WriteU8Pcm(FILE* file, struct Sound* sound)
@@ -200,6 +179,7 @@ static int sReadFmtBlock(size_t block_size, FILE* file, struct SoundEx* out, str
 	out->frequency = EndianTo_32(fmt.frequency, ENDIAN_LITTLE, sys_endianness);
 	out->channels = EndianTo_16(fmt.channels, ENDIAN_LITTLE, sys_endianness);
 	out->endianness = ENDIAN_LITTLE;
+	out->oddities.unsigned_8bit = 1;
 
 	fmt.format = EndianTo_16(fmt.format, ENDIAN_LITTLE, sys_endianness);
 	fmt.bits_per_sample = EndianTo_16(fmt.bits_per_sample, ENDIAN_LITTLE, sys_endianness);
@@ -307,67 +287,6 @@ bool CheckMagicWav(uint32_t value)
 		return true;
 
 	return false;
-}
-
-
-/*-----------------------------
-
- SoundLoadWav()
------------------------------*/
-struct Sound* SoundLoadWav(FILE* file, const char* filename, struct Status* st)
-{
-	struct SoundEx ex = {0};
-	struct Sound* sound = NULL;
-	int (*read_function)(FILE*, struct Sound*, enum Endianness);
-
-	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
-
-	if (SoundExLoadWav(file, &ex, st) != 0)
-		goto return_failure;
-
-	DEBUG_PRINT("(Wav) '%s':\n", filename);
-	DEBUG_PRINT(" - Data size: %lu bytes\n", ex.size);
-	DEBUG_PRINT(" - Format: %u\n", ex.format);
-	DEBUG_PRINT(" - Frequency: %lu hz\n", ex.frequency);
-	DEBUG_PRINT(" - Channels: %lu\n", ex.channels);
-	DEBUG_PRINT(" - Data offset: 0x%zX\n", ex.data_offset);
-
-	if (ex.compression == SOUND_ULAW)
-		read_function = ReadULaw;
-	else if (ex.compression == SOUND_ALAW)
-		read_function = ReadALaw;
-	else
-	{
-		if (ex.format == SOUND_I8)
-			read_function = sReadU8Pcm;
-		else
-			read_function = ReadPcm;
-	}
-
-	// Data
-	if (fseek(file, ex.data_offset, SEEK_SET) != 0)
-	{
-		StatusSet(st, "SoundLoadWav", STATUS_UNEXPECTED_EOF, "at data seek ('%s')", filename);
-		goto return_failure;
-	}
-
-	if ((sound = SoundCreate(ex.format, ex.length, ex.channels, ex.frequency)) == NULL)
-		goto return_failure;
-
-	if (read_function(file, sound, ex.endianness) != 0)
-	{
-		StatusSet(st, "SoundLoadWav", STATUS_UNEXPECTED_EOF, "reading data ('%s')", filename);
-		goto return_failure;
-	}
-
-	// Bye!
-	return sound;
-
-return_failure:
-	if (sound != NULL)
-		SoundDelete(sound);
-
-	return NULL;
 }
 
 

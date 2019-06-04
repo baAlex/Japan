@@ -55,102 +55,19 @@ detriment.
 #define ALAW_AMI_MASK 0x55
 
 
-/*-----------------------------
-
- ReadPcm()
------------------------------*/
-int ReadPcm(FILE* file, struct Sound* sound, enum Endianness org_endianness)
+static inline int sBytesPerSample(enum SoundFormat format)
 {
-	int8_t* dest = sound->data;
-
-	if (fread(dest, sound->size, 1, file) != 1)
+	switch (format)
+	{
+	case SOUND_I8:
 		return 1;
-
-	if (sound->format != SOUND_I8)
-	{
-		enum Endianness sys_endianness = EndianSystem();
-
-		size_t bytes = sound->size / sound->length / sound->channels;
-		int8_t* end = (int8_t*)sound->data + sound->size;
-
-		if (sound->format == SOUND_I16)
-		{
-			for (dest = sound->data; dest < end; dest += (bytes * sound->channels))
-				for (size_t c = 0; c < sound->channels; c++)
-					((uint16_t*)dest)[c] = EndianTo_16(((uint16_t*)dest)[c], org_endianness, sys_endianness);
-		}
-		else if (sound->format == SOUND_I32 || sound->format == SOUND_F32)
-		{
-			for (dest = sound->data; dest < end; dest += (bytes * sound->channels))
-				for (size_t c = 0; c < sound->channels; c++)
-					((uint32_t*)dest)[c] = EndianTo_32(((uint32_t*)dest)[c], org_endianness, sys_endianness);
-		}
-		else if (sound->format == SOUND_F64)
-		{
-			for (dest = sound->data; dest < end; dest += (bytes * sound->channels))
-				for (size_t c = 0; c < sound->channels; c++)
-					((uint64_t*)dest)[c] = EndianTo_64(((uint64_t*)dest)[c], org_endianness, sys_endianness);
-		}
-	}
-
-	return 0;
-}
-
-
-/*-----------------------------
-
- ReadULaw()
------------------------------*/
-int ReadULaw(FILE* file, struct Sound* sound, enum Endianness org_endianness)
-{
-	(void)org_endianness;
-
-	int16_t* end = (int16_t*)sound->data + (sound->length * sound->channels);
-	uint8_t compressed = 0;
-	int t;
-
-	for (int16_t* dest = sound->data; dest < end; dest++)
-	{
-		if (fread(&compressed, sizeof(uint8_t), 1, file) != 1)
-			return 1;
-
-		compressed = ~compressed;
-		t = (((compressed & 0x0F) << 3) + ULAW_BIAS) << (((int)compressed & 0x70) >> 4);
-
-		*dest = (int16_t)((compressed & 0x80) ? (ULAW_BIAS - t) : (t - ULAW_BIAS));
-	}
-
-	return 0;
-}
-
-
-/*-----------------------------
-
- ReadALaw()
------------------------------*/
-int ReadALaw(FILE* file, struct Sound* sound, enum Endianness org_endianness)
-{
-	(void)org_endianness;
-
-	int16_t* end = (int16_t*)sound->data + (sound->length * sound->channels);
-	uint8_t compressed = 0;
-	int i, seg;
-
-	for (int16_t* dest = sound->data; dest < end; dest++)
-	{
-		if (fread(&compressed, sizeof(uint8_t), 1, file) != 1)
-			return 1;
-
-		compressed ^= ALAW_AMI_MASK;
-		i = ((compressed & 0x0F) << 4);
-		seg = (((int)compressed & 0x70) >> 4);
-
-		if (seg)
-			i = (i + 0x108) << (seg - 1);
-		else
-			i += 8;
-
-		*dest = (int16_t)((compressed & 0x80) ? i : -i);
+	case SOUND_I16:
+		return 2;
+	case SOUND_I32:
+	case SOUND_F32:
+		return 4;
+	case SOUND_F64:
+		return 8;
 	}
 
 	return 0;
@@ -253,6 +170,7 @@ EXPORT void SoundDelete(struct Sound* sound) { free(sound); }
 EXPORT struct Sound* SoundLoad(const char* filename, struct Status* st)
 {
 	FILE* file = NULL;
+	struct SoundEx ex = {0};
 	struct Sound* sound = NULL;
 	uint32_t magic = 0;
 
@@ -272,13 +190,46 @@ EXPORT struct Sound* SoundLoad(const char* filename, struct Status* st)
 
 	fseek(file, 0, SEEK_SET);
 
+	// Header
 	if (CheckMagicAu(magic) == true)
-		sound = SoundLoadAu(file, filename, st);
+	{
+		if (SoundExLoadAu(file, &ex, st) != 0)
+			goto return_failure;
+
+		DEBUG_PRINT("(Au) '%s':\n", filename);
+	}
 	else if (CheckMagicWav(magic) == true)
-		sound = SoundLoadWav(file, filename, st);
+	{
+		if (SoundExLoadWav(file, &ex, st) != 0)
+			goto return_failure;
+
+		DEBUG_PRINT("(Wav) '%s':\n", filename);
+	}
 	else
 	{
 		StatusSet(st, "SoundLoad", STATUS_UNKNOWN_FILE_FORMAT, "'%s'", filename);
+		goto return_failure;
+	}
+
+	DEBUG_PRINT(" - Data size: %lu bytes\n", ex.size);
+	DEBUG_PRINT(" - Format: %u\n", ex.format);
+	DEBUG_PRINT(" - Frequency: %lu hz\n", ex.frequency);
+	DEBUG_PRINT(" - Channels: %lu\n", ex.channels);
+	DEBUG_PRINT(" - Data offset: 0x%zX\n", ex.data_offset);
+
+	// Data
+	if (fseek(file, ex.data_offset, SEEK_SET) != 0)
+	{
+		StatusSet(st, "SoundLoad", STATUS_UNEXPECTED_EOF, "at data seek ('%s')", filename);
+		goto return_failure;
+	}
+
+	if ((sound = SoundCreate(ex.format, ex.length, ex.channels, ex.frequency)) == NULL)
+		goto return_failure;
+
+	if (SoundExRead(file, ex, sound->size, sound->data, st) != 0)
+	{
+		StatusSet(st, "SoundLoad", STATUS_UNEXPECTED_EOF, "reading data ('%s')", filename);
 		goto return_failure;
 	}
 
@@ -288,6 +239,10 @@ EXPORT struct Sound* SoundLoad(const char* filename, struct Status* st)
 
 return_failure:
 	fclose(file);
+
+	if (sound != NULL)
+		SoundDelete(sound);
+
 	return NULL;
 }
 
@@ -345,4 +300,109 @@ EXPORT int SoundExLoad(FILE* file, struct SoundEx* out, struct Status* st)
 	// Unsuccessfully bye!
 	StatusSet(st, "SoundExLoad", STATUS_UNKNOWN_FILE_FORMAT, NULL);
 	return 1;
+}
+
+
+/*-----------------------------
+
+ SoundExRead()
+-----------------------------*/
+EXPORT int SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, void* out, struct Status* st)
+{
+	enum Endianness sys_endianness = EndianSystem();
+	size_t bps = sBytesPerSample(ex.format);
+
+	uint8_t compressed = 0;
+	int t;
+	int seg;
+
+	union {
+		void* raw;
+		int8_t* i8;
+		int16_t* i16;
+		int32_t* i32;
+		float* f32;
+		double* f64;
+	} dest;
+
+	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
+	dest.raw = out;
+
+	if (ex.compression == SOUND_UNCOMPRESSED)
+	{
+		if (fread(dest.raw, size_to_read, 1, file) != 1)
+		{
+			StatusSet(st, "SoundExRead", STATUS_UNEXPECTED_EOF, NULL);
+			return 1;
+		}
+
+		for (size_t i = 0; i < size_to_read; i += bps)
+		{
+			if (ex.format == SOUND_I8)
+			{
+				if (ex.oddities.unsigned_8bit == 0)
+					break;
+
+				*dest.i8 = *dest.i8 + 0x80;
+				dest.i8++;
+			}
+			else
+			{
+				if (ex.endianness == sys_endianness)
+					break;
+
+				if (ex.format == SOUND_I16)
+				{
+					*dest.i16 = EndianTo_16(*dest.i16, ex.endianness, sys_endianness);
+					dest.i16++;
+				}
+				else if (ex.format == SOUND_I32 || SOUND_F32)
+				{
+					*dest.i32 = EndianTo_32(*dest.i32, ex.endianness, sys_endianness);
+					dest.i32++;
+				}
+				else if (ex.format == SOUND_F64)
+				{
+					*dest.f64 = EndianTo_64(*dest.f64, ex.endianness, sys_endianness);
+					dest.f64++;
+				}
+			}
+		}
+	}
+	else if (ex.compression == SOUND_ALAW)
+	{
+		for (size_t i = 0; i < size_to_read; i += sizeof(int16_t))
+		{
+			if (fread(&compressed, sizeof(int8_t), 1, file) != 1)
+				return 1;
+
+			compressed ^= ALAW_AMI_MASK;
+			i = ((compressed & 0x0F) << 4);
+			seg = (((int)compressed & 0x70) >> 4);
+
+			if (seg)
+				i = (i + 0x108) << (seg - 1);
+			else
+				i += 8;
+
+			*dest.i16 = (int16_t)((compressed & 0x80) ? i : -i);
+			dest.i16++;
+		}
+	}
+	else if (ex.compression == SOUND_ULAW)
+	{
+		for (size_t i = 0; i < size_to_read; i += sizeof(int16_t))
+		{
+			if (fread(&compressed, sizeof(int8_t), 1, file) != 1)
+				return 1;
+
+			compressed = ~compressed;
+			t = (((compressed & 0x0F) << 3) + ULAW_BIAS) << (((int)compressed & 0x70) >> 4);
+
+			*dest.i16 = (int16_t)((compressed & 0x80) ? (ULAW_BIAS - t) : (t - ULAW_BIAS));
+			dest.i16++;
+		}
+	}
+
+	return 0;
 }

@@ -76,62 +76,6 @@ bool CheckMagicAu(uint32_t value)
 
 /*-----------------------------
 
- SoundLoadAu()
------------------------------*/
-struct Sound* SoundLoadAu(FILE* file, const char* filename, struct Status* st)
-{
-	struct SoundEx ex = {0};
-	struct Sound* sound = NULL;
-	int (*read_function)(FILE*, struct Sound*, enum Endianness);
-
-	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
-
-	if (SoundExLoadAu(file, &ex, st) != 0)
-		goto return_failure;
-
-	DEBUG_PRINT("(Au) '%s':\n", filename);
-	DEBUG_PRINT(" - Data size: %lu bytes\n", ex.size);
-	DEBUG_PRINT(" - Format: %u\n", ex.format);
-	DEBUG_PRINT(" - Frequency: %lu hz\n", ex.frequency);
-	DEBUG_PRINT(" - Channels: %lu\n", ex.channels);
-	DEBUG_PRINT(" - Data offset: 0x%zX\n", ex.data_offset);
-
-	if (ex.compression == SOUND_ULAW)
-		read_function = ReadULaw;
-	else if (ex.compression == SOUND_ALAW)
-		read_function = ReadALaw;
-	else
-		read_function = ReadPcm;
-
-	// Data
-	if (fseek(file, ex.data_offset, SEEK_SET) != 0)
-	{
-		StatusSet(st, "SoundLoadAu", STATUS_UNEXPECTED_EOF, "at data seek ('%s')", filename);
-		goto return_failure;
-	}
-
-	if ((sound = SoundCreate(ex.format, ex.length, ex.channels, ex.frequency)) == NULL)
-		goto return_failure;
-
-	if (read_function(file, sound, ex.endianness) != 0)
-	{
-		StatusSet(st, "SoundLoadAu", STATUS_UNEXPECTED_EOF, "reading data ('%s')", filename);
-		goto return_failure;
-	}
-
-	// Bye!
-	return sound;
-
-return_failure:
-	if (sound != NULL)
-		SoundDelete(sound);
-
-	return NULL;
-}
-
-
-/*-----------------------------
-
  SoundExLoadAu()
 -----------------------------*/
 int SoundExLoadAu(FILE* file, struct SoundEx* out, struct Status* st)
@@ -152,6 +96,7 @@ int SoundExLoadAu(FILE* file, struct SoundEx* out, struct Status* st)
 	out->size = EndianTo_32(head.data_size, ENDIAN_BIG, sys_endianness); // FIXME! is optional
 	out->endianness = ENDIAN_BIG;
 	out->data_offset = EndianTo_32(head.data_offset, ENDIAN_BIG, sys_endianness);
+	out->oddities.unsigned_8bit = 0;
 
 	switch (EndianTo_32(head.format, ENDIAN_BIG, sys_endianness))
 	{
