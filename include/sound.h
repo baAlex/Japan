@@ -49,11 +49,15 @@
 		size_t uncompressed_size; // In bytes
 		size_t minimum_unit_size; // In bytes
 
-		bool unsigned_8bit;
-
 		enum Endianness endianness;
 		enum SoundCompression compression;
 		enum SoundFormat format;
+
+		struct
+		{
+			unsigned unsigned_8bit : 1;
+			unsigned unspecified_size : 1;
+		} oddities;
 
 		size_t data_offset;
 	};

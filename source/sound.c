@@ -215,8 +215,8 @@ EXPORT struct Sound* SoundLoad(const char* filename, struct Status* st)
 	DEBUG_PRINT(" - Frequency: %zu hz\n", ex.frequency);
 	DEBUG_PRINT(" - Channels: %zu\n", ex.channels);
 	DEBUG_PRINT(" - Frames: %zu\n", ex.length);
-	DEBUG_PRINT(" - Size: %zu bytes\n", ex.uncompressed_size);
-	DEBUG_PRINT(" - Minimum unit: %zu bytes\n", ex.minimum_unit_size);
+	DEBUG_PRINT(" - Uncompressed size: %zu bytes\n", ex.uncompressed_size);
+	DEBUG_PRINT(" - Minimum unit size: %zu bytes\n", ex.minimum_unit_size);
 	DEBUG_PRINT(" - Endianness: %s\n", (ex.endianness == ENDIAN_LITTLE) ? "little" : "big");
 	DEBUG_PRINT(" - Compression: %i\n", ex.compression);
 	DEBUG_PRINT(" - Format: %i\n", ex.format);
@@ -347,7 +347,7 @@ EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, vo
 		{
 			if (ex.format == SOUND_I8)
 			{
-				if (ex.unsigned_8bit == false)
+				if (ex.oddities.unsigned_8bit == 1)
 					break;
 
 				*dest.i8 = *dest.i8 + 0x80;

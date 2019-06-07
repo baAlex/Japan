@@ -37,6 +37,8 @@ SOFTWARE.
 
 #define AU_MAGIC 0x2E736E64
 
+#define AU_UNKNOWN_SIZE (~0)
+
 #define AU_ULAW 1
 #define AU_PCM8 2
 #define AU_PCM16 3
@@ -93,10 +95,28 @@ int SoundExLoadAu(FILE* file, struct SoundEx* out, struct Status* st)
 
 	out->frequency = EndianTo_32(head.frequency, ENDIAN_BIG, sys_endianness);
 	out->channels = EndianTo_32(head.channels, ENDIAN_BIG, sys_endianness);
-	out->uncompressed_size = EndianTo_32(head.data_size, ENDIAN_BIG, sys_endianness); // FIXME, is optional and in compressed form
+	out->uncompressed_size = EndianTo_32(head.data_size, ENDIAN_BIG, sys_endianness);
 	out->endianness = ENDIAN_BIG;
 	out->data_offset = EndianTo_32(head.data_offset, ENDIAN_BIG, sys_endianness);
-	out->unsigned_8bit = false;
+	out->oddities.unsigned_8bit = 0;
+	out->oddities.unspecified_size = 0;
+
+	if (out->uncompressed_size == (size_t)AU_UNKNOWN_SIZE)
+	{
+		size_t current, end;
+
+		if ((current = ftell(file)) == (size_t)(-1L) || fseek(file, 0, SEEK_END) != 0)
+			goto unknown_size;
+
+		if ((end = ftell(file)) == (size_t)(-1L) || fseek(file, current, SEEK_SET) != 0)
+			goto unknown_size;
+
+		out->uncompressed_size = (end - out->data_offset);
+
+	unknown_size:
+		out->uncompressed_size = 0;
+		out->oddities.unspecified_size = 1;
+	}
 
 	switch (EndianTo_32(head.format, ENDIAN_BIG, sys_endianness))
 	{
@@ -135,12 +155,14 @@ int SoundExLoadAu(FILE* file, struct SoundEx* out, struct Status* st)
 		out->format = SOUND_I16;
 		out->compression = SOUND_ULAW;
 		out->minimum_unit_size = sizeof(int16_t);
+		out->uncompressed_size = out->uncompressed_size * 2;
 		break;
 	case AU_ALAW:
 		out->length = out->uncompressed_size / out->channels;
 		out->format = SOUND_I16;
 		out->compression = SOUND_ALAW;
 		out->minimum_unit_size = sizeof(int16_t);
+		out->uncompressed_size = out->uncompressed_size * 2;
 		break;
 
 	default:

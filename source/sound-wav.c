@@ -179,7 +179,8 @@ static int sReadFmtBlock(size_t block_size, FILE* file, struct SoundEx* out, str
 	out->frequency = EndianTo_32(fmt.frequency, ENDIAN_LITTLE, sys_endianness);
 	out->channels = EndianTo_16(fmt.channels, ENDIAN_LITTLE, sys_endianness);
 	out->endianness = ENDIAN_LITTLE;
-	out->unsigned_8bit = true;
+	out->oddities.unsigned_8bit = 0;
+	out->oddities.unspecified_size = 0;
 
 	fmt.format = EndianTo_16(fmt.format, ENDIAN_LITTLE, sys_endianness);
 	fmt.bits_per_sample = EndianTo_16(fmt.bits_per_sample, ENDIAN_LITTLE, sys_endianness);
@@ -252,8 +253,11 @@ static int sReadDataBlock(size_t block_size, FILE* file, struct SoundEx* out, st
 	size_t bps = BytesPerSample(out->format);
 
 	out->length = block_size / out->channels / bps;
-	out->uncompressed_size = block_size; // FIXME, not necessary uncompressed
+	out->uncompressed_size = block_size;
 	out->data_offset = ftell(file);
+
+	if (out->compression != SOUND_UNCOMPRESSED)
+		out->uncompressed_size = block_size * 2;
 
 	if (fseek(file, block_size, SEEK_CUR) != 0)
 	{
@@ -372,6 +376,7 @@ EXPORT struct Status SoundSaveWav(struct Sound* sound, const char* filename)
 	FILE* file = NULL;
 	enum Endianness sys_endianness = EndianSystem();
 	struct GenericHead head;
+	size_t bps = BytesPerSample(sound->format);
 
 	if ((file = fopen(filename, "wb")) == NULL)
 	{
@@ -432,7 +437,7 @@ EXPORT struct Status SoundSaveWav(struct Sound* sound, const char* filename)
 			fmt.bits_per_sample = EndianTo_16(16, sys_endianness, ENDIAN_LITTLE);
 			break;
 
-		case SOUND_I32: // Audacity way (FIXME?)
+		case SOUND_I32: // Audacity way
 			fmt.format = EndianTo_16(WAVE_FORMAT_PCM, sys_endianness, ENDIAN_LITTLE);
 			fmt.bits_per_sample = EndianTo_16(32, sys_endianness, ENDIAN_LITTLE);
 			break;
@@ -450,8 +455,8 @@ EXPORT struct Status SoundSaveWav(struct Sound* sound, const char* filename)
 
 		fmt.channels = EndianTo_16(sound->channels, sys_endianness, ENDIAN_LITTLE);
 		fmt.frequency = EndianTo_32(sound->frequency, sys_endianness, ENDIAN_LITTLE);
-		fmt.avg_bytes_frequency = EndianTo_32(0, sys_endianness, ENDIAN_LITTLE); // FIXME
-		fmt.data_align_size = EndianTo_16(0, sys_endianness, ENDIAN_LITTLE);	 // FIXME
+		fmt.avg_bytes_frequency = EndianTo_32(sound->channels * sound->frequency * bps, sys_endianness, ENDIAN_LITTLE);
+		fmt.data_align_size = EndianTo_16(sound->channels * bps, sys_endianness, ENDIAN_LITTLE);
 
 		if (fwrite(&fmt, 16, 1, file) != 1)
 		{
