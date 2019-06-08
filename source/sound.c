@@ -347,7 +347,7 @@ EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, vo
 		{
 			if (ex.format == SOUND_I8)
 			{
-				if (ex.unsigned_8bit == true)
+				if (ex.unsigned_8bit == false)
 					break;
 
 				*dest.i8 = *dest.i8 + 0x80;
