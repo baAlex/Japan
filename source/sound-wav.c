@@ -179,8 +179,8 @@ static int sReadFmtBlock(size_t block_size, FILE* file, struct SoundEx* out, str
 	out->frequency = EndianTo_32(fmt.frequency, ENDIAN_LITTLE, sys_endianness);
 	out->channels = EndianTo_16(fmt.channels, ENDIAN_LITTLE, sys_endianness);
 	out->endianness = ENDIAN_LITTLE;
-	out->oddities.unsigned_8bit = 0;
-	out->oddities.unspecified_size = 0;
+	out->unsigned_8bit = true;
+	out->unspecified_size = false;
 
 	fmt.format = EndianTo_16(fmt.format, ENDIAN_LITTLE, sys_endianness);
 	fmt.bits_per_sample = EndianTo_16(fmt.bits_per_sample, ENDIAN_LITTLE, sys_endianness);

@@ -98,8 +98,8 @@ int SoundExLoadAu(FILE* file, struct SoundEx* out, struct Status* st)
 	out->uncompressed_size = EndianTo_32(head.data_size, ENDIAN_BIG, sys_endianness);
 	out->endianness = ENDIAN_BIG;
 	out->data_offset = EndianTo_32(head.data_offset, ENDIAN_BIG, sys_endianness);
-	out->oddities.unsigned_8bit = 0;
-	out->oddities.unspecified_size = 0;
+	out->unsigned_8bit = false;
+	out->unspecified_size = false;
 
 	if (out->uncompressed_size == (size_t)AU_UNKNOWN_SIZE)
 	{
@@ -115,7 +115,7 @@ int SoundExLoadAu(FILE* file, struct SoundEx* out, struct Status* st)
 
 	unknown_size:
 		out->uncompressed_size = 0;
-		out->oddities.unspecified_size = 1;
+		out->unspecified_size = true;
 	}
 
 	switch (EndianTo_32(head.format, ENDIAN_BIG, sys_endianness))

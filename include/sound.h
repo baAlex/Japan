@@ -53,11 +53,8 @@
 		enum SoundCompression compression;
 		enum SoundFormat format;
 
-		struct
-		{
-			unsigned unsigned_8bit : 1;
-			unsigned unspecified_size : 1;
-		} oddities;
+		bool unsigned_8bit;
+		bool unspecified_size;
 
 		size_t data_offset;
 	};
