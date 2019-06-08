@@ -18,6 +18,7 @@ LFLAGS_STATIC=rcs
 LFLAGS_SHARED=-lm -shared
 
 FILES=./source/buffer.c \
+      ./source/dictionary.c \
       ./source/endianness.c \
       ./source/image.c \
       ./source/image-sgi.c \
