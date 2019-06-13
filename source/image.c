@@ -42,13 +42,57 @@ SOFTWARE.
 #define EXPORT // Whitespace
 #endif
 
-extern bool CheckMagicSgi(uint16_t value);
-// extern bool CheckMagicBmp(uint16_t value);
 
+extern bool CheckMagicSgi(uint16_t value);
 extern struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Status* st);
 extern int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st);
-// extern struct Image* ImageLoadBmp(FILE* file, const char* filename, struct Status* st);
-// extern int ImageExLoadBmp(FILE* file, struct ImageEx* out, struct Status* st);
+
+
+int BytesPerPixel(enum ImageFormat format)
+{
+	switch (format)
+	{
+	case IMAGE_GRAY8:
+		return 1;
+	case IMAGE_GRAYA8:
+		return 2;
+	case IMAGE_RGB8:
+		return 3;
+	case IMAGE_RGBA8:
+		return 4;
+	case IMAGE_GRAY16:
+		return 2;
+	case IMAGE_GRAYA16:
+		return 4;
+	case IMAGE_RGB16:
+		return 6;
+	case IMAGE_RGBA16:
+		return 8;
+	}
+
+	return 0;
+}
+
+int Channels(enum ImageFormat format)
+{
+	switch (format)
+	{
+	case IMAGE_GRAY8:
+	case IMAGE_GRAY16:
+		return 1;
+	case IMAGE_GRAYA8:
+	case IMAGE_GRAYA16:
+		return 2;
+	case IMAGE_RGB8:
+	case IMAGE_RGB16:
+		return 3;
+	case IMAGE_RGBA8:
+	case IMAGE_RGBA16:
+		return 4;
+	}
+
+	return 0;
+}
 
 
 /*-----------------------------
@@ -58,35 +102,7 @@ extern int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st);
 EXPORT struct Image* ImageCreate(enum ImageFormat format, size_t width, size_t height)
 {
 	struct Image* image = NULL;
-	size_t size = 0;
-
-	switch (format)
-	{
-	case IMAGE_GRAY8:
-		size = sizeof(uint8_t) * width * height;
-		break;
-	case IMAGE_GRAYA8:
-		size = sizeof(uint8_t) * width * height * 2; // 2 channels
-		break;
-	case IMAGE_RGB8:
-		size = sizeof(uint8_t) * width * height * 3; // 3 channels
-		break;
-	case IMAGE_RGBA8:
-		size = sizeof(uint8_t) * width * height * 4; // ...
-		break;
-	case IMAGE_GRAY16:
-		size = sizeof(uint16_t) * width * height;
-		break;
-	case IMAGE_GRAYA16:
-		size = sizeof(uint8_t) * width * height * 2;
-		break;
-	case IMAGE_RGB16:
-		size = sizeof(uint8_t) * width * height * 3;
-		break;
-	case IMAGE_RGBA16:
-		size = sizeof(uint8_t) * width * height * 4;
-		break;
-	}
+	size_t size = BytesPerPixel(format) * width * height;
 
 	if ((image = malloc(sizeof(struct Image) + size)) != NULL)
 	{

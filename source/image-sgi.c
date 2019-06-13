@@ -51,6 +51,12 @@ SOFTWARE.
 #define EXPORT // Whitespace
 #endif
 
+
+extern int BytesPerPixel(enum ImageFormat format);
+extern int Channels(enum ImageFormat format);
+int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st);
+
+
 #define SGI_MAGIC 474
 
 struct SgiHead
@@ -73,56 +79,6 @@ struct SgiHead
 
 	int32_t pixel_type;
 };
-
-
-int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st);
-
-
-static inline int sChannels(enum ImageFormat format)
-{
-	switch (format)
-	{
-	case IMAGE_GRAY8:
-	case IMAGE_GRAY16:
-		return 1;
-	case IMAGE_GRAYA8:
-	case IMAGE_GRAYA16:
-		return 2;
-	case IMAGE_RGB8:
-	case IMAGE_RGB16:
-		return 3;
-	case IMAGE_RGBA8:
-	case IMAGE_RGBA16:
-		return 4;
-	}
-
-	return 0;
-}
-
-static inline int sBytesPerPixel(enum ImageFormat format)
-{
-	switch (format)
-	{
-	case IMAGE_GRAY8:
-		return 1;
-	case IMAGE_GRAYA8:
-		return 2;
-	case IMAGE_RGB8:
-		return 3;
-	case IMAGE_RGBA8:
-		return 4;
-	case IMAGE_GRAY16:
-		return 2;
-	case IMAGE_GRAYA16:
-		return 4;
-	case IMAGE_RGB16:
-		return 6;
-	case IMAGE_RGBA16:
-		return 8;
-	}
-
-	return 0;
-}
 
 
 /*-----------------------------
@@ -170,7 +126,7 @@ static int sReadUncompressed_8(FILE* file, struct Image* image)
 {
 	uint8_t pixel = 0;
 
-	for (int channel = 0; channel < sChannels(image->format); channel++)
+	for (int channel = 0; channel < Channels(image->format); channel++)
 	{
 		for (int row = ((int)image->height - 1); row >= 0; row--)
 		{
@@ -195,7 +151,7 @@ static int sReadUncompressed_8(FILE* file, struct Image* image)
 static int sReadCompressed_8(FILE* file, struct Image* image)
 {
 	void* buffer = NULL;
-	size_t table_len = image->height * sChannels(image->format);
+	size_t table_len = image->height * Channels(image->format);
 	uint32_t* offset_table = NULL;
 	uint32_t* size_table = NULL;
 
@@ -219,7 +175,7 @@ static int sReadCompressed_8(FILE* file, struct Image* image)
 	}
 
 	// Data
-	for (int channel = 0; channel < sChannels(image->format); channel++)
+	for (int channel = 0; channel < Channels(image->format); channel++)
 	{
 		for (int row = 0; row < (int)image->height; row++)
 		{
@@ -312,10 +268,11 @@ struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Status* st)
 		goto return_failure;
 
 	DEBUG_PRINT("(Sgi) '%s':\n", filename);
-	DEBUG_PRINT(" - Dimension: %zux%zu px\n", ex.width, ex.height);
-	DEBUG_PRINT(" - Data size: %zu bytes\n", ex.size);
-	DEBUG_PRINT(" - Format: %u\n", ex.format);
+	DEBUG_PRINT(" - Dimensions: %zux%zu px\n", ex.width, ex.height);
+	DEBUG_PRINT(" - Uncompressed size: %zu bytes\n", ex.uncompressed_size);
+	DEBUG_PRINT(" - Endianness: %s\n", (ex.endianness == ENDIAN_LITTLE) ? "little" : "big");
 	DEBUG_PRINT(" - Compression: %s (%u)\n", (ex.compression == IMAGE_SGI_RLE) ? "rle" : "none", ex.compression);
+	DEBUG_PRINT(" - Format: %i\n", ex.format);
 	DEBUG_PRINT(" - Data offset: 0x%zX\n", ex.data_offset);
 
 	// Data
@@ -425,21 +382,19 @@ int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st)
 		{
 		case 1:
 			out->format = IMAGE_GRAY8;
-			out->size = sizeof(uint8_t) * out->width * out->height;
 			break;
 		case 2:
 			out->format = IMAGE_GRAYA8;
-			out->size = sizeof(uint8_t) * out->width * out->height * 2;
 			break;
 		case 3:
 			out->format = IMAGE_RGB8;
-			out->size = sizeof(uint8_t) * out->width * out->height * 3;
 			break;
 		case 4:
 			out->format = IMAGE_RGBA8;
-			out->size = sizeof(uint8_t) * out->width * out->height * 4;
 			break;
 		}
+
+		out->uncompressed_size = BytesPerPixel(out->format) * out->width * out->height;
 	}
 	else
 	{
@@ -461,11 +416,17 @@ EXPORT struct Status ImageSaveSgi(struct Image* image, const char* filename)
 	struct SgiHead head = {0};
 	FILE* file = NULL;
 	enum Endianness sys_endianness = EndianSystem();
-	uint16_t channels = 0;
 
 	if (image->width > UINT16_MAX || image->height > UINT16_MAX)
 	{
 		StatusSet(&st, "ImageSaveSgi", STATUS_UNSUPPORTED_FEATURE, "image dimensions ('%s')", filename);
+		return st;
+	}
+
+	if (image->format != IMAGE_GRAY8 && image->format != IMAGE_GRAYA8 && image->format != IMAGE_RGB8 &&
+		image->format != IMAGE_RGBA8)
+	{
+		StatusSet(&st, "ImageSaveSgi", STATUS_UNSUPPORTED_FEATURE, "image format ('%s')", filename);
 		return st;
 	}
 
@@ -478,39 +439,14 @@ EXPORT struct Status ImageSaveSgi(struct Image* image, const char* filename)
 	// Head
 	head.magic = EndianTo_16(SGI_MAGIC, sys_endianness, ENDIAN_BIG);
 	head.compression = 0;
+	head.precision = 1;
 	head.dimension = EndianTo_16(3, sys_endianness, ENDIAN_BIG);
 
 	head.x_size = EndianTo_16(image->width, sys_endianness, ENDIAN_BIG);
 	head.y_size = EndianTo_16(image->height, sys_endianness, ENDIAN_BIG);
+	head.z_size = EndianTo_16(Channels(image->format), sys_endianness, ENDIAN_BIG);
 
 	head.pixel_type = 0;
-
-	switch (image->format)
-	{
-	case IMAGE_GRAY8:
-		channels = 1;
-		head.z_size = EndianTo_16(channels, sys_endianness, ENDIAN_BIG);
-		head.precision = 1;
-		break;
-	case IMAGE_GRAYA8:
-		channels = 2;
-		head.z_size = EndianTo_16(channels, sys_endianness, ENDIAN_BIG);
-		head.precision = 1;
-		break;
-	case IMAGE_RGB8:
-		channels = 3;
-		head.z_size = EndianTo_16(channels, sys_endianness, ENDIAN_BIG);
-		head.precision = 1;
-		break;
-	case IMAGE_RGBA8:
-		channels = 4;
-		head.z_size = EndianTo_16(channels, sys_endianness, ENDIAN_BIG);
-		head.precision = 1;
-		break;
-	default:
-		StatusSet(&st, "ImageSaveSgi", STATUS_UNSUPPORTED_FEATURE, "format ('%s')", filename);
-		goto return_failure;
-	}
 
 	if (fwrite(&head, sizeof(struct SgiHead), 1, file) != 1)
 	{
@@ -519,7 +455,7 @@ EXPORT struct Status ImageSaveSgi(struct Image* image, const char* filename)
 	}
 
 	// Data
-	size_t bytes = sBytesPerPixel(image->format);
+	size_t bytes = BytesPerPixel(image->format);
 	uint8_t* src = NULL;
 
 	if (fseek(file, 512, SEEK_SET) != 0) // Data start at offset 512
@@ -528,7 +464,7 @@ EXPORT struct Status ImageSaveSgi(struct Image* image, const char* filename)
 		goto return_failure;
 	}
 
-	for (uint16_t ch = 0; ch < channels; ch++)
+	for (uint16_t ch = 0; ch < Channels(image->format); ch++)
 	{
 		// TODO: '__ssize_t' not a standard
 

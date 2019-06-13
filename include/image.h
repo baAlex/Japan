@@ -16,7 +16,7 @@
 	enum ImageCompression
 	{
 		IMAGE_UNCOMPRESSED_INTERLEAVED = 0, // (r, g, b), (r, g, b), (r, g, b)...
-		IMAGE_UNCOMPRESSED_PLANAR,			// (r, r, r...), (g, g, g...), (b, b, b...)
+		IMAGE_UNCOMPRESSED_PLANAR,          // (r, r, r...), (g, g, g...), (b, b, b...)
 		IMAGE_SGI_RLE
 	};
 
@@ -46,7 +46,7 @@
 	{
 		size_t width;
 		size_t height;
-		size_t size; // In bytes
+		size_t uncompressed_size; // In bytes
 
 		enum Endianness endianness;
 		enum ImageCompression compression;
@@ -60,7 +60,6 @@
 
 	struct Image* ImageLoad(const char* filename, struct Status*);
 	struct Status ImageSaveSgi(struct Image* image, const char* filename);
-	// struct Status ImageSaveBmp(struct Image* image, const char* filename);
 	struct Status ImageSaveRaw(struct Image* image, const char* filename);
 
 	int ImageExLoad(FILE* file, struct ImageEx* out, struct Status*);
