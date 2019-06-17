@@ -101,6 +101,9 @@ EXPORT int StatusPrint(struct Status st)
 	case STATUS_INVALID_ARGUMENT:
 		code_message = "Invalid argument";
 		break;
+	case STATUS_MEMORY_ERROR:
+		code_message = "Memory error";
+		break;
 	default:
 		code_message = "Unknown status";
 	}
