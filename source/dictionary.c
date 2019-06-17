@@ -92,7 +92,7 @@ struct Dictionary
 
  sHash()
 -----------------------------*/
-static uint64_t sHash(const char* key)
+static inline uint64_t sHash(const char* key)
 {
 	uint64_t hash = FNV_OFFSET_BASIS;
 	size_t size = strlen(key) + 1;
@@ -111,7 +111,7 @@ static uint64_t sHash(const char* key)
 
  sPow()
 -----------------------------*/
-static int sPow(int base, int exp)
+static inline int sPow(int base, int exp)
 {
 	int result = 1;
 
@@ -132,7 +132,7 @@ static int sPow(int base, int exp)
 
  sAppendRemoveBuckets()
 -----------------------------*/
-static int sAppendRemoveBuckets(struct Dictionary* d, int how_many)
+static inline int sAppendRemoveBuckets(struct Dictionary* d, int how_many)
 {
 	if (BufferResizeZero(&d->buckets_buffer, (d->buckets_no + how_many) * sizeof(struct Bucket)) == NULL)
 		return 1;
@@ -146,7 +146,7 @@ static int sAppendRemoveBuckets(struct Dictionary* d, int how_many)
 
  sCycleBucket()
 -----------------------------*/
-static int sCycleBucket(struct CycleBucketState* state, struct DictionaryItem*** out)
+static inline int sCycleBucket(struct CycleBucketState* state, struct DictionaryItem*** out)
 {
 	if (state->bucket != NULL)
 	{
@@ -169,55 +169,81 @@ static int sCycleBucket(struct CycleBucketState* state, struct DictionaryItem***
 
 /*-----------------------------
 
+ sLocateInBucket()
+-----------------------------*/
+static int sLocateInBucket(struct Dictionary* dictionary, struct DictionaryItem* item, size_t address)
+{
+	struct CycleBucketState state = {0};
+	struct DictionaryItem** item_slot = NULL;
+
+	// Add item into a bucket
+	state.bucket = &dictionary->buckets[address];
+
+	while (sCycleBucket(&state, &item_slot) != 1)
+	{
+		if (item_slot != NULL && *item_slot == NULL)
+		{
+			*item_slot = item;
+			break;
+		}
+	}
+
+	// ... Into an overflow bucket
+	if (item_slot == NULL || *item_slot != item)
+	{
+		struct Bucket* previous_bucket = state.previous_bucket;
+
+		if (previous_bucket == NULL)
+			previous_bucket = &dictionary->buckets[address];
+
+		if ((previous_bucket->overflow_next = malloc(sizeof(struct Bucket))) != NULL)
+		{
+			memset(previous_bucket->overflow_next, 0, sizeof(struct Bucket));
+			previous_bucket->overflow_next->item[0] = item;
+		}
+		else
+			goto return_failure;
+	}
+
+	// Bye!
+	return 0;
+
+return_failure:
+	return 1;
+}
+
+
+/*-----------------------------
+
  sRehashPointedItem()
 -----------------------------*/
 static int sRehashPointedItem(struct Dictionary* dictionary, struct DictionaryItem** slot)
 {
-	struct DictionaryItem** new_slot = NULL;
-	struct CycleBucketState state = {0};
-
 	struct DictionaryItem* item = *slot;
 	uint64_t hash = 0;
 	size_t address = 0;
 
+	// Address calculation
 	hash = sHash(item->key);
 	address = hash % (INITIAL_BUCKETS * sPow(2, dictionary->level));
 
-	if (address < dictionary->pointer + 1) // +1 = Anticipating next 'update counters' operation
+	if (address < dictionary->pointer + 1) // +1 = Anticipating next 'update counters' operation, (*a)
 		address = hash % (INITIAL_BUCKETS * sPow(2, dictionary->level + 1));
 
 	if (address == dictionary->pointer) // New rehash produce the same address
 		return 0;
 
-	*slot = NULL;
-
-	// Add item into new bucket
-	state.bucket = &dictionary->buckets[address];
-	while (sCycleBucket(&state, &new_slot) != 1)
+	// Relocate in a bucket
+	if (sLocateInBucket(dictionary, item, address) == 0)
 	{
-		if (*new_slot == NULL)
-		{
-			*new_slot = item;
-			break;
-		}
+		*slot = NULL;
+		DEBUG_PRINT(" - Rehashing '%s', address: %03lu -> %03lu , hash: 0x%016lX\n", item->key, dictionary->pointer,
+					address, hash);
+		return 0;
 	}
 
-	// ... Into an overflow bucket (TODO, copy-pasted code)
-	if (*new_slot != item)
-	{
-		if ((state.previous_bucket->overflow_next = malloc(sizeof(struct Bucket))) != NULL)
-		{
-			memset(state.previous_bucket->overflow_next, 0, sizeof(struct Bucket));
-			state.previous_bucket->overflow_next->item[0] = item;
-		}
-		else
-			return 1;
-	}
-
-	DEBUG_PRINT(" - Rehashing '%s', address: %03lu -> %03lu , hash: 0x%016lX\n", item->key, dictionary->pointer,
-				address, hash);
-
-	return 0;
+	// Unsuccessfully bye!
+	return 1;
 }
 
 
@@ -321,34 +347,16 @@ EXPORT struct DictionaryItem* DictionaryAdd(struct Dictionary* dictionary, const
 	else
 		goto return_failure;
 
-	// Add item into a bucket
+	// Address calculation (TODO: repeated code)
 	hash = sHash(key);
 	address = hash % (INITIAL_BUCKETS * sPow(2, dictionary->level));
 
 	if (address < dictionary->pointer)
 		address = hash % (INITIAL_BUCKETS * sPow(2, dictionary->level + 1));
 
-	state.bucket = &dictionary->buckets[address];
-	while (sCycleBucket(&state, &item_slot) != 1)
-	{
-		if (*item_slot == NULL)
-		{
-			*item_slot = item;
-			break;
-		}
-	}
-
-	// ... Into an overflow bucket
-	if (*item_slot != item)
-	{
-		if ((state.previous_bucket->overflow_next = malloc(sizeof(struct Bucket))) != NULL)
-		{
-			memset(state.previous_bucket->overflow_next, 0, sizeof(struct Bucket));
-			state.previous_bucket->overflow_next->item[0] = item;
-		}
-		else
-			goto return_failure;
-	}
+	// Add to a bucket
+	if (sLocateInBucket(dictionary, item, address) != 0)
+		goto return_failure;
 
 	DEBUG_PRINT("(DictionaryAdd) key: '%s', address: %03lu, hash: 0x%016lX\n", key, address, hash);
 
@@ -373,7 +381,7 @@ EXPORT struct DictionaryItem* DictionaryAdd(struct Dictionary* dictionary, const
 			}
 		}
 
-		// Update counters
+		// Update counters (*a)
 		if (dictionary->pointer < (size_t)(INITIAL_BUCKETS * sPow(2, dictionary->level)))
 			dictionary->pointer += 1;
 		else
@@ -406,10 +414,9 @@ EXPORT struct DictionaryItem* DictionaryGet(const struct Dictionary* dictionary,
 	struct CycleBucketState state = {0};
 	struct DictionaryItem** item_slot = NULL;
 
-	uint64_t hash = 0;
+	// Address calculation (TODO: repeated code)
+	uint64_t hash = sHash(key);
 	size_t address = hash % (INITIAL_BUCKETS * sPow(2, dictionary->level));
-
-	hash = sHash(key);
 
 	if (address < dictionary->pointer)
 		address = hash % (INITIAL_BUCKETS * sPow(2, dictionary->level + 1));
@@ -447,6 +454,7 @@ EXPORT int DictionaryDetach(struct DictionaryItem* item)
 	struct CycleBucketState state = {0};
 	struct DictionaryItem** item_slot = NULL;
 
+	// Address calculation (TODO: repeated code)
 	uint64_t hash = sHash(item->key);
 	size_t address = hash % (INITIAL_BUCKETS * sPow(2, item->dictionary->level));
 

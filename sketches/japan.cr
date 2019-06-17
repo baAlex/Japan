@@ -38,6 +38,7 @@ lib LibJapan
 		ObsoleteFeature
 		UnknownDataFormat
 		InvalidArgument
+		MemoryError
 	end
 
 	struct Status
