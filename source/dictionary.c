@@ -31,12 +31,12 @@ SOFTWARE.
  https://stackoverflow.com/a/30874878
  https://stackoverflow.com/a/29787467
 -----------------------------*/
-
-#include "dictionary.h"
-#include "buffer.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "buffer.h"
+#include "dictionary.h"
 
 #ifdef DEBUG
 #include <stdio.h>
@@ -90,25 +90,6 @@ struct Dictionary
 
 /*-----------------------------
 
- sHash()
------------------------------*/
-static inline uint64_t sHash(const char* key)
-{
-	uint64_t hash = FNV_OFFSET_BASIS;
-	size_t size = strlen(key) + 1;
-
-	for (size_t i = 0; i < size; i++)
-	{
-		hash = hash ^ key[i];
-		hash = hash * FNV_PRIME;
-	}
-
-	return hash;
-}
-
-
-/*-----------------------------
-
  sPow()
 -----------------------------*/
 static inline int sPow(int base, int exp)
@@ -125,6 +106,37 @@ static inline int sPow(int base, int exp)
 	}
 
 	return result;
+}
+
+
+/*-----------------------------
+
+ sGetAddress()
+-----------------------------*/
+static inline size_t sGetAddress(const struct Dictionary* dictionary, const char* key, int pointer_offset,
+								 uint64_t* out_hash)
+{
+	uint64_t hash = FNV_OFFSET_BASIS;
+	size_t address = 0;
+	size_t size = 0;
+
+	size = strlen(key) + 1;
+
+	for (size_t i = 0; i < size; i++)
+	{
+		hash = hash ^ key[i];
+		hash = hash * FNV_PRIME;
+	}
+
+	address = hash % (INITIAL_BUCKETS * sPow(2, dictionary->level));
+
+	if (address < dictionary->pointer + pointer_offset)
+		address = hash % (INITIAL_BUCKETS * sPow(2, dictionary->level + 1));
+
+	if (out_hash != NULL)
+		*out_hash = hash;
+
+	return address;
 }
 
 
@@ -215,35 +227,60 @@ return_failure:
 
 /*-----------------------------
 
- sRehashPointedItem()
+ sGrownMechanism()
 -----------------------------*/
-static int sRehashPointedItem(struct Dictionary* dictionary, struct DictionaryItem** slot)
+static int sGrownMechanism(struct Dictionary* dictionary)
 {
-	struct DictionaryItem* item = *slot;
-	uint64_t hash = 0;
-	size_t address = 0;
+	struct DictionaryItem** item_slot = NULL;
+	struct CycleBucketState state = {0};
 
-	// Address calculation
-	hash = sHash(item->key);
-	address = hash % (INITIAL_BUCKETS * sPow(2, dictionary->level));
+	struct DictionaryItem* item = NULL;
 
-	if (address < dictionary->pointer + 1) // +1 = Anticipating next 'update counters' operation, (*a)
-		address = hash % (INITIAL_BUCKETS * sPow(2, dictionary->level + 1));
+	if (sAppendRemoveBuckets(dictionary, +1) != 0)
+		return 1;
 
-	if (address == dictionary->pointer) // New rehash produce the same address
-		return 0;
+	// Rehash pointed bucket
+	state.bucket = &dictionary->buckets[dictionary->pointer];
+	state.depth = 0;
 
-	// Relocate in a bucket
-	if (sLocateInBucket(dictionary, item, address) == 0)
+	while (sCycleBucket(&state, &item_slot) != 1)
 	{
-		*slot = NULL;
-		DEBUG_PRINT(" - Rehashing '%s', address: %03lu -> %03lu , hash: 0x%016lX\n", item->key, dictionary->pointer,
-					address, hash);
-		return 0;
+		// TODO: Free empty overflow buckets
+
+		if (*item_slot != NULL)
+		{
+			item = *item_slot;
+
+			uint64_t hash = 0;
+			size_t address = sGetAddress(dictionary, item->key, +1,
+										 &hash); // +1 = Anticipating next 'update counters' operation, (*a)
+
+			if (address == dictionary->pointer) // New rehash produce the same address
+				continue;
+
+			// Relocate in a bucket
+			if (sLocateInBucket(dictionary, item, address) == 0)
+			{
+				*item_slot = NULL;
+				DEBUG_PRINT(" - Rehashing '%s', address: %03lu -> %03lu , hash: 0x%016lX\n", item->key,
+							dictionary->pointer, address, hash);
+			}
+			else
+				return 1;
+		}
 	}
 
-	// Unsuccessfully bye!
-	return 1;
+	// Update counters (*a)
+	if (dictionary->pointer < (size_t)(INITIAL_BUCKETS * sPow(2, dictionary->level)))
+		dictionary->pointer += 1;
+	else
+	{
+		dictionary->pointer = 0;
+		dictionary->level += 1;
+	}
+
+	DEBUG_PRINT(" - Buckets: %lu\n", dictionary->buckets_no);
+	return 0;
 }
 
 
@@ -316,14 +353,9 @@ EXPORT struct DictionaryItem* DictionaryAdd(struct Dictionary* dictionary, const
 											size_t data_size)
 {
 	struct DictionaryItem* item = NULL;
-	struct DictionaryItem** item_slot = NULL;
-	struct CycleBucketState state = {0};
-
 	size_t key_size = 0;
-	uint64_t hash = 0;
-	size_t address = 0;
 
-	if (dictionary == NULL && key == NULL)
+	if (dictionary == NULL || key == NULL)
 		return NULL;
 
 	key_size = strlen(key) + 1;
@@ -331,7 +363,7 @@ EXPORT struct DictionaryItem* DictionaryAdd(struct Dictionary* dictionary, const
 	if ((item = malloc(sizeof(struct DictionaryItem) + key_size + data_size)) != NULL)
 	{
 		item->dictionary = dictionary;
-		strcpy(item->key, key);
+		strncpy(item->key, key, key_size);
 
 		if (data_size == 0)
 			item->data = data;
@@ -347,50 +379,20 @@ EXPORT struct DictionaryItem* DictionaryAdd(struct Dictionary* dictionary, const
 	else
 		goto return_failure;
 
-	// Address calculation (TODO: repeated code)
-	hash = sHash(key);
-	address = hash % (INITIAL_BUCKETS * sPow(2, dictionary->level));
-
-	if (address < dictionary->pointer)
-		address = hash % (INITIAL_BUCKETS * sPow(2, dictionary->level + 1));
-
 	// Add to a bucket
+	uint64_t hash = 0;
+	size_t address = sGetAddress(dictionary, key, 0, &hash);
+
 	if (sLocateInBucket(dictionary, item, address) != 0)
 		goto return_failure;
 
 	DEBUG_PRINT("(DictionaryAdd) key: '%s', address: %03lu, hash: 0x%016lX\n", key, address, hash);
 
-	// Grown mechanism
+	// Grown?
 	if ((dictionary->items_no * 100) / (dictionary->buckets_no * BUCKET_DEPTH) >= THRESHOLD)
 	{
-		if (sAppendRemoveBuckets(dictionary, +1) != 0)
+		if (sGrownMechanism(dictionary) != 0)
 			goto return_failure;
-
-		// Rehash pointed bucket
-		state.bucket = &dictionary->buckets[dictionary->pointer];
-		state.depth = 0;
-
-		while (sCycleBucket(&state, &item_slot) != 1)
-		{
-			if (*item_slot != NULL)
-			{
-				// TODO: Free empty overflow buckets
-
-				if (sRehashPointedItem(dictionary, item_slot) != 0)
-					goto return_failure;
-			}
-		}
-
-		// Update counters (*a)
-		if (dictionary->pointer < (size_t)(INITIAL_BUCKETS * sPow(2, dictionary->level)))
-			dictionary->pointer += 1;
-		else
-		{
-			dictionary->pointer = 0;
-			dictionary->level += 1;
-		}
-
-		DEBUG_PRINT(" - Buckets: %lu\n", dictionary->buckets_no);
 	}
 
 	// Bye!
@@ -414,20 +416,19 @@ EXPORT struct DictionaryItem* DictionaryGet(const struct Dictionary* dictionary,
 	struct CycleBucketState state = {0};
 	struct DictionaryItem** item_slot = NULL;
 
-	// Address calculation (TODO: repeated code)
-	uint64_t hash = sHash(key);
-	size_t address = hash % (INITIAL_BUCKETS * sPow(2, dictionary->level));
-
-	if (address < dictionary->pointer)
-		address = hash % (INITIAL_BUCKETS * sPow(2, dictionary->level + 1));
-
-	DEBUG_PRINT("(DictionaryGet) key: '%s', address: %03lu, hash: 0x%016lX\n", key, address, hash);
-
-	state.bucket = &dictionary->buckets[address];
-	while (sCycleBucket(&state, &item_slot) != 1)
+	if (dictionary != NULL && key != NULL)
 	{
-		if (*item_slot != NULL && strcmp((*item_slot)->key, key) == 0)
-			return *item_slot;
+		uint64_t hash = 0;
+		size_t address = sGetAddress(dictionary, key, 0, &hash);
+
+		DEBUG_PRINT("(DictionaryGet) key: '%s', address: %03lu, hash: 0x%016lX\n", key, address, hash);
+
+		state.bucket = &dictionary->buckets[address];
+		while (sCycleBucket(&state, &item_slot) != 1)
+		{
+			if (*item_slot != NULL && strcmp((*item_slot)->key, key) == 0)
+				return *item_slot;
+		}
 	}
 
 	return NULL;
@@ -454,31 +455,32 @@ EXPORT int DictionaryDetach(struct DictionaryItem* item)
 	struct CycleBucketState state = {0};
 	struct DictionaryItem** item_slot = NULL;
 
-	// Address calculation (TODO: repeated code)
-	uint64_t hash = sHash(item->key);
-	size_t address = hash % (INITIAL_BUCKETS * sPow(2, item->dictionary->level));
-
-	if (address < item->dictionary->pointer)
-		address = hash % (INITIAL_BUCKETS * sPow(2, item->dictionary->level + 1));
-
-	DEBUG_PRINT("(DictionaryDetach) key: '%s', address: %03lu, hash: 0x%016lX\n", item->key, address, hash);
-
-	state.bucket = &item->dictionary->buckets[address];
-	while (sCycleBucket(&state, &item_slot) != 1)
+	if (item != NULL)
 	{
-		if (*item_slot != NULL && strcmp((*item_slot)->key, item->key) == 0)
-			*item_slot = NULL;
+		uint64_t hash = 0;
+		size_t address = sGetAddress(item->dictionary, item->key, 0, &hash);
+
+		DEBUG_PRINT("(DictionaryDetach) key: '%s', address: %03lu, hash: 0x%016lX\n", item->key, address, hash);
+
+		state.bucket = &item->dictionary->buckets[address];
+		while (sCycleBucket(&state, &item_slot) != 1)
+		{
+			if (*item_slot != NULL && strcmp((*item_slot)->key, item->key) == 0)
+				*item_slot = NULL;
+		}
+
+		item->dictionary->items_no -= 1;
+		item->dictionary = NULL;
+
+		// Shrink?
+		{
+			// TODO
+		}
+
+		return 0;
 	}
 
-	item->dictionary->items_no -= 1;
-	item->dictionary = NULL;
-
-	// Shrink mechanism
-	{
-		// TODO
-	}
-
-	return 0;
+	return 1;
 }
 
 
@@ -492,15 +494,18 @@ EXPORT void DictionaryIterate(struct Dictionary* dictionary, void (*callback)(st
 	struct CycleBucketState state = {0};
 	struct DictionaryItem** item_slot = NULL;
 
-	for (size_t i = 0; i < dictionary->buckets_no; i++)
+	if (dictionary != NULL && callback != NULL)
 	{
-		state.bucket = &dictionary->buckets[i];
-		state.previous_bucket = NULL;
-
-		while (sCycleBucket(&state, &item_slot) != 1)
+		for (size_t i = 0; i < dictionary->buckets_no; i++)
 		{
-			if (*item_slot != NULL)
-				callback(*item_slot, extra_data);
+			state.bucket = &dictionary->buckets[i];
+			state.previous_bucket = NULL;
+
+			while (sCycleBucket(&state, &item_slot) != 1)
+			{
+				if (*item_slot != NULL)
+					callback(*item_slot, extra_data);
+			}
 		}
 	}
 }
