@@ -8,7 +8,6 @@
 #define DICTIONARY_H
 
 	#include <stddef.h>
-	#include <stdbool.h>
 
 	struct Dictionary;
 
@@ -26,9 +25,9 @@
 	struct DictionaryItem* DictionaryAdd(struct Dictionary* dictionary, const char* key, void* data, size_t data_size);
 	struct DictionaryItem* DictionaryGet(const struct Dictionary* dictionary, const char* key);
 
-	// void DictionaryRemove(struct DictionaryItem* item);
-	// int DictionaryDetach(struct DictionaryItem* item);
+	void DictionaryRemove(struct DictionaryItem* item);
+	int DictionaryDetach(struct DictionaryItem* item);
 
-	// struct DictionaryItem* DictionaryIterate(const struct Dictionary* dictionary, struct DictionaryState* state);
+	void DictionaryIterate(struct Dictionary*, void (*callback)(struct DictionaryItem*, void*), void* extra_data);
 
 #endif

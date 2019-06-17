@@ -250,7 +250,7 @@ static int sReadFmtBlock(size_t block_size, FILE* file, struct SoundEx* out, str
 -----------------------------*/
 static int sReadDataBlock(size_t block_size, FILE* file, struct SoundEx* out, struct Status* st)
 {
-	size_t bps = BytesPerSample(out->format);
+	size_t bps = SoundBps(out->format);
 
 	out->length = block_size / out->channels / bps;
 	out->uncompressed_size = block_size;
@@ -376,7 +376,7 @@ EXPORT struct Status SoundSaveWav(struct Sound* sound, const char* filename)
 	FILE* file = NULL;
 	enum Endianness sys_endianness = EndianSystem();
 	struct GenericHead head;
-	size_t bps = BytesPerSample(sound->format);
+	size_t bps = SoundBps(sound->format);
 
 	if ((file = fopen(filename, "wb")) == NULL)
 	{

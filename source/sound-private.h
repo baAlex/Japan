@@ -32,6 +32,5 @@
 	int SoundExLoadWav(FILE* file, struct SoundEx* out, struct Status* st);
 
 	int WritePcm(FILE* file, struct Sound* sound, enum Endianness);
-	int BytesPerSample(enum SoundFormat format);
 
 #endif

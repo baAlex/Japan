@@ -55,25 +55,6 @@ detriment.
 #define ALAW_AMI_MASK 0x55
 
 
-int BytesPerSample(enum SoundFormat format)
-{
-	switch (format)
-	{
-	case SOUND_I8:
-		return 1;
-	case SOUND_I16:
-		return 2;
-	case SOUND_I32:
-	case SOUND_F32:
-		return 4;
-	case SOUND_F64:
-		return 8;
-	}
-
-	return 0;
-}
-
-
 /*-----------------------------
 
  WritePcm()
@@ -81,7 +62,7 @@ int BytesPerSample(enum SoundFormat format)
 int WritePcm(FILE* file, struct Sound* sound, enum Endianness dest_endianness)
 {
 	enum Endianness sys_endianness = EndianSystem();
-	int bps = BytesPerSample(sound->format);
+	int bps = SoundBps(sound->format);
 
 	union {
 		uint64_t u64;
@@ -141,7 +122,7 @@ int WritePcm(FILE* file, struct Sound* sound, enum Endianness dest_endianness)
 EXPORT struct Sound* SoundCreate(enum SoundFormat format, size_t length, size_t channels, size_t frequency)
 {
 	struct Sound* sound = NULL;
-	size_t size = BytesPerSample(format) * length * channels;
+	size_t size = SoundBps(format) * length * channels;
 
 	if ((sound = malloc(sizeof(struct Sound) + size)) != NULL)
 	{
@@ -312,7 +293,7 @@ EXPORT int SoundExLoad(FILE* file, struct SoundEx* out, struct Status* st)
 EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, void* out, struct Status* st)
 {
 	enum Endianness sys_endianness = EndianSystem();
-	size_t bps = BytesPerSample(ex.format);
+	size_t bps = SoundBps(ex.format);
 	size_t bytes_write = 0;
 
 	union {
@@ -419,4 +400,27 @@ EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, vo
 
 return_failure:
 	return bytes_write;
+}
+
+
+/*-----------------------------
+
+ SoundBps()
+-----------------------------*/
+EXPORT size_t SoundBps(enum SoundFormat format)
+{
+	switch (format)
+	{
+	case SOUND_I8:
+		return 1;
+	case SOUND_I16:
+		return 2;
+	case SOUND_I32:
+	case SOUND_F32:
+		return 4;
+	case SOUND_F64:
+		return 8;
+	}
+
+	return 0;
 }
