@@ -8,6 +8,7 @@
 #define DICTIONARY_H
 
 	#include <stddef.h>
+	#include <stdint.h>
 
 	struct Dictionary;
 
@@ -19,7 +20,7 @@
 		char key[];
 	};
 
-	struct Dictionary* DictionaryCreate();
+	struct Dictionary* DictionaryCreate(uint64_t (*hash_function)(const char*, size_t));
 	void DictionaryDelete(struct Dictionary* dictionary);
 
 	struct DictionaryItem* DictionaryAdd(struct Dictionary* dictionary, const char* key, void* data, size_t data_size);

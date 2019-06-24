@@ -31,7 +31,6 @@ SOFTWARE.
  https://stackoverflow.com/a/30874878
  https://stackoverflow.com/a/29787467
 -----------------------------*/
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -82,6 +81,8 @@ struct Dictionary
 	size_t items_no;
 
 	struct Bucket* buckets;
+
+	uint64_t (*hash_function)(const char*, size_t);
 };
 
 
@@ -118,12 +119,19 @@ static inline size_t sGetAddress(const struct Dictionary* dictionary, const char
 
 	size = strlen(key) + 1;
 
-	for (size_t i = 0; i < size; i++)
+	// FNV-1 hash
+	if (dictionary->hash_function == NULL)
 	{
-		hash = hash ^ key[i];
-		hash = hash * FNV_PRIME;
+		for (size_t i = 0; i < size; i++)
+		{
+			hash = hash ^ key[i];
+			hash = hash * FNV_PRIME;
+		}
 	}
+	else
+		hash = dictionary->hash_function(key, size);
 
+	// Linear-hashing address
 	address = hash % (INITIAL_BUCKETS * sPow(2, dictionary->level));
 
 	if (address < dictionary->pointer)
@@ -196,14 +204,10 @@ static int sLocateInBucket(struct Dictionary* dictionary, struct DictionaryItem*
 			previous_bucket->overflow_next->item[0] = item;
 		}
 		else
-			goto return_failure;
+			return 1;
 	}
 
-	// Bye!
 	return 0;
-
-return_failure:
-	return 1;
 }
 
 
@@ -226,6 +230,7 @@ static int sResize(struct Dictionary* dictionary, enum ResizeDirection direction
 	size_t address = 0;
 
 	size_t to_rehash = dictionary->pointer;
+	void* old_ptr = NULL;
 
 	// Update counters
 	if (direction == RESIZE_GROWN)
@@ -241,9 +246,14 @@ static int sResize(struct Dictionary* dictionary, enum ResizeDirection direction
 		}
 
 		// Grown
-		if ((dictionary->buckets = realloc(dictionary->buckets, (dictionary->buckets_no) * sizeof(struct Bucket))) ==
+		old_ptr = dictionary->buckets;
+
+		if ((dictionary->buckets = realloc(dictionary->buckets, dictionary->buckets_no * sizeof(struct Bucket))) ==
 			NULL)
-			return 1; // TODO
+		{
+			dictionary->buckets = old_ptr;
+			return 1;
+		}
 
 		memset((uint8_t*)dictionary->buckets + (dictionary->buckets_no - 1) * sizeof(struct Bucket), 0,
 			   sizeof(struct Bucket));
@@ -268,8 +278,6 @@ static int sResize(struct Dictionary* dictionary, enum ResizeDirection direction
 
 	while (sCycleBucket(&state, &item_slot) != 1)
 	{
-		// TODO: Free empty overflow buckets
-
 		if (*item_slot != NULL)
 		{
 			item = *item_slot;
@@ -292,9 +300,26 @@ static int sResize(struct Dictionary* dictionary, enum ResizeDirection direction
 	// Shrink
 	if (direction == RESIZE_SHRINK)
 	{
-		if ((dictionary->buckets = realloc(dictionary->buckets, (dictionary->buckets_no) * sizeof(struct Bucket))) ==
+		// Free overflow buckets (via a new iteration)
+		state.bucket = &dictionary->buckets[to_rehash];
+		state.depth = 0;
+
+		while (sCycleBucket(&state, &item_slot) != 1)
+		{
+			if (state.depth == 0 && state.previous_bucket != &dictionary->buckets[to_rehash])
+				free(state.previous_bucket);
+		}
+
+		// Actual resize
+		old_ptr = dictionary->buckets;
+
+		if ((dictionary->buckets = realloc(dictionary->buckets, dictionary->buckets_no * sizeof(struct Bucket))) ==
 			NULL)
-			return 1; // TODO
+		{
+			// How many chances of this realloc() to fail exists?
+			dictionary->buckets = old_ptr;
+			return 1;
+		}
 	}
 
 	DEBUG_PRINT(" - Buckets: %lu (p: %lu)\n", dictionary->buckets_no, dictionary->pointer);
@@ -306,7 +331,7 @@ static int sResize(struct Dictionary* dictionary, enum ResizeDirection direction
 
  DictionaryCreate()
 -----------------------------*/
-EXPORT struct Dictionary* DictionaryCreate()
+EXPORT struct Dictionary* DictionaryCreate(uint64_t (*hash_function)(const char*, size_t))
 {
 	struct Dictionary* dictionary = NULL;
 
@@ -316,8 +341,9 @@ EXPORT struct Dictionary* DictionaryCreate()
 		dictionary->pointer = 0;
 		dictionary->buckets_no = INITIAL_BUCKETS;
 		dictionary->items_no = 0;
+		dictionary->hash_function = hash_function;
 
-		if ((dictionary->buckets = calloc(1, dictionary->buckets_no * sizeof(struct Bucket))) == NULL)
+		if ((dictionary->buckets = calloc(dictionary->buckets_no, sizeof(struct Bucket))) == NULL)
 		{
 			free(dictionary);
 			dictionary = NULL;
