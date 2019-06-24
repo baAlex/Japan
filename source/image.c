@@ -30,7 +30,6 @@ SOFTWARE.
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -47,31 +46,6 @@ extern bool CheckMagicSgi(uint16_t value);
 extern struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Status* st);
 extern int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st);
 
-
-int BytesPerPixel(enum ImageFormat format)
-{
-	switch (format)
-	{
-	case IMAGE_GRAY8:
-		return 1;
-	case IMAGE_GRAYA8:
-		return 2;
-	case IMAGE_RGB8:
-		return 3;
-	case IMAGE_RGBA8:
-		return 4;
-	case IMAGE_GRAY16:
-		return 2;
-	case IMAGE_GRAYA16:
-		return 4;
-	case IMAGE_RGB16:
-		return 6;
-	case IMAGE_RGBA16:
-		return 8;
-	}
-
-	return 0;
-}
 
 int Channels(enum ImageFormat format)
 {
@@ -102,7 +76,7 @@ int Channels(enum ImageFormat format)
 EXPORT struct Image* ImageCreate(enum ImageFormat format, size_t width, size_t height)
 {
 	struct Image* image = NULL;
-	size_t size = BytesPerPixel(format) * width * height;
+	size_t size = ImageBpp(format) * width * height;
 
 	if ((image = malloc(sizeof(struct Image) + size)) != NULL)
 	{
@@ -121,7 +95,7 @@ EXPORT struct Image* ImageCreate(enum ImageFormat format, size_t width, size_t h
 
  ImageDelete()
 -----------------------------*/
-EXPORT void ImageDelete(struct Image* image) { free(image); }
+EXPORT inline void ImageDelete(struct Image* image) { free(image); }
 
 
 /*-----------------------------
@@ -223,4 +197,34 @@ EXPORT int ImageExLoad(FILE* file, struct ImageEx* out, struct Status* st)
 	// Unsuccessfully bye!
 	StatusSet(st, "ImageExLoad", STATUS_UNKNOWN_FILE_FORMAT, NULL);
 	return 1;
+}
+
+
+/*-----------------------------
+
+ ImageBpp()
+-----------------------------*/
+EXPORT inline size_t ImageBpp(enum ImageFormat format)
+{
+	switch (format)
+	{
+	case IMAGE_GRAY8:
+		return 1;
+	case IMAGE_GRAYA8:
+		return 2;
+	case IMAGE_RGB8:
+		return 3;
+	case IMAGE_RGBA8:
+		return 4;
+	case IMAGE_GRAY16:
+		return 2;
+	case IMAGE_GRAYA16:
+		return 4;
+	case IMAGE_RGB16:
+		return 6;
+	case IMAGE_RGBA16:
+		return 8;
+	}
+
+	return 0;
 }

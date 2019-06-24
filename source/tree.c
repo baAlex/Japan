@@ -191,7 +191,7 @@ EXPORT void TreeDelete(struct Tree* tree)
 
  TreeAttach()
 -----------------------------*/
-EXPORT int TreeAttach(struct Tree* tree, struct Tree* new_parent)
+EXPORT inline int TreeAttach(struct Tree* tree, struct Tree* new_parent)
 {
 	if (tree->parent == NULL && new_parent != NULL)
 	{
@@ -231,7 +231,7 @@ EXPORT int TreeAttach(struct Tree* tree, struct Tree* new_parent)
 
  TreeDetach()
 -----------------------------*/
-EXPORT int TreeDetach(struct Tree* tree)
+EXPORT inline int TreeDetach(struct Tree* tree)
 {
 	if (tree->parent != NULL)
 	{

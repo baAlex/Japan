@@ -45,7 +45,6 @@ detriment.
 -----------------------------*/
 
 #include <stdint.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "endianness.h"
@@ -142,7 +141,7 @@ EXPORT struct Sound* SoundCreate(enum SoundFormat format, size_t length, size_t 
 
  SoundDelete()
 -----------------------------*/
-EXPORT void SoundDelete(struct Sound* sound) { free(sound); }
+EXPORT inline void SoundDelete(struct Sound* sound) { free(sound); }
 
 
 /*-----------------------------
@@ -407,7 +406,7 @@ return_failure:
 
  SoundBps()
 -----------------------------*/
-EXPORT size_t SoundBps(enum SoundFormat format)
+EXPORT inline size_t SoundBps(enum SoundFormat format)
 {
 	switch (format)
 	{

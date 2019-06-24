@@ -28,9 +28,9 @@ SOFTWARE.
  - Alexander Brandt 2019
 -----------------------------*/
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
 
 #include "buffer.h"
 
@@ -46,7 +46,6 @@ SOFTWARE.
 #else
 #define EXPORT // Whitespace
 #endif
-
 
 
 EXPORT void BufferClean(struct Buffer* buffer)
@@ -77,7 +76,8 @@ EXPORT void* BufferResize(struct Buffer* buffer, size_t new_size)
 	}
 
 	if (old_size != buffer->size)
-		DEBUG_PRINT("(BufferResize) required %zu bytes, buffer size: %zu -> %zu bytes\n", new_size, old_size, buffer->size);
+		DEBUG_PRINT("(BufferResize) required %zu bytes, buffer size: %zu -> %zu bytes\n", new_size, old_size,
+					buffer->size);
 
 	return buffer->data;
 }

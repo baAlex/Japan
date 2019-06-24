@@ -39,15 +39,12 @@ SOFTWARE.
  https://docs.microsoft.com/en-us/windows-hardware/drivers/audio/extensible-wave-format-descriptors
 -----------------------------*/
 
-#include <stdlib.h>
-#include <string.h>
-
 #include "sound-private.h"
 
 #define WAVE_FORMAT_PCM 0x0001
 #define WAVE_FORMAT_IEEE_FLOAT 0x0003 // Requires a Fact block, ignored at loading
-#define WAVE_FORMAT_ALAW 0x0006		  // "
-#define WAVE_FORMAT_ULAW 0x0007		  // "
+#define WAVE_FORMAT_ALAW 0x0006       // "
+#define WAVE_FORMAT_ULAW 0x0007       // "
 #define WAVE_FORMAT_EXTENSIBLE 0xFFFE
 
 #define ID_LEN 4
@@ -389,9 +386,9 @@ EXPORT struct Status SoundSaveWav(struct Sound* sound, const char* filename)
 		struct RiffBlock riff = {0};
 
 		size_t size = sizeof(struct RiffBlock); // Generic head size ignored because blocks on the riff format follow a
-												// inheritance (tree like) arrange
+		                                        // inheritance (tree like) arrange
 		size += sizeof(struct GenericHead) + sizeof(struct FactBlock);
-		size += sizeof(struct GenericHead) + 16;		  // FmtBlock
+		size += sizeof(struct GenericHead) + 16;          // FmtBlock
 		size += sizeof(struct GenericHead) + sound->size; // DataBlock
 
 		memcpy(head.id, RIFF_ID, ID_LEN);

@@ -31,6 +31,7 @@ SOFTWARE.
  https://stackoverflow.com/a/30874878
  https://stackoverflow.com/a/29787467
 -----------------------------*/
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -58,6 +59,12 @@ SOFTWARE.
 #define FNV_OFFSET_BASIS 0xCBF29CE484222325
 #define FNV_PRIME 0x100000001B3
 
+
+enum ResizeDirection
+{
+	RESIZE_GROWN,
+	RESIZE_SHRINK
+};
 
 struct Bucket
 {
@@ -215,12 +222,6 @@ static int sLocateInBucket(struct Dictionary* dictionary, struct DictionaryItem*
 
  sResize()
 -----------------------------*/
-enum ResizeDirection
-{
-	RESIZE_GROWN,
-	RESIZE_SHRINK
-};
-
 static int sResize(struct Dictionary* dictionary, enum ResizeDirection direction)
 {
 	struct DictionaryItem** item_slot = NULL;

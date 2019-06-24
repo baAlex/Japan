@@ -32,7 +32,6 @@ SOFTWARE.
 -----------------------------*/
 
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -52,7 +51,6 @@ SOFTWARE.
 #endif
 
 
-extern int BytesPerPixel(enum ImageFormat format);
 extern int Channels(enum ImageFormat format);
 int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st);
 
@@ -122,7 +120,7 @@ static inline void sPlotPixel_8(int channel, int row, int col, struct Image* ima
 
  sReadUncompressed_8()
 -----------------------------*/
-static int sReadUncompressed_8(FILE* file, struct Image* image)
+static inline int sReadUncompressed_8(FILE* file, struct Image* image)
 {
 	uint8_t pixel = 0;
 
@@ -394,7 +392,7 @@ int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st)
 			break;
 		}
 
-		out->uncompressed_size = BytesPerPixel(out->format) * out->width * out->height;
+		out->uncompressed_size = ImageBpp(out->format) * out->width * out->height;
 	}
 	else
 	{
@@ -455,7 +453,7 @@ EXPORT struct Status ImageSaveSgi(struct Image* image, const char* filename)
 	}
 
 	// Data
-	size_t bytes = BytesPerPixel(image->format);
+	size_t bytes = ImageBpp(image->format);
 	uint8_t* src = NULL;
 
 	if (fseek(file, 512, SEEK_SET) != 0) // Data start at offset 512

@@ -74,7 +74,7 @@ static struct ListItem* sAllocItem(struct List* list, void* data, size_t data_si
 
  ListClean()
 -----------------------------*/
-EXPORT void ListClean(struct List* list)
+EXPORT inline void ListClean(struct List* list)
 {
 	while (list->last != NULL)
 		ListRemove(list->last); // NOLINT(clang-analyzer-unix.Malloc)
@@ -191,7 +191,7 @@ EXPORT void ListRemove(struct ListItem* item)
 
  ListDetach()
 -----------------------------*/
-EXPORT int ListDetach(struct ListItem* item)
+EXPORT inline int ListDetach(struct ListItem* item)
 {
 	if (item->list != NULL)
 	{

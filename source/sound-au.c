@@ -30,9 +30,6 @@ SOFTWARE.
  http://pubs.opengroup.org/external/auformat.html
 -----------------------------*/
 
-#include <stdlib.h>
-#include <string.h>
-
 #include "sound-private.h"
 
 #define AU_MAGIC 0x2E736E64
@@ -46,8 +43,8 @@ SOFTWARE.
 #define AU_PCM32 5
 #define AU_FLOAT 6
 #define AU_DOUBLE 7
-#define AU_ADPCM_G721 23	  // Unsupported
-#define AU_ADPCM_G722 24	  // Unsupported
+#define AU_ADPCM_G721 23      // Unsupported
+#define AU_ADPCM_G722 24      // Unsupported
 #define AU_ADPCM_G723_3BIT 25 // Unsupported
 #define AU_ADPCM_G723_5BIT 26 // Unsupported
 #define AU_ALAW 27

@@ -33,7 +33,7 @@
 	struct ListState
 	{
 		struct ListItem* start; // Set before iterate
-		bool reverse;			// Set before iterate
+		bool reverse;           // Set before iterate
 
 		struct ListItem* actual;
 		struct ListItem* future_return;

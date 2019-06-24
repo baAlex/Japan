@@ -64,4 +64,6 @@
 
 	int ImageExLoad(FILE* file, struct ImageEx* out, struct Status*);
 
+	size_t ImageBpp(enum ImageFormat);
+
 #endif

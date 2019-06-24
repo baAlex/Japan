@@ -45,7 +45,7 @@
 	{
 		size_t frequency;
 		size_t channels;
-		size_t length;			  // In frames
+		size_t length;            // In frames
 		size_t uncompressed_size; // In bytes
 		size_t minimum_unit_size; // In bytes
 

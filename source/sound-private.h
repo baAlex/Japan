@@ -7,8 +7,8 @@
 #ifndef SOUND_PRIVATE_H
 #define SOUND_PRIVATE_H
 
-	#include <stdbool.h>
-	#include <stdio.h>
+	#include <stdlib.h>
+	#include <string.h>
 
 	#include "sound.h"
 	#include "endianness.h"
