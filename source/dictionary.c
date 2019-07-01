@@ -482,7 +482,7 @@ EXPORT struct DictionaryItem* DictionaryGet(const struct Dictionary* dictionary,
 
  DictionaryRemove()
 -----------------------------*/
-EXPORT void DictionaryRemove(struct DictionaryItem* item)
+EXPORT inline void DictionaryRemove(struct DictionaryItem* item)
 {
 	if (DictionaryDetach(item) == 0)
 		free(item);

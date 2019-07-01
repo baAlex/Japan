@@ -48,7 +48,7 @@ SOFTWARE.
 #endif
 
 
-EXPORT void BufferClean(struct Buffer* buffer)
+EXPORT inline void BufferClean(struct Buffer* buffer)
 {
 	if (buffer->data != NULL)
 		free(buffer->data);

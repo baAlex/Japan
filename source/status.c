@@ -108,5 +108,5 @@ EXPORT int StatusPrint(struct Status st)
 		code_message = "Unknown status";
 	}
 
-	return fprintf(stderr, "%s : %s%s%s.\n", st.function_name, code_message, (st.explanation[0] != '\0') ? ", " : "", explanation);
+	return fprintf(stderr, "[lib-japan] %s : %s%s%s.\n", st.function_name, code_message, (st.explanation[0] != '\0') ? ", " : "", explanation);
 }

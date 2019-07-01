@@ -63,7 +63,7 @@ static inline struct Vector3 sVector3Cross(struct Vector3 const a, struct Vector
 }
 
 
-EXPORT struct Matrix4 Matrix4Clean()
+EXPORT inline struct Matrix4 Matrix4Clean()
 {
 	return (struct Matrix4){.e[0] = 0.0,
 							.e[1] = 0.0,
@@ -87,7 +87,7 @@ EXPORT struct Matrix4 Matrix4Clean()
 }
 
 
-EXPORT struct Matrix4 Matrix4Identity()
+EXPORT inline struct Matrix4 Matrix4Identity()
 {
 	return (struct Matrix4){.e[0] = 1.0,
 							.e[1] = 0.0,
@@ -111,7 +111,7 @@ EXPORT struct Matrix4 Matrix4Identity()
 }
 
 
-EXPORT struct Matrix4 Matrix4Translate(struct Vector3 origin)
+EXPORT inline struct Matrix4 Matrix4Translate(struct Vector3 origin)
 {
 	return (struct Matrix4){.e[0] = 1.0,
 							.e[1] = 0.0,
@@ -135,7 +135,7 @@ EXPORT struct Matrix4 Matrix4Translate(struct Vector3 origin)
 }
 
 
-EXPORT struct Matrix4 Matrix4Orthographic(float left, float right, float bottom, float top, float near, float far)
+EXPORT inline struct Matrix4 Matrix4Orthographic(float left, float right, float bottom, float top, float near, float far)
 {
 	return (struct Matrix4){.e[0] = 2.0 / (right - left),
 							.e[1] = 0.0,
@@ -159,7 +159,7 @@ EXPORT struct Matrix4 Matrix4Orthographic(float left, float right, float bottom,
 }
 
 
-EXPORT struct Matrix4 Matrix4Perspective(float y_fov, float aspect, float near, float far)
+EXPORT inline struct Matrix4 Matrix4Perspective(float y_fov, float aspect, float near, float far)
 {
 	float const a = 1.f / tanf(y_fov / 2.f);
 
@@ -185,7 +185,7 @@ EXPORT struct Matrix4 Matrix4Perspective(float y_fov, float aspect, float near, 
 }
 
 
-EXPORT struct Matrix4 Matrix4LookAt(struct Vector3 eye, struct Vector3 center, struct Vector3 up)
+EXPORT inline struct Matrix4 Matrix4LookAt(struct Vector3 eye, struct Vector3 center, struct Vector3 up)
 {
 	struct Vector3 f = Vector3Subtract(center, eye);
 	f = Vector3Normalize(f);
@@ -217,7 +217,7 @@ EXPORT struct Matrix4 Matrix4LookAt(struct Vector3 eye, struct Vector3 center, s
 }
 
 
-EXPORT struct Matrix4* Matrix4Multiply(const struct Matrix4* a, const struct Matrix4* b, struct Matrix4* out)
+EXPORT inline struct Matrix4* Matrix4Multiply(const struct Matrix4* a, const struct Matrix4* b, struct Matrix4* out)
 {
 	out->e[0] = a->e[0] * b->e[0] + a->e[4] * b->e[1] + a->e[8] * b->e[2] + a->e[12] * b->e[3];
 	out->e[1] = a->e[1] * b->e[0] + a->e[5] * b->e[1] + a->e[9] * b->e[2] + a->e[13] * b->e[3];
