@@ -16,6 +16,9 @@
 
 	#include <stdbool.h>
 
+	struct Vector2i { int x, y; };
+	struct Vector2 { float x, y; };
+
 	struct Vector3
 	{
 		float x;

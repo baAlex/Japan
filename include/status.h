@@ -47,6 +47,6 @@
 	};
 
 	void StatusSet(struct Status* st, const char* function_name, enum StatusCode code, const char* explanation_fmt, ...);
-	int StatusPrint(struct Status st);
+	int StatusPrint(const char* app_name, struct Status st);
 
 #endif

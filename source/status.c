@@ -61,7 +61,7 @@ EXPORT void StatusSet(struct Status* st, const char* function_name, enum StatusC
 }
 
 
-EXPORT int StatusPrint(struct Status st)
+EXPORT int StatusPrint(const char* app_name, struct Status st)
 {
 	char* explanation = (st.explanation[0] != '\0') ? st.explanation : "";
 	char* code_message = NULL;
@@ -72,7 +72,7 @@ EXPORT int StatusPrint(struct Status st)
 		code_message = "Success";
 		break;
 	case STATUS_ERROR:
-		code_message = "Unknown error";
+		code_message = "Error";
 		break;
 	case STATUS_FS_ERROR:
 		code_message = "Filesystem error";
@@ -108,5 +108,5 @@ EXPORT int StatusPrint(struct Status st)
 		code_message = "Unknown status";
 	}
 
-	return fprintf(stderr, "[lib-japan] %s : %s%s%s.\n", st.function_name, code_message, (st.explanation[0] != '\0') ? ", " : "", explanation);
+	return fprintf(stderr, "[%s] %s : %s%s%s.\n", app_name, st.function_name, code_message, (st.explanation[0] != '\0') ? ", " : "", explanation);
 }

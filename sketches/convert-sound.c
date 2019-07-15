@@ -29,6 +29,6 @@ int main(int argc, char* argv[])
 	return EXIT_SUCCESS;
 
 return_failure:
-	StatusPrint(st);
+	StatusPrint("Convert-sound sketch", st);
 	return EXIT_FAILURE;
 }

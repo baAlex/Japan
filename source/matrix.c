@@ -57,7 +57,7 @@ TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 #endif
 
 
-static inline struct Vector3 sVector3Cross(struct Vector3 const a, struct Vector3 const b)
+inline struct Vector3 sVector3Cross(struct Vector3 const a, struct Vector3 const b)
 {
 	return (struct Vector3){(a.y * b.z - a.z * b.y), (a.z * b.x - a.x * b.z), (a.x * b.y - a.y * b.x)};
 }

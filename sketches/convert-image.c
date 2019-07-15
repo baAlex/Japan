@@ -28,6 +28,6 @@ int main(int argc, char* argv[])
 	return EXIT_SUCCESS;
 
 return_failure:
-	StatusPrint(st);
+	StatusPrint("Convert-image sketch", st);
 	return EXIT_FAILURE;
 }

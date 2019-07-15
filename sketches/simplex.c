@@ -275,7 +275,7 @@ int main()
 	st = ImageSaveSgi(image, "output.sgi");
 
 	if(st.code != STATUS_SUCCESS)
-		StatusPrint(st);
+		StatusPrint("Simplex sketch", st);
 
 	ImageDelete(image);
 

@@ -365,6 +365,6 @@ int main(int argc, char* argv[])
 
 return_failure:
 	BufferClean(&buffer);
-	StatusPrint(st);
+	StatusPrint("Resampler sketch", st);
 	return EXIT_FAILURE;
 }
