@@ -1,5 +1,5 @@
 
-// $ clang -I./include sketches/convert-sound.c ./japan-dbg.a -g -O0 -o ./convert-sound
+// $ clang -I./include sketches/convert-sound.c ./libjapan-dbg.a -g -O0 -o ./convert-sound
 
 #include <stdlib.h>
 #include "sound.h"

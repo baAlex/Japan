@@ -33,7 +33,7 @@ SOFTWARE.
  https://github.com/cpuimage/resampler
  A Simple and Efficient Audio Resampler Implementation in C
 
- $ clang -I./include sketches/resampler.c ./japan-dbg.a -g -O0 -o ./resampler
+ $ clang -I./include sketches/resampler.c ./libjapan-dbg.a -g -O0 -o ./resampler
 
 -----------------------------*/
 

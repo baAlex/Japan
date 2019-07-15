@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 -----------------------------*/
 
-// $ clang -I./include ./sketches/simplex.c ./japan-dbg.a -O0 -lm -g -o ./simplex
+// $ clang -I./include ./sketches/simplex.c ./libjapan-dbg.a -O0 -lm -g -o ./simplex
 
 #include <math.h>
 #include <stdint.h>

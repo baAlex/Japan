@@ -1,22 +1,4 @@
 
-.SUFFIXES: .c .o .dbg.o
-
-CC=cc
-LD=ld
-AR=ar
-RM=rm -f
-
-OUT_STATIC=japan.a
-OUT_SHARED=libjapan.so
-OUT_STATIC_DBG=japan-dbg.a
-OUT_SHARED_DBG=libjapan-dbg.so
-
-CFLAGS=-c -O3 -fpic -mtune=generic -fvisibility=hidden -I./include -DEXPORT_SYMBOLS
-CFLAGS_DBG=-c -O0 -fpic -std=c11 -Wall -Wextra -pedantic -g -I./include -DDEBUG -DEXPORT_SYMBOLS
-
-LFLAGS_STATIC=rcs
-LFLAGS_SHARED=-lm -shared
-
 FILES=./source/buffer.c \
       ./source/dictionary.c \
       ./source/endianness.c \
@@ -31,38 +13,18 @@ FILES=./source/buffer.c \
       ./source/tree.c \
       ./source/vector.c
 
-default: debug
-all: release debug
-
-.c.o:
-	$(CC) $(CFLAGS) $< -o $@
-
-.c.dbg.o:
-	$(CC) $(CFLAGS_DBG) $< -o $@
-
-release: $(FILES:.c=.o)
-	$(AR) $(LFLAGS_STATIC) $(OUT_STATIC) $(FILES:.c=.o)
-	$(LD) $(FILES:.c=.o) $(LFLAGS_SHARED) -o $(OUT_SHARED)
-
-debug: $(FILES:.c=.dbg.o)
-	$(AR) $(LFLAGS_STATIC) $(OUT_STATIC_DBG) $(FILES:.c=.dbg.o)
-	$(LD) $(FILES:.c=.dbg.o) $(LFLAGS_SHARED) -o $(OUT_SHARED_DBG)
-
-clean:
-	$(RM) $(OUT_STATIC)
-	$(RM) $(OUT_STATIC_DBG)
-	$(RM) $(OUT_SHARED)
-	$(RM) $(OUT_SHARED_DBG)
-	$(RM) $(FILES:.c=.o)
-	$(RM) $(FILES:.c=.dbg.o)
-
-####
+default:
+	@echo "Use 'ninja' to build the library\n"
+	@echo "This makefile is meant to launch:"
+	@echo " - make stats        To display the lines of code"
+	@echo " - make symbols      To display exported symbols"
+	@echo " - make tidy         To run clang-tidy"
 
 stats:
 	cloc $(FILES)
 
-symbols: release
-	nm -D $(OUT_SHARED)
+symbols:
+	nm -D libjapan.so
 
 tidy:
-	clang-tidy -checks=clang-analyzer-*,bugprone-*,cert-*,performance-*,portability-* $(FILES) -- $(CFLAGS_DBG)
+	clang-tidy -checks=clang-analyzer-*,bugprone-*,cert-*,performance-*,portability-* $(FILES) -- -I./include
