@@ -57,14 +57,6 @@ TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 #endif
 
 
-struct Vector3 sVector3Cross(struct Vector3 const a, struct Vector3 const b);
-
-inline struct Vector3 sVector3Cross(struct Vector3 const a, struct Vector3 const b)
-{
-	return (struct Vector3){(a.y * b.z - a.z * b.y), (a.z * b.x - a.x * b.z), (a.x * b.y - a.y * b.x)};
-}
-
-
 EXPORT inline struct Matrix4 Matrix4Clean()
 {
 	return (struct Matrix4){.e[0] = 0.0,
@@ -192,10 +184,10 @@ EXPORT inline struct Matrix4 Matrix4LookAt(struct Vector3 eye, struct Vector3 ce
 	struct Vector3 f = Vector3Subtract(center, eye);
 	f = Vector3Normalize(f);
 
-	struct Vector3 s = sVector3Cross(f, up);
+	struct Vector3 s = Vector3Cross(f, up);
 	s = Vector3Normalize(s);
 
-	struct Vector3 u = sVector3Cross(s, f);
+	struct Vector3 u = Vector3Cross(s, f);
 
 	return (struct Matrix4){.e[0] = s.x,
 							.e[1] = u.x,

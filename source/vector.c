@@ -28,14 +28,93 @@ SOFTWARE.
  - Alexander Brandt 2019
 -----------------------------*/
 
-#include <math.h>
 #include "vector.h"
+#include <math.h>
 
 #ifdef EXPORT_SYMBOLS
 #define EXPORT __attribute__((visibility("default")))
 #else
 #define EXPORT // Whitespace
 #endif
+
+
+/*-----------------------------
+
+ Vector2
+-----------------------------*/
+EXPORT inline struct Vector2 Vector2Clean()
+{
+	return (struct Vector2){0.0, 0.0};
+}
+
+EXPORT inline struct Vector2 Vector2Set(float x, float y)
+{
+	return (struct Vector2){x, y};
+}
+
+EXPORT inline struct Vector2 Vector2Add(struct Vector2 a, struct Vector2 b)
+{
+	return (struct Vector2){(a.x + b.x), (a.y + b.y)};
+}
+
+EXPORT inline struct Vector2 Vector2Subtract(struct Vector2 a, struct Vector2 b)
+{
+	return (struct Vector2){(a.x - b.x), (a.y - b.y)};
+}
+
+EXPORT inline struct Vector2 Vector2Multiply(struct Vector2 a, struct Vector2 b)
+{
+	return (struct Vector2){(a.x * b.x), (a.y * b.y)};
+}
+
+EXPORT inline struct Vector2 Vector2Divide(struct Vector2 a, struct Vector2 b)
+{
+	return (struct Vector2){(a.x / b.x), (a.y / b.y)};
+}
+
+EXPORT inline struct Vector2 Vector2Invert(struct Vector2 v)
+{
+	return (struct Vector2){(-v.x), (-v.y)};
+}
+
+EXPORT inline struct Vector2 Vector2Scale(struct Vector2 v, float scale)
+{
+	return (struct Vector2){(v.x * scale), (v.y * scale)};
+}
+
+EXPORT inline struct Vector2 Vector2Normalize(struct Vector2 v)
+{
+	float length = Vector2Length(v);
+	return (struct Vector2){(v.x / length), (v.y / length)};
+}
+
+EXPORT inline float Vector2Cross(struct Vector2 a, struct Vector2 b)
+{
+	return (a.x * b.y) - (a.y * b.x);
+}
+
+EXPORT inline float Vector2Length(struct Vector2 v)
+{
+	return sqrtf(powf(v.x, 2.0) + powf(v.y, 2.0));
+}
+
+EXPORT inline float Vector2Distance(struct Vector2 a, struct Vector2 b)
+{
+	return sqrtf(powf(b.x - a.x, 2.0) + powf(b.y - a.y, 2.0));
+}
+
+EXPORT inline float Vector2Dot(struct Vector2 a, struct Vector2 b)
+{
+	return (a.x * b.x) + (a.y * b.y);
+}
+
+EXPORT inline bool Vector2Equals(struct Vector2 a, struct Vector2 b)
+{
+	if (a.x != b.x || a.y != b.y)
+		return false;
+
+	return true;
+}
 
 
 /*-----------------------------
@@ -88,6 +167,11 @@ EXPORT inline struct Vector3 Vector3Normalize(struct Vector3 v)
 	return (struct Vector3){(v.x / length), (v.y / length), (v.z / length)};
 }
 
+EXPORT inline struct Vector3 Vector3Cross(struct Vector3 a, struct Vector3 b)
+{
+	return (struct Vector3){(a.y * b.z - a.z * b.y), (a.z * b.x - a.x * b.z), (a.x * b.y - a.y * b.x)};
+}
+
 EXPORT inline float Vector3Length(struct Vector3 v)
 {
 	return sqrtf(powf(v.x, 2.0) + powf(v.y, 2.0) + powf(v.z, 2.0));
@@ -96,6 +180,11 @@ EXPORT inline float Vector3Length(struct Vector3 v)
 EXPORT inline float Vector3Distance(struct Vector3 a, struct Vector3 b)
 {
 	return sqrtf(powf(b.x - a.x, 2.0) + powf(b.y - a.y, 2.0) + powf(b.z - a.z, 2.0));
+}
+
+EXPORT inline float Vector3Dot(struct Vector3 a, struct Vector3 b)
+{
+	return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
 }
 
 EXPORT inline bool Vector3Equals(struct Vector3 a, struct Vector3 b)
@@ -165,6 +254,11 @@ EXPORT inline float Vector4Length(struct Vector4 v)
 EXPORT inline float Vector4Distance(struct Vector4 a, struct Vector4 b)
 {
 	return sqrtf(powf(b.x - a.x, 2.0) + powf(b.y - a.y, 2.0) + powf(b.z - a.z, 2.0) + powf(b.u - a.u, 2.0));
+}
+
+EXPORT inline float Vector4Dot(struct Vector4 a, struct Vector4 b)
+{
+	return (a.x * b.x) + (a.y * b.y) + (a.z * b.z) + (a.u * b.u);
 }
 
 EXPORT inline bool Vector4Equals(struct Vector4 a, struct Vector4 b)
