@@ -18,7 +18,7 @@
 
 	struct Matrix4
 	{
-		float e[16];
+		float e[4][4];
 	};
 
 	struct Matrix4 Matrix4Clean();
@@ -29,6 +29,9 @@
 	struct Matrix4 Matrix4Perspective(float y_fov, float aspect, float near, float far);
 	struct Matrix4 Matrix4LookAt(struct Vector3 eye, struct Vector3 center, struct Vector3 up);
 
-	struct Matrix4* Matrix4Multiply(const struct Matrix4* mat_a, const struct Matrix4* mat_b, struct Matrix4* out);
+	struct Matrix4 Matrix4Multiply(struct Matrix4 mat_a, const struct Matrix4 mat_b);
+	struct Matrix4 Matrix4RotateX(struct Matrix4 mat, float angle);
+	struct Matrix4 Matrix4RotateY(struct Matrix4 mat, float angle);
+	struct Matrix4 Matrix4RotateZ(struct Matrix4 mat, float angle);
 
 #endif

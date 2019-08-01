@@ -42,9 +42,6 @@ TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 
  [matrix.c]
  - Alexander Brandt 2019
-
- Check the linmath project, what
- follows is just a caricature.
 -----------------------------*/
 
 #include "matrix.h"
@@ -57,129 +54,153 @@ TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 #endif
 
 
+/*-----------------------------
+
+ Matrix4Clean()
+-----------------------------*/
 EXPORT inline struct Matrix4 Matrix4Clean()
 {
-	return (struct Matrix4){.e[0] = 0.0,
-	                        .e[1] = 0.0,
-	                        .e[2] = 0.0,
-	                        .e[3] = 0.0,
+	return (struct Matrix4){.e[0][0] = 0.0,
+	                        .e[0][1] = 0.0,
+	                        .e[0][2] = 0.0,
+	                        .e[0][3] = 0.0,
 
-	                        .e[4] = 0.0,
-	                        .e[5] = 0.0,
-	                        .e[6] = 0.0,
-	                        .e[7] = 0.0,
+	                        .e[1][0] = 0.0,
+	                        .e[1][1] = 0.0,
+	                        .e[1][2] = 0.0,
+	                        .e[1][3] = 0.0,
 
-	                        .e[8] = 0.0,
-	                        .e[9] = 0.0,
-	                        .e[10] = 0.0,
-	                        .e[11] = 0.0,
+	                        .e[2][0] = 0.0,
+	                        .e[2][1] = 0.0,
+	                        .e[2][2] = 0.0,
+	                        .e[2][3] = 0.0,
 
-	                        .e[12] = 0.0,
-	                        .e[13] = 0.0,
-	                        .e[14] = 0.0,
-	                        .e[15] = 0.0};
+	                        .e[3][0] = 0.0,
+	                        .e[3][1] = 0.0,
+	                        .e[3][2] = 0.0,
+	                        .e[3][3] = 0.0};
 }
 
 
+/*-----------------------------
+
+ Matrix4Identity()
+-----------------------------*/
 EXPORT inline struct Matrix4 Matrix4Identity()
 {
-	return (struct Matrix4){.e[0] = 1.0,
-	                        .e[1] = 0.0,
-	                        .e[2] = 0.0,
-	                        .e[3] = 0.0,
+	return (struct Matrix4){.e[0][0] = 1.0,
+	                        .e[0][1] = 0.0,
+	                        .e[0][2] = 0.0,
+	                        .e[0][3] = 0.0,
 
-	                        .e[4] = 0.0,
-	                        .e[5] = 1.0,
-	                        .e[6] = 0.0,
-	                        .e[7] = 0.0,
+	                        .e[1][0] = 0.0,
+	                        .e[1][1] = 1.0,
+	                        .e[1][2] = 0.0,
+	                        .e[1][3] = 0.0,
 
-	                        .e[8] = 0.0,
-	                        .e[9] = 0.0,
-	                        .e[10] = 1.0,
-	                        .e[11] = 0.0,
+	                        .e[2][0] = 0.0,
+	                        .e[2][1] = 0.0,
+	                        .e[2][2] = 1.0,
+	                        .e[2][3] = 0.0,
 
-	                        .e[12] = 0.0,
-	                        .e[13] = 0.0,
-	                        .e[14] = 0.0,
-	                        .e[15] = 1.0};
+	                        .e[3][0] = 0.0,
+	                        .e[3][1] = 0.0,
+	                        .e[3][2] = 0.0,
+	                        .e[3][3] = 1.0};
 }
 
 
+/*-----------------------------
+
+ Matrix4Translate()
+-----------------------------*/
 EXPORT inline struct Matrix4 Matrix4Translate(struct Vector3 origin)
 {
-	return (struct Matrix4){.e[0] = 1.0,
-	                        .e[1] = 0.0,
-	                        .e[2] = 0.0,
-	                        .e[3] = 0.0,
+	return (struct Matrix4){.e[0][0] = 1.0,
+	                        .e[0][1] = 0.0,
+	                        .e[0][2] = 0.0,
+	                        .e[0][3] = 0.0,
 
-	                        .e[4] = 0.0,
-	                        .e[5] = 1.0,
-	                        .e[6] = 0.0,
-	                        .e[7] = 0.0,
+	                        .e[1][0] = 0.0,
+	                        .e[1][1] = 1.0,
+	                        .e[1][2] = 0.0,
+	                        .e[1][3] = 0.0,
 
-	                        .e[8] = 0.0,
-	                        .e[9] = 0.0,
-	                        .e[10] = 1.0,
-	                        .e[11] = 0.0,
+	                        .e[2][0] = 0.0,
+	                        .e[2][1] = 0.0,
+	                        .e[2][2] = 1.0,
+	                        .e[2][3] = 0.0,
 
-	                        .e[12] = origin.x,
-	                        .e[13] = origin.y,
-	                        .e[14] = origin.z,
-	                        .e[15] = 1.0};
+	                        .e[3][0] = origin.x,
+	                        .e[3][1] = origin.y,
+	                        .e[3][2] = origin.z,
+	                        .e[3][3] = 1.0};
 }
 
 
+/*-----------------------------
+
+ Matrix4Orthographic()
+-----------------------------*/
 EXPORT inline struct Matrix4 Matrix4Orthographic(float left, float right, float bottom, float top, float near,
                                                  float far)
 {
-	return (struct Matrix4){.e[0] = 2.0 / (right - left),
-	                        .e[1] = 0.0,
-	                        .e[2] = 0.0,
-	                        .e[3] = 0.0,
+	return (struct Matrix4){.e[0][0] = 2.0 / (right - left),
+	                        .e[0][1] = 0.0,
+	                        .e[0][2] = 0.0,
+	                        .e[0][3] = 0.0,
 
-	                        .e[4] = 0.0,
-	                        .e[5] = 2.0 / (top - bottom),
-	                        .e[6] = 0.0,
-	                        .e[7] = 0.0,
+	                        .e[1][0] = 0.0,
+	                        .e[1][1] = 2.0 / (top - bottom),
+	                        .e[1][2] = 0.0,
+	                        .e[1][3] = 0.0,
 
-	                        .e[8] = 0.0,
-	                        .e[9] = 0.0,
-	                        .e[10] = 2.0 / (far - near),
-	                        .e[11] = 0.0,
+	                        .e[2][0] = 0.0,
+	                        .e[2][1] = 0.0,
+	                        .e[2][2] = 2.0 / (far - near),
+	                        .e[2][3] = 0.0,
 
-	                        .e[12] = -(right + left) / (right - left),
-	                        .e[13] = -(top + bottom) / (top - bottom),
-	                        .e[14] = -(far + near) / (far - near),
-	                        .e[15] = 1.0};
+	                        .e[3][0] = -(right + left) / (right - left),
+	                        .e[3][1] = -(top + bottom) / (top - bottom),
+	                        .e[3][2] = -(far + near) / (far - near),
+	                        .e[3][3] = 1.0};
 }
 
 
+/*-----------------------------
+
+ Matrix4Perspective()
+-----------------------------*/
 EXPORT inline struct Matrix4 Matrix4Perspective(float y_fov, float aspect, float near, float far)
 {
-	float const a = 1.f / tanf(y_fov / 2.f);
+	float a = 1.0 / tanf(y_fov / 2.0);
 
-	return (struct Matrix4){.e[0] = a / aspect,
-	                        .e[1] = 0.0,
-	                        .e[2] = 0.0,
-	                        .e[3] = 0.0,
+	return (struct Matrix4){.e[0][0] = a / aspect,
+	                        .e[0][1] = 0.0,
+	                        .e[0][2] = 0.0,
+	                        .e[0][3] = 0.0,
 
-	                        .e[4] = 0.0,
-	                        .e[5] = a,
-	                        .e[6] = 0.0,
-	                        .e[7] = 0.0,
+	                        .e[1][0] = 0.0,
+	                        .e[1][1] = a,
+	                        .e[1][2] = 0.0,
+	                        .e[1][3] = 0.0,
 
-	                        .e[8] = 0.0,
-	                        .e[9] = 0.0,
-	                        .e[10] = -((far + near) / (far - near)),
-	                        .e[11] = -1.0,
+	                        .e[2][0] = 0.0,
+	                        .e[2][1] = 0.0,
+	                        .e[2][2] = -((far + near) / (far - near)),
+	                        .e[2][3] = -1.0,
 
-	                        .e[12] = 0.0,
-	                        .e[13] = 0.0,
-	                        .e[14] = -((2.0 * far * near) / (far - near)),
-	                        .e[15] = 0.0};
+	                        .e[3][0] = 0.0,
+	                        .e[3][1] = 0.0,
+	                        .e[3][2] = -((2.0 * far * near) / (far - near)),
+	                        .e[3][3] = 0.0};
 }
 
 
+/*-----------------------------
+
+ Matrix4LookAt()
+-----------------------------*/
 EXPORT inline struct Matrix4 Matrix4LookAt(struct Vector3 eye, struct Vector3 center, struct Vector3 up)
 {
 	struct Vector3 f = Vector3Subtract(center, eye);
@@ -190,49 +211,163 @@ EXPORT inline struct Matrix4 Matrix4LookAt(struct Vector3 eye, struct Vector3 ce
 
 	struct Vector3 u = Vector3Cross(s, f);
 
-	return (struct Matrix4){.e[0] = s.x,
-	                        .e[1] = u.x,
-	                        .e[2] = -f.x,
-	                        .e[3] = 0.0,
+	return (struct Matrix4){.e[0][0] = s.x,
+	                        .e[0][1] = u.x,
+	                        .e[0][2] = -f.x,
+	                        .e[0][3] = 0.0,
 
-	                        .e[4] = s.y,
-	                        .e[5] = u.y,
-	                        .e[6] = -f.y,
-	                        .e[7] = 0.0,
+	                        .e[1][0] = s.y,
+	                        .e[1][1] = u.y,
+	                        .e[1][2] = -f.y,
+	                        .e[1][3] = 0.0,
 
-	                        .e[8] = s.z,
-	                        .e[9] = u.z,
-	                        .e[10] = -f.z,
-	                        .e[11] = 0.0,
+	                        .e[2][0] = s.z,
+	                        .e[2][1] = u.z,
+	                        .e[2][2] = -f.z,
+	                        .e[2][3] = 0.0,
 
-	                        .e[12] = (s.x * (-eye.x) + s.y * (-eye.y) + s.z * (-eye.z)),
-	                        .e[13] = (u.x * (-eye.x) + u.y * (-eye.y) + u.z * (-eye.z)),
-	                        .e[14] = ((-f.x) * (-eye.x) + (-f.y) * (-eye.y) + (-f.z) * (-eye.z)),
-	                        .e[15] = 1.0};
+	                        .e[3][0] = (s.x * (-eye.x) + s.y * (-eye.y) + s.z * (-eye.z)),
+	                        .e[3][1] = (u.x * (-eye.x) + u.y * (-eye.y) + u.z * (-eye.z)),
+	                        .e[3][2] = ((-f.x) * (-eye.x) + (-f.y) * (-eye.y) + (-f.z) * (-eye.z)),
+	                        .e[3][3] = 1.0};
 }
 
 
-EXPORT inline struct Matrix4* Matrix4Multiply(const struct Matrix4* a, const struct Matrix4* b, struct Matrix4* out)
+/*-----------------------------
+
+ Matrix4Multiply()
+-----------------------------*/
+EXPORT inline struct Matrix4 Matrix4Multiply(struct Matrix4 a, struct Matrix4 b)
 {
-	out->e[0] = a->e[0] * b->e[0] + a->e[4] * b->e[1] + a->e[8] * b->e[2] + a->e[12] * b->e[3];
-	out->e[1] = a->e[1] * b->e[0] + a->e[5] * b->e[1] + a->e[9] * b->e[2] + a->e[13] * b->e[3];
-	out->e[2] = a->e[2] * b->e[0] + a->e[6] * b->e[1] + a->e[10] * b->e[2] + a->e[14] * b->e[3];
-	out->e[3] = a->e[3] * b->e[0] + a->e[7] * b->e[1] + a->e[11] * b->e[2] + a->e[15] * b->e[3];
+	return (struct Matrix4){
+	    .e[0][0] = a.e[0][0] * b.e[0][0] + a.e[1][0] * b.e[0][1] + a.e[2][0] * b.e[0][2] + a.e[3][0] * b.e[0][3],
+	    .e[0][1] = a.e[0][1] * b.e[0][0] + a.e[1][1] * b.e[0][1] + a.e[2][1] * b.e[0][2] + a.e[3][1] * b.e[0][3],
+	    .e[0][2] = a.e[0][2] * b.e[0][0] + a.e[1][2] * b.e[0][1] + a.e[2][2] * b.e[0][2] + a.e[3][2] * b.e[0][3],
+	    .e[0][3] = a.e[0][3] * b.e[0][0] + a.e[1][3] * b.e[0][1] + a.e[2][3] * b.e[0][2] + a.e[3][3] * b.e[0][3],
 
-	out->e[4] = a->e[0] * b->e[4] + a->e[4] * b->e[5] + a->e[8] * b->e[6] + a->e[12] * b->e[7];
-	out->e[5] = a->e[1] * b->e[4] + a->e[5] * b->e[5] + a->e[9] * b->e[6] + a->e[13] * b->e[7];
-	out->e[6] = a->e[2] * b->e[4] + a->e[6] * b->e[5] + a->e[10] * b->e[6] + a->e[14] * b->e[7];
-	out->e[7] = a->e[3] * b->e[4] + a->e[7] * b->e[5] + a->e[11] * b->e[6] + a->e[15] * b->e[7];
+	    .e[1][0] = a.e[0][0] * b.e[1][0] + a.e[1][0] * b.e[1][1] + a.e[2][0] * b.e[1][2] + a.e[3][0] * b.e[1][3],
+	    .e[1][1] = a.e[0][1] * b.e[1][0] + a.e[1][1] * b.e[1][1] + a.e[2][1] * b.e[1][2] + a.e[3][1] * b.e[1][3],
+	    .e[1][2] = a.e[0][2] * b.e[1][0] + a.e[1][2] * b.e[1][1] + a.e[2][2] * b.e[1][2] + a.e[3][2] * b.e[1][3],
+	    .e[1][3] = a.e[0][3] * b.e[1][0] + a.e[1][3] * b.e[1][1] + a.e[2][3] * b.e[1][2] + a.e[3][3] * b.e[1][3],
 
-	out->e[8] = a->e[0] * b->e[8] + a->e[4] * b->e[9] + a->e[8] * b->e[10] + a->e[12] * b->e[11];
-	out->e[9] = a->e[1] * b->e[8] + a->e[5] * b->e[9] + a->e[9] * b->e[10] + a->e[13] * b->e[11];
-	out->e[10] = a->e[2] * b->e[8] + a->e[6] * b->e[9] + a->e[10] * b->e[10] + a->e[14] * b->e[11];
-	out->e[11] = a->e[3] * b->e[8] + a->e[7] * b->e[9] + a->e[11] * b->e[10] + a->e[15] * b->e[11];
+	    .e[2][0] = a.e[0][0] * b.e[2][0] + a.e[1][0] * b.e[2][1] + a.e[2][0] * b.e[2][2] + a.e[3][0] * b.e[2][3],
+	    .e[2][1] = a.e[0][1] * b.e[2][0] + a.e[1][1] * b.e[2][1] + a.e[2][1] * b.e[2][2] + a.e[3][1] * b.e[2][3],
+	    .e[2][2] = a.e[0][2] * b.e[2][0] + a.e[1][2] * b.e[2][1] + a.e[2][2] * b.e[2][2] + a.e[3][2] * b.e[2][3],
+	    .e[2][3] = a.e[0][3] * b.e[2][0] + a.e[1][3] * b.e[2][1] + a.e[2][3] * b.e[2][2] + a.e[3][3] * b.e[2][3],
 
-	out->e[12] = a->e[0] * b->e[12] + a->e[4] * b->e[13] + a->e[8] * b->e[14] + a->e[12] * b->e[15];
-	out->e[13] = a->e[1] * b->e[12] + a->e[5] * b->e[13] + a->e[9] * b->e[14] + a->e[13] * b->e[15];
-	out->e[14] = a->e[2] * b->e[12] + a->e[6] * b->e[13] + a->e[10] * b->e[14] + a->e[14] * b->e[15];
-	out->e[15] = a->e[3] * b->e[12] + a->e[7] * b->e[13] + a->e[11] * b->e[14] + a->e[15] * b->e[15];
+	    .e[3][0] = a.e[0][0] * b.e[3][0] + a.e[1][0] * b.e[3][1] + a.e[2][0] * b.e[3][2] + a.e[3][0] * b.e[3][3],
+	    .e[3][1] = a.e[0][1] * b.e[3][0] + a.e[1][1] * b.e[3][1] + a.e[2][1] * b.e[3][2] + a.e[3][1] * b.e[3][3],
+	    .e[3][2] = a.e[0][2] * b.e[3][0] + a.e[1][2] * b.e[3][1] + a.e[2][2] * b.e[3][2] + a.e[3][2] * b.e[3][3],
+	    .e[3][3] = a.e[0][3] * b.e[3][0] + a.e[1][3] * b.e[3][1] + a.e[2][3] * b.e[3][2] + a.e[3][3] * b.e[3][3]};
+}
 
-	return out;
+
+/*-----------------------------
+
+ Matrix4RotateX()
+-----------------------------*/
+EXPORT inline struct Matrix4 Matrix4RotateX(struct Matrix4 mat, float angle)
+{
+	float s = sinf(angle);
+	float c = cosf(angle);
+
+	struct Matrix4 r = Matrix4Identity();
+
+	// 1.0  0.0  0.0  0.0
+	// 0.0  c    s    0.0
+	// 0.0  -s   c    0.0
+	// 0.0  0.0  0.0  1.0
+
+	r.e[1][1] = c;
+	r.e[1][2] = s;
+	r.e[2][1] = -s;
+	r.e[2][2] = c;
+
+	return Matrix4Multiply(mat, r);
+}
+
+
+/*-----------------------------
+
+ Matrix4RotateY()
+-----------------------------*/
+EXPORT inline struct Matrix4 Matrix4RotateY(struct Matrix4 mat, float angle)
+{
+	float s = sinf(angle);
+	float c = cosf(angle);
+
+	struct Matrix4 r = Matrix4Identity();
+
+	// c    0.0  s    0.0
+	// 0.0  1.0  0.0  0.0
+	// -s   0.0  c    0.0
+	// 0.0  0.0  0.0  1.0
+
+	r.e[0][0] = c;
+	r.e[0][2] = s;
+	r.e[2][0] = -s;
+	r.e[2][2] = c;
+
+	return Matrix4Multiply(mat, r);
+}
+
+
+/*-----------------------------
+
+ Matrix4RotateZ()
+-----------------------------*/
+EXPORT inline struct Matrix4 Matrix4RotateZ(struct Matrix4 mat, float angle)
+{
+	float s = sinf(angle);
+	float c = cosf(angle);
+
+	struct Matrix4 r = Matrix4Identity();
+
+	// c    s    0.0  0.0
+	// -s   c    0.0  0.0
+	// 0.0  0.0  1.0  0.0
+	// 0.0  0.0  0.0  1.0
+
+	r.e[0][0] = c;
+	r.e[0][1] = s;
+	r.e[1][0] = -s;
+	r.e[1][1] = c;
+
+	return Matrix4Multiply(mat, r);
+}
+
+
+/*-----------------------------
+
+ Matrix4Rotate()
+-----------------------------*/
+EXPORT inline void Matrix4Rotate(struct Matrix4 mat, struct Vector3 v, float angle)
+{
+	// https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/glRotate.xml
+	float s = sinf(angle);
+	float c = cosf(angle);
+
+	struct Matrix4 r;
+
+	r.e[0][0] = (v.x * v.x) * (1.0 - c) + c;
+	r.e[0][1] = (v.x * v.y) * (1.0 - c) - v.z * s;
+	r.e[0][2] = (v.x * v.z) * (1.0 - c) + v.y * s;
+	r.e[0][3] = 0.0;
+
+	r.e[1][0] = (v.y * v.x) * (1.0 - c) + v.z * s;
+	r.e[1][1] = (v.y * v.y) * (1.0 - c) + c;
+	r.e[1][2] = (v.y * v.z) * (1.0 - c) - v.x * s;
+	r.e[1][3] = 0.0;
+
+	r.e[2][0] = (v.z * v.x) * (1.0 - c) - v.y * s;
+	r.e[2][1] = (v.z * v.y) * (1.0 - c) + v.x * s;
+	r.e[2][2] = (v.z * v.z) * (1.0 - c) + c;
+	r.e[2][3] = 0.0;
+
+	r.e[3][0] = 0.0;
+	r.e[3][1] = 0.0;
+	r.e[3][2] = 0.0;
+	r.e[3][3] = 1.0;
+
+	return Matrix4Multiply(mat, r);
 }
