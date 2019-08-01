@@ -5,10 +5,10 @@
 -----------------------------*/
 
 #ifndef JAPAN_VERSION
-#define JAPAN_VERSION "0.2.0"
+#define JAPAN_VERSION "0.2.1"
 #define JAPAN_VERSION_MAJOR 0
 #define JAPAN_VERSION_MINOR 2
-#define JAPAN_VERSION_PATCH 0
+#define JAPAN_VERSION_PATCH 1
 #endif
 
 #ifndef IMAGE_H
@@ -33,10 +33,10 @@
 		IMAGE_GRAYA8,
 		IMAGE_RGB8,
 		IMAGE_RGBA8,
-		IMAGE_GRAY16,  // TODO: Sgi support
-		IMAGE_GRAYA16, // "
-		IMAGE_RGB16,   // "
-		IMAGE_RGBA16   // "
+		IMAGE_GRAY16,
+		IMAGE_GRAYA16,
+		IMAGE_RGB16,
+		IMAGE_RGBA16
 	};
 
 	struct Image
@@ -72,5 +72,6 @@
 	int ImageExLoad(FILE* file, struct ImageEx* out, struct Status*);
 
 	size_t ImageBpp(enum ImageFormat);
+	size_t ImageChannels(enum ImageFormat);
 
 #endif

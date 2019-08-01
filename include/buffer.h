@@ -5,10 +5,10 @@
 -----------------------------*/
 
 #ifndef JAPAN_VERSION
-#define JAPAN_VERSION "0.2.0"
+#define JAPAN_VERSION "0.2.1"
 #define JAPAN_VERSION_MAJOR 0
 #define JAPAN_VERSION_MINOR 2
-#define JAPAN_VERSION_PATCH 0
+#define JAPAN_VERSION_PATCH 1
 #endif
 
 #ifndef BUFFER_H
