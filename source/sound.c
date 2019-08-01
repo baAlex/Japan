@@ -141,7 +141,10 @@ EXPORT struct Sound* SoundCreate(enum SoundFormat format, size_t length, size_t 
 
  SoundDelete()
 -----------------------------*/
-EXPORT inline void SoundDelete(struct Sound* sound) { free(sound); }
+EXPORT inline void SoundDelete(struct Sound* sound)
+{
+	free(sound);
+}
 
 
 /*-----------------------------
@@ -307,7 +310,7 @@ EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, vo
 	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
 	dest.raw = out;
 
-	if((size_to_read % ex.minimum_unit_size) != 0)
+	if ((size_to_read % ex.minimum_unit_size) != 0)
 	{
 		StatusSet(st, "SoundExRead", STATUS_INVALID_ARGUMENT, NULL);
 		size_to_read -= (size_to_read % ex.minimum_unit_size);
@@ -410,15 +413,11 @@ EXPORT inline size_t SoundBps(enum SoundFormat format)
 {
 	switch (format)
 	{
-	case SOUND_I8:
-		return 1;
-	case SOUND_I16:
-		return 2;
+	case SOUND_I8: return 1;
+	case SOUND_I16: return 2;
 	case SOUND_I32:
-	case SOUND_F32:
-		return 4;
-	case SOUND_F64:
-		return 8;
+	case SOUND_F32: return 4;
+	case SOUND_F64: return 8;
 	}
 
 	return 0;

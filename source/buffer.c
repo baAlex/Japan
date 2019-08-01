@@ -77,7 +77,7 @@ EXPORT void* BufferResize(struct Buffer* buffer, size_t new_size)
 
 	if (old_size != buffer->size)
 		DEBUG_PRINT("(BufferResize) required %zu bytes, buffer size: %zu -> %zu bytes\n", new_size, old_size,
-					buffer->size);
+		            buffer->size);
 
 	return buffer->data;
 }

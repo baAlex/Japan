@@ -60,96 +60,97 @@ TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 EXPORT inline struct Matrix4 Matrix4Clean()
 {
 	return (struct Matrix4){.e[0] = 0.0,
-							.e[1] = 0.0,
-							.e[2] = 0.0,
-							.e[3] = 0.0,
+	                        .e[1] = 0.0,
+	                        .e[2] = 0.0,
+	                        .e[3] = 0.0,
 
-							.e[4] = 0.0,
-							.e[5] = 0.0,
-							.e[6] = 0.0,
-							.e[7] = 0.0,
+	                        .e[4] = 0.0,
+	                        .e[5] = 0.0,
+	                        .e[6] = 0.0,
+	                        .e[7] = 0.0,
 
-							.e[8] = 0.0,
-							.e[9] = 0.0,
-							.e[10] = 0.0,
-							.e[11] = 0.0,
+	                        .e[8] = 0.0,
+	                        .e[9] = 0.0,
+	                        .e[10] = 0.0,
+	                        .e[11] = 0.0,
 
-							.e[12] = 0.0,
-							.e[13] = 0.0,
-							.e[14] = 0.0,
-							.e[15] = 0.0};
+	                        .e[12] = 0.0,
+	                        .e[13] = 0.0,
+	                        .e[14] = 0.0,
+	                        .e[15] = 0.0};
 }
 
 
 EXPORT inline struct Matrix4 Matrix4Identity()
 {
 	return (struct Matrix4){.e[0] = 1.0,
-							.e[1] = 0.0,
-							.e[2] = 0.0,
-							.e[3] = 0.0,
+	                        .e[1] = 0.0,
+	                        .e[2] = 0.0,
+	                        .e[3] = 0.0,
 
-							.e[4] = 0.0,
-							.e[5] = 1.0,
-							.e[6] = 0.0,
-							.e[7] = 0.0,
+	                        .e[4] = 0.0,
+	                        .e[5] = 1.0,
+	                        .e[6] = 0.0,
+	                        .e[7] = 0.0,
 
-							.e[8] = 0.0,
-							.e[9] = 0.0,
-							.e[10] = 1.0,
-							.e[11] = 0.0,
+	                        .e[8] = 0.0,
+	                        .e[9] = 0.0,
+	                        .e[10] = 1.0,
+	                        .e[11] = 0.0,
 
-							.e[12] = 0.0,
-							.e[13] = 0.0,
-							.e[14] = 0.0,
-							.e[15] = 1.0};
+	                        .e[12] = 0.0,
+	                        .e[13] = 0.0,
+	                        .e[14] = 0.0,
+	                        .e[15] = 1.0};
 }
 
 
 EXPORT inline struct Matrix4 Matrix4Translate(struct Vector3 origin)
 {
 	return (struct Matrix4){.e[0] = 1.0,
-							.e[1] = 0.0,
-							.e[2] = 0.0,
-							.e[3] = 0.0,
+	                        .e[1] = 0.0,
+	                        .e[2] = 0.0,
+	                        .e[3] = 0.0,
 
-							.e[4] = 0.0,
-							.e[5] = 1.0,
-							.e[6] = 0.0,
-							.e[7] = 0.0,
+	                        .e[4] = 0.0,
+	                        .e[5] = 1.0,
+	                        .e[6] = 0.0,
+	                        .e[7] = 0.0,
 
-							.e[8] = 0.0,
-							.e[9] = 0.0,
-							.e[10] = 1.0,
-							.e[11] = 0.0,
+	                        .e[8] = 0.0,
+	                        .e[9] = 0.0,
+	                        .e[10] = 1.0,
+	                        .e[11] = 0.0,
 
-							.e[12] = origin.x,
-							.e[13] = origin.y,
-							.e[14] = origin.z,
-							.e[15] = 1.0};
+	                        .e[12] = origin.x,
+	                        .e[13] = origin.y,
+	                        .e[14] = origin.z,
+	                        .e[15] = 1.0};
 }
 
 
-EXPORT inline struct Matrix4 Matrix4Orthographic(float left, float right, float bottom, float top, float near, float far)
+EXPORT inline struct Matrix4 Matrix4Orthographic(float left, float right, float bottom, float top, float near,
+                                                 float far)
 {
 	return (struct Matrix4){.e[0] = 2.0 / (right - left),
-							.e[1] = 0.0,
-							.e[2] = 0.0,
-							.e[3] = 0.0,
+	                        .e[1] = 0.0,
+	                        .e[2] = 0.0,
+	                        .e[3] = 0.0,
 
-							.e[4] = 0.0,
-							.e[5] = 2.0 / (top - bottom),
-							.e[6] = 0.0,
-							.e[7] = 0.0,
+	                        .e[4] = 0.0,
+	                        .e[5] = 2.0 / (top - bottom),
+	                        .e[6] = 0.0,
+	                        .e[7] = 0.0,
 
-							.e[8] = 0.0,
-							.e[9] = 0.0,
-							.e[10] = 2.0 / (far - near),
-							.e[11] = 0.0,
+	                        .e[8] = 0.0,
+	                        .e[9] = 0.0,
+	                        .e[10] = 2.0 / (far - near),
+	                        .e[11] = 0.0,
 
-							.e[12] = -(right + left) / (right - left),
-							.e[13] = -(top + bottom) / (top - bottom),
-							.e[14] = -(far + near) / (far - near),
-							.e[15] = 1.0};
+	                        .e[12] = -(right + left) / (right - left),
+	                        .e[13] = -(top + bottom) / (top - bottom),
+	                        .e[14] = -(far + near) / (far - near),
+	                        .e[15] = 1.0};
 }
 
 
@@ -158,24 +159,24 @@ EXPORT inline struct Matrix4 Matrix4Perspective(float y_fov, float aspect, float
 	float const a = 1.f / tanf(y_fov / 2.f);
 
 	return (struct Matrix4){.e[0] = a / aspect,
-							.e[1] = 0.0,
-							.e[2] = 0.0,
-							.e[3] = 0.0,
+	                        .e[1] = 0.0,
+	                        .e[2] = 0.0,
+	                        .e[3] = 0.0,
 
-							.e[4] = 0.0,
-							.e[5] = a,
-							.e[6] = 0.0,
-							.e[7] = 0.0,
+	                        .e[4] = 0.0,
+	                        .e[5] = a,
+	                        .e[6] = 0.0,
+	                        .e[7] = 0.0,
 
-							.e[8] = 0.0,
-							.e[9] = 0.0,
-							.e[10] = -((far + near) / (far - near)),
-							.e[11] = -1.0,
+	                        .e[8] = 0.0,
+	                        .e[9] = 0.0,
+	                        .e[10] = -((far + near) / (far - near)),
+	                        .e[11] = -1.0,
 
-							.e[12] = 0.0,
-							.e[13] = 0.0,
-							.e[14] = -((2.0 * far * near) / (far - near)),
-							.e[15] = 0.0};
+	                        .e[12] = 0.0,
+	                        .e[13] = 0.0,
+	                        .e[14] = -((2.0 * far * near) / (far - near)),
+	                        .e[15] = 0.0};
 }
 
 
@@ -190,24 +191,24 @@ EXPORT inline struct Matrix4 Matrix4LookAt(struct Vector3 eye, struct Vector3 ce
 	struct Vector3 u = Vector3Cross(s, f);
 
 	return (struct Matrix4){.e[0] = s.x,
-							.e[1] = u.x,
-							.e[2] = -f.x,
-							.e[3] = 0.0,
+	                        .e[1] = u.x,
+	                        .e[2] = -f.x,
+	                        .e[3] = 0.0,
 
-							.e[4] = s.y,
-							.e[5] = u.y,
-							.e[6] = -f.y,
-							.e[7] = 0.0,
+	                        .e[4] = s.y,
+	                        .e[5] = u.y,
+	                        .e[6] = -f.y,
+	                        .e[7] = 0.0,
 
-							.e[8] = s.z,
-							.e[9] = u.z,
-							.e[10] = -f.z,
-							.e[11] = 0.0,
+	                        .e[8] = s.z,
+	                        .e[9] = u.z,
+	                        .e[10] = -f.z,
+	                        .e[11] = 0.0,
 
-							.e[12] = (s.x * (-eye.x) + s.y * (-eye.y) + s.z * (-eye.z)),
-							.e[13] = (u.x * (-eye.x) + u.y * (-eye.y) + u.z * (-eye.z)),
-							.e[14] = ((-f.x) * (-eye.x) + (-f.y) * (-eye.y) + (-f.z) * (-eye.z)),
-							.e[15] = 1.0};
+	                        .e[12] = (s.x * (-eye.x) + s.y * (-eye.y) + s.z * (-eye.z)),
+	                        .e[13] = (u.x * (-eye.x) + u.y * (-eye.y) + u.z * (-eye.z)),
+	                        .e[14] = ((-f.x) * (-eye.x) + (-f.y) * (-eye.y) + (-f.z) * (-eye.z)),
+	                        .e[15] = 1.0};
 }
 
 

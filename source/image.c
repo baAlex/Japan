@@ -52,17 +52,13 @@ int Channels(enum ImageFormat format)
 	switch (format)
 	{
 	case IMAGE_GRAY8:
-	case IMAGE_GRAY16:
-		return 1;
+	case IMAGE_GRAY16: return 1;
 	case IMAGE_GRAYA8:
-	case IMAGE_GRAYA16:
-		return 2;
+	case IMAGE_GRAYA16: return 2;
 	case IMAGE_RGB8:
-	case IMAGE_RGB16:
-		return 3;
+	case IMAGE_RGB16: return 3;
 	case IMAGE_RGBA8:
-	case IMAGE_RGBA16:
-		return 4;
+	case IMAGE_RGBA16: return 4;
 	}
 
 	return 0;
@@ -95,7 +91,10 @@ EXPORT struct Image* ImageCreate(enum ImageFormat format, size_t width, size_t h
 
  ImageDelete()
 -----------------------------*/
-EXPORT inline void ImageDelete(struct Image* image) { free(image); }
+EXPORT inline void ImageDelete(struct Image* image)
+{
+	free(image);
+}
 
 
 /*-----------------------------
@@ -208,22 +207,14 @@ EXPORT inline size_t ImageBpp(enum ImageFormat format)
 {
 	switch (format)
 	{
-	case IMAGE_GRAY8:
-		return 1;
-	case IMAGE_GRAYA8:
-		return 2;
-	case IMAGE_RGB8:
-		return 3;
-	case IMAGE_RGBA8:
-		return 4;
-	case IMAGE_GRAY16:
-		return 2;
-	case IMAGE_GRAYA16:
-		return 4;
-	case IMAGE_RGB16:
-		return 6;
-	case IMAGE_RGBA16:
-		return 8;
+	case IMAGE_GRAY8: return 1;
+	case IMAGE_GRAYA8: return 2;
+	case IMAGE_RGB8: return 3;
+	case IMAGE_RGBA8: return 4;
+	case IMAGE_GRAY16: return 2;
+	case IMAGE_GRAYA16: return 4;
+	case IMAGE_RGB16: return 6;
+	case IMAGE_RGBA16: return 8;
 	}
 
 	return 0;

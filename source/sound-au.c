@@ -162,9 +162,7 @@ int SoundExLoadAu(FILE* file, struct SoundEx* out, struct Status* st)
 		out->uncompressed_size = out->uncompressed_size * 2;
 		break;
 
-	default:
-		StatusSet(st, "SoundExLoadAu", STATUS_UNKNOWN_DATA_FORMAT, NULL);
-		return 1;
+	default: StatusSet(st, "SoundExLoadAu", STATUS_UNKNOWN_DATA_FORMAT, NULL); return 1;
 	}
 
 	return 0;
@@ -203,21 +201,11 @@ EXPORT struct Status SoundSaveAu(struct Sound* sound, const char* filename)
 
 	switch (sound->format)
 	{
-	case SOUND_I8:
-		head.format = EndianTo_32(AU_PCM8, sys_endianness, ENDIAN_BIG);
-		break;
-	case SOUND_I16:
-		head.format = EndianTo_32(AU_PCM16, sys_endianness, ENDIAN_BIG);
-		break;
-	case SOUND_I32:
-		head.format = EndianTo_32(AU_PCM32, sys_endianness, ENDIAN_BIG);
-		break;
-	case SOUND_F32:
-		head.format = EndianTo_32(AU_FLOAT, sys_endianness, ENDIAN_BIG);
-		break;
-	case SOUND_F64:
-		head.format = EndianTo_32(AU_DOUBLE, sys_endianness, ENDIAN_BIG);
-		break;
+	case SOUND_I8: head.format = EndianTo_32(AU_PCM8, sys_endianness, ENDIAN_BIG); break;
+	case SOUND_I16: head.format = EndianTo_32(AU_PCM16, sys_endianness, ENDIAN_BIG); break;
+	case SOUND_I32: head.format = EndianTo_32(AU_PCM32, sys_endianness, ENDIAN_BIG); break;
+	case SOUND_F32: head.format = EndianTo_32(AU_FLOAT, sys_endianness, ENDIAN_BIG); break;
+	case SOUND_F64: head.format = EndianTo_32(AU_DOUBLE, sys_endianness, ENDIAN_BIG); break;
 	}
 
 	if (fwrite(&head, sizeof(struct AuHead), 1, file) != 1)

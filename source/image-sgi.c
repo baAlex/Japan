@@ -87,28 +87,40 @@ static inline void sPlotPixel_8(int channel, int row, int col, struct Image* ima
 {
 	if (image->format == IMAGE_GRAY8 && channel < 1)
 	{
-		struct { uint8_t c[1]; }* data = image->data;
+		struct
+		{
+			uint8_t c[1];
+		}* data = image->data;
 
 		data += col + (image->width * row);
 		data->c[channel] = value;
 	}
 	else if (image->format == IMAGE_GRAYA8 && channel < 2)
 	{
-		struct { uint8_t c[2]; }* data = image->data;
+		struct
+		{
+			uint8_t c[2];
+		}* data = image->data;
 
 		data += col + (image->width * row);
 		data->c[channel] = value;
 	}
 	else if (image->format == IMAGE_RGB8 && channel < 3)
 	{
-		struct { uint8_t c[3]; }* data = image->data;
+		struct
+		{
+			uint8_t c[3];
+		}* data = image->data;
 
 		data += col + (image->width * row);
 		data->c[channel] = value;
 	}
 	else if (image->format == IMAGE_RGBA8 && channel < 4)
 	{
-		struct { uint8_t c[4]; }* data = image->data;
+		struct
+		{
+			uint8_t c[4];
+		}* data = image->data;
 
 		data += col + (image->width * row);
 		data->c[channel] = value;
@@ -339,17 +351,10 @@ int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st)
 
 	switch (EndianTo_32(head.pixel_type, ENDIAN_BIG, sys_endianness))
 	{
-	case 1:
-		StatusSet(st, "ImageExLoadSgi", STATUS_OBSOLETE_FEATURE, "dithered image");
-		return 1;
-	case 2:
-		StatusSet(st, "ImageExLoadSgi", STATUS_OBSOLETE_FEATURE, "indexed image");
-		return 1;
-	case 3:
-		StatusSet(st, "ImageExLoadSgi", STATUS_OBSOLETE_FEATURE, "palette data");
-		return 1;
-	case 0:
-		break;
+	case 1: StatusSet(st, "ImageExLoadSgi", STATUS_OBSOLETE_FEATURE, "dithered image"); return 1;
+	case 2: StatusSet(st, "ImageExLoadSgi", STATUS_OBSOLETE_FEATURE, "indexed image"); return 1;
+	case 3: StatusSet(st, "ImageExLoadSgi", STATUS_OBSOLETE_FEATURE, "palette data"); return 1;
+	case 0: break;
 	}
 
 	switch (EndianTo_16(head.dimension, ENDIAN_BIG, sys_endianness))
@@ -378,18 +383,10 @@ int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st)
 		// 8 bits per component image
 		switch (head.z_size)
 		{
-		case 1:
-			out->format = IMAGE_GRAY8;
-			break;
-		case 2:
-			out->format = IMAGE_GRAYA8;
-			break;
-		case 3:
-			out->format = IMAGE_RGB8;
-			break;
-		case 4:
-			out->format = IMAGE_RGBA8;
-			break;
+		case 1: out->format = IMAGE_GRAY8; break;
+		case 2: out->format = IMAGE_GRAYA8; break;
+		case 3: out->format = IMAGE_RGB8; break;
+		case 4: out->format = IMAGE_RGBA8; break;
 		}
 
 		out->uncompressed_size = ImageBpp(out->format) * out->width * out->height;
@@ -422,7 +419,7 @@ EXPORT struct Status ImageSaveSgi(struct Image* image, const char* filename)
 	}
 
 	if (image->format != IMAGE_GRAY8 && image->format != IMAGE_GRAYA8 && image->format != IMAGE_RGB8 &&
-		image->format != IMAGE_RGBA8)
+	    image->format != IMAGE_RGBA8)
 	{
 		StatusSet(&st, "ImageSaveSgi", STATUS_UNSUPPORTED_FEATURE, "image format ('%s')", filename);
 		return st;

@@ -40,7 +40,8 @@ SOFTWARE.
 #endif
 
 
-EXPORT void StatusSet(struct Status* st, const char* function_name, enum StatusCode code, const char* explanation_fmt, ...)
+EXPORT void StatusSet(struct Status* st, const char* function_name, enum StatusCode code, const char* explanation_fmt,
+                      ...)
 {
 	va_list args;
 
@@ -55,7 +56,8 @@ EXPORT void StatusSet(struct Status* st, const char* function_name, enum StatusC
 	if (explanation_fmt != NULL)
 	{
 		va_start(args, explanation_fmt);
-		vsnprintf(st->explanation, STATUS_EXPLANATION_LENGTH, explanation_fmt, args); // NOLINT(clang-analyzer-valist.Uninitialized)
+		vsnprintf(st->explanation, STATUS_EXPLANATION_LENGTH, explanation_fmt,
+		          args); // NOLINT(clang-analyzer-valist.Uninitialized)
 		va_end(args);
 	}
 }
@@ -68,45 +70,21 @@ EXPORT int StatusPrint(const char* app_name, struct Status st)
 
 	switch (st.code)
 	{
-	case STATUS_SUCCESS:
-		code_message = "Success";
-		break;
-	case STATUS_ERROR:
-		code_message = "Error";
-		break;
-	case STATUS_FS_ERROR:
-		code_message = "Filesystem error";
-		break;
-	case STATUS_IO_ERROR:
-		code_message = "File Input/Output error";
-		break;
-	case STATUS_UNEXPECTED_EOF:
-		code_message = "End of file prematurely reached";
-		break;
-	case STATUS_UNEXPECTED_DATA:
-		code_message = "Unexpected data";
-		break;
-	case STATUS_UNKNOWN_FILE_FORMAT:
-		code_message = "Unknown file format";
-		break;
-	case STATUS_UNSUPPORTED_FEATURE:
-		code_message = "Unsupported feature";
-		break;
-	case STATUS_OBSOLETE_FEATURE:
-		code_message = "Obsolete feature";
-		break;
-	case STATUS_UNKNOWN_DATA_FORMAT:
-		code_message = "Unknown data format";
-		break;
-	case STATUS_INVALID_ARGUMENT:
-		code_message = "Invalid argument";
-		break;
-	case STATUS_MEMORY_ERROR:
-		code_message = "Memory error";
-		break;
-	default:
-		code_message = "Unknown status";
+	case STATUS_SUCCESS: code_message = "Success"; break;
+	case STATUS_ERROR: code_message = "Error"; break;
+	case STATUS_FS_ERROR: code_message = "Filesystem error"; break;
+	case STATUS_IO_ERROR: code_message = "File Input/Output error"; break;
+	case STATUS_UNEXPECTED_EOF: code_message = "End of file prematurely reached"; break;
+	case STATUS_UNEXPECTED_DATA: code_message = "Unexpected data"; break;
+	case STATUS_UNKNOWN_FILE_FORMAT: code_message = "Unknown file format"; break;
+	case STATUS_UNSUPPORTED_FEATURE: code_message = "Unsupported feature"; break;
+	case STATUS_OBSOLETE_FEATURE: code_message = "Obsolete feature"; break;
+	case STATUS_UNKNOWN_DATA_FORMAT: code_message = "Unknown data format"; break;
+	case STATUS_INVALID_ARGUMENT: code_message = "Invalid argument"; break;
+	case STATUS_MEMORY_ERROR: code_message = "Memory error"; break;
+	default: code_message = "Unknown status";
 	}
 
-	return fprintf(stderr, "[%s] %s : %s%s%s.\n", app_name, st.function_name, code_message, (st.explanation[0] != '\0') ? ", " : "", explanation);
+	return fprintf(stderr, "[%s] %s : %s%s%s.\n", app_name, st.function_name, code_message,
+	               (st.explanation[0] != '\0') ? ", " : "", explanation);
 }

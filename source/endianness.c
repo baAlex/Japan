@@ -71,7 +71,7 @@ EXPORT inline uint64_t EndianReverse_64(uint64_t value)
 	uint8_t b8 = (value >> 56) & 0xFF;
 
 	return ((uint64_t)b1 << 56) | ((uint64_t)b2 << 48) | ((uint64_t)b3 << 40) | ((uint64_t)b4 << 32) |
-		   ((uint64_t)b5 << 24) | ((uint64_t)b6 << 16) | ((uint64_t)b7 << 8) | b8;
+	       ((uint64_t)b5 << 24) | ((uint64_t)b6 << 16) | ((uint64_t)b7 << 8) | b8;
 }
 
 EXPORT inline uint32_t EndianReverse_32(uint32_t value)

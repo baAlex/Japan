@@ -1,8 +1,8 @@
 
 // $ clang -I./include sketches/convert-image.c ./libjapan-dbg.a -O0 -g -o ./convert-image
 
-#include <stdlib.h>
 #include "image.h"
+#include <stdlib.h>
 
 int main(int argc, char* argv[])
 {

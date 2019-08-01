@@ -79,7 +79,7 @@ static void sReSample(const float* in, size_t in_size, size_t channels, int in_f
 {
 	size_t out_len = (in_size / sizeof(float) / channels) * out_frequency / in_frequency;
 
-	if(in_frequency == out_frequency)
+	if (in_frequency == out_frequency)
 		return;
 
 	double step_dist = ((double)in_frequency / (double)out_frequency);
@@ -93,7 +93,7 @@ static void sReSample(const float* in, size_t in_size, size_t channels, int in_f
 		for (size_t c = 0; c < channels; c += 1)
 		{
 			*out++ = (float)(in[c] + (in[c + channels] - in[c]) * ((double)(cur_offset >> 32) +
-			                                                      ((cur_offset & (fixed_fraction - 1)) * norm_fixed)));
+			                                                       ((cur_offset & (fixed_fraction - 1)) * norm_fixed)));
 		}
 
 		cur_offset += step;
@@ -131,20 +131,11 @@ static void sCommonToOutput(float* in, size_t in_size, size_t channels, void* ou
 	{
 		switch (out_format)
 		{
-		case SOUND_I8:
-			*dest.i8 = (int8_t)((float)INT8_MAX * in[i]);
-			break;
-		case SOUND_I16:
-			*dest.i16 = (int16_t)((float)INT16_MAX * in[i]);
-			break;
-		case SOUND_I32:
-			*dest.i32 = (int32_t)((float)INT32_MAX * in[i]);
-			break;
-		case SOUND_F64:
-			*dest.f32 = (float)in[i];
-			break;
-		default:
-			break;
+		case SOUND_I8: *dest.i8 = (int8_t)((float)INT8_MAX * in[i]); break;
+		case SOUND_I16: *dest.i16 = (int16_t)((float)INT16_MAX * in[i]); break;
+		case SOUND_I32: *dest.i32 = (int32_t)((float)INT32_MAX * in[i]); break;
+		case SOUND_F64: *dest.f32 = (float)in[i]; break;
+		default: break;
 		}
 
 		dest.i8 += SoundBps(out_format);
@@ -156,8 +147,8 @@ static void sCommonToOutput(float* in, size_t in_size, size_t channels, void* ou
 
  sInputToCommon()
 -----------------------------*/
-static void sInputToCommon(void* in, size_t in_size, size_t in_channels, enum SoundFormat in_format,
-                           float* out, size_t out_channels)
+static void sInputToCommon(void* in, size_t in_size, size_t in_channels, enum SoundFormat in_format, float* out,
+                           size_t out_channels)
 {
 	union {
 		void* raw;
@@ -180,20 +171,11 @@ static void sInputToCommon(void* in, size_t in_size, size_t in_channels, enum So
 		{
 			switch (in_format)
 			{
-			case SOUND_I8:
-				mix[c] = ((float)org.i8[c]) / (float)INT8_MAX;
-				break;
-			case SOUND_I16:
-				mix[c] = ((float)org.i16[c]) / (float)INT16_MAX;
-				break;
-			case SOUND_I32:
-				mix[c] = ((float)org.i32[c]) / (float)INT32_MAX;
-				break;
-			case SOUND_F32:
-				mix[c] = org.f32[c];
-				break;
-			case SOUND_F64:
-				mix[c] = (float)org.f64[c];
+			case SOUND_I8: mix[c] = ((float)org.i8[c]) / (float)INT8_MAX; break;
+			case SOUND_I16: mix[c] = ((float)org.i16[c]) / (float)INT16_MAX; break;
+			case SOUND_I32: mix[c] = ((float)org.i32[c]) / (float)INT32_MAX; break;
+			case SOUND_F32: mix[c] = org.f32[c]; break;
+			case SOUND_F64: mix[c] = (float)org.f64[c];
 			}
 		}
 
@@ -276,7 +258,7 @@ static struct Resampled sProccess(const char* filename, struct Buffer* single_bu
 	uint8_t* out_cursor = out;
 
 	for (size_t bytes_read = 0; bytes_read < in_buffer_size * (ex.uncompressed_size / in_buffer_size);
-		 bytes_read += in_buffer_size)
+	     bytes_read += in_buffer_size)
 	{
 		// Fill 'in_buffer' with file data
 		SoundExRead(file, ex, in_buffer_size, in_buffer, st);
@@ -310,7 +292,7 @@ static struct Resampled sProccess(const char* filename, struct Buffer* single_bu
 	sInputToCommon(in_buffer, tail_size, ex.channels, ex.format, fmt1_buffer, RE_CHANNELS);
 	sReSample(fmt1_buffer, sizeof(float) * tail_len, RE_CHANNELS, ex.frequency, fmt2_buffer, RE_FREQUENCY);
 	sCommonToOutput(fmt2_buffer, sizeof(float) * (tail_len * RE_FREQUENCY / ex.frequency), RE_CHANNELS, out_cursor,
-					RE_FORMAT);
+	                RE_FORMAT);
 
 	// Bye!
 	fclose(file);

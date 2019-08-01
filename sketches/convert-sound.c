@@ -1,8 +1,8 @@
 
 // $ clang -I./include sketches/convert-sound.c ./libjapan-dbg.a -g -O0 -o ./convert-sound
 
-#include <stdlib.h>
 #include "sound.h"
+#include <stdlib.h>
 
 int main(int argc, char* argv[])
 {

@@ -250,14 +250,14 @@ static int sResize(struct Dictionary* dictionary, enum ResizeDirection direction
 		old_ptr = dictionary->buckets;
 
 		if ((dictionary->buckets = realloc(dictionary->buckets, dictionary->buckets_no * sizeof(struct Bucket))) ==
-			NULL)
+		    NULL)
 		{
 			dictionary->buckets = old_ptr;
 			return 1;
 		}
 
 		memset((uint8_t*)dictionary->buckets + (dictionary->buckets_no - 1) * sizeof(struct Bucket), 0,
-			   sizeof(struct Bucket));
+		       sizeof(struct Bucket));
 	}
 	else
 	{
@@ -315,7 +315,7 @@ static int sResize(struct Dictionary* dictionary, enum ResizeDirection direction
 		old_ptr = dictionary->buckets;
 
 		if ((dictionary->buckets = realloc(dictionary->buckets, dictionary->buckets_no * sizeof(struct Bucket))) ==
-			NULL)
+		    NULL)
 		{
 			// How many chances of this realloc() to fail exists?
 			dictionary->buckets = old_ptr;
@@ -393,7 +393,7 @@ EXPORT void DictionaryDelete(struct Dictionary* dictionary)
  DictionaryAdd()
 -----------------------------*/
 EXPORT struct DictionaryItem* DictionaryAdd(struct Dictionary* dictionary, const char* key, void* data,
-											size_t data_size)
+                                            size_t data_size)
 {
 	struct DictionaryItem* item = NULL;
 	size_t key_size = 0;
@@ -537,7 +537,7 @@ EXPORT int DictionaryDetach(struct DictionaryItem* item)
  DictionaryIterate()
 -----------------------------*/
 EXPORT void DictionaryIterate(struct Dictionary* dictionary, void (*callback)(struct DictionaryItem*, void*),
-							  void* extra_data)
+                              void* extra_data)
 {
 	struct CycleBucketState state = {0};
 	struct DictionaryItem** item_slot = NULL;

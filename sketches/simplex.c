@@ -46,7 +46,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 static int16_t s_perm[256];
 
 static int8_t s_grandients[] = {
-	5, 2, 2, 5, -5, 2, -2, 5, 5, -2, 2, -5, -5, -2, -2, -5,
+    5, 2, 2, 5, -5, 2, -2, 5, 5, -2, 2, -5, -5, -2, -2, -5,
 };
 
 
@@ -242,7 +242,7 @@ int main()
 
 	OpenSimplexSeed(SEED);
 
-	if((image = ImageCreate(IMAGE_GRAY8, WIDTH, HEIGHT)) == NULL)
+	if ((image = ImageCreate(IMAGE_GRAY8, WIDTH, HEIGHT)) == NULL)
 		return EXIT_FAILURE;
 
 	double min = 0.f;
@@ -274,7 +274,7 @@ int main()
 	// Bye!
 	st = ImageSaveSgi(image, "output.sgi");
 
-	if(st.code != STATUS_SUCCESS)
+	if (st.code != STATUS_SUCCESS)
 		StatusPrint("Simplex sketch", st);
 
 	ImageDelete(image);
