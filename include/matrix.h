@@ -33,5 +33,6 @@
 	struct Matrix4 Matrix4RotateX(struct Matrix4 mat, float angle);
 	struct Matrix4 Matrix4RotateY(struct Matrix4 mat, float angle);
 	struct Matrix4 Matrix4RotateZ(struct Matrix4 mat, float angle);
+	struct Matrix4 Matrix4Rotate(struct Matrix4 mat, struct Vector3 v, float angle);
 
 #endif

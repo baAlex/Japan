@@ -71,7 +71,8 @@
 
 	int ImageExLoad(FILE* file, struct ImageEx* out, struct Status*);
 
-	size_t ImageBpp(enum ImageFormat);
-	size_t ImageChannels(enum ImageFormat);
+	int ImageBytesPerPixel(enum ImageFormat);
+	int ImageBitsPerComponent(enum ImageFormat);
+	int ImageChannels(enum ImageFormat);
 
 #endif

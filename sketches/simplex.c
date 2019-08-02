@@ -237,19 +237,23 @@ double OpenSimplex2d(double x, double y)
 
 int main()
 {
-	struct Image* image = NULL;
+	struct Image* image8 = NULL;
+	struct Image* image16 = NULL;
+
 	struct Status st = {0};
 
 	OpenSimplexSeed(SEED);
 
-	if ((image = ImageCreate(IMAGE_GRAY8, WIDTH, HEIGHT)) == NULL)
+	if ((image8 = ImageCreate(IMAGE_GRAY8, WIDTH, HEIGHT)) == NULL ||
+	    (image16 = ImageCreate(IMAGE_GRAY16, WIDTH, HEIGHT)) == NULL)
 		return EXIT_FAILURE;
 
 	double min = 0.f;
 	double max = 0.f;
 	double y_step = 0.f;
 
-	uint8_t* pixel = image->data;
+	uint8_t* pixel8 = image8->data;
+	uint16_t* pixel16 = image16->data;
 
 	for (size_t row = 0; row < 512; row++, y_step += 1.f / (double)SCALE)
 	{
@@ -257,7 +261,7 @@ int main()
 
 		for (size_t col = 0; col < 512; col++, x_step += 1.f / (double)SCALE)
 		{
-			double value = (OpenSimplex2d(x_step, y_step) + 1.f) * 128.f;
+			double value = OpenSimplex2d(x_step, y_step) + 1.f;
 
 			if (value > max)
 				max = value;
@@ -265,19 +269,27 @@ int main()
 			if (value < min)
 				min = value;
 
-			pixel[col + image->width * row] = (uint8_t)value;
+			pixel8[col + image8->width * row] = (uint8_t)((double)value * 128.0);
+			pixel16[col + image16->width * row] = (uint16_t)((double)value * 32768.0);
 		}
 	}
 
 	printf("Min: %f, Max: %f\n", min, max);
 
 	// Bye!
-	st = ImageSaveSgi(image, "output.sgi");
+	st = ImageSaveSgi(image8, "output8.sgi");
 
 	if (st.code != STATUS_SUCCESS)
 		StatusPrint("Simplex sketch", st);
 
-	ImageDelete(image);
+	st = ImageSaveSgi(image16, "output16.sgi");
+	ImageSaveRaw(image16, "output16.data"); // GIMP did not support 16bit sgi images
+
+	if (st.code != STATUS_SUCCESS)
+		StatusPrint("Simplex sketch", st);
+
+	ImageDelete(image8);
+	ImageDelete(image16);
 
 	return EXIT_SUCCESS;
 }

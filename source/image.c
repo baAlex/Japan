@@ -47,24 +47,6 @@ extern struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Statu
 extern int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st);
 
 
-int Channels(enum ImageFormat format)
-{
-	switch (format)
-	{
-	case IMAGE_GRAY8:
-	case IMAGE_GRAY16: return 1;
-	case IMAGE_GRAYA8:
-	case IMAGE_GRAYA16: return 2;
-	case IMAGE_RGB8:
-	case IMAGE_RGB16: return 3;
-	case IMAGE_RGBA8:
-	case IMAGE_RGBA16: return 4;
-	}
-
-	return 0;
-}
-
-
 /*-----------------------------
 
  ImageCreate()
@@ -72,7 +54,7 @@ int Channels(enum ImageFormat format)
 EXPORT struct Image* ImageCreate(enum ImageFormat format, size_t width, size_t height)
 {
 	struct Image* image = NULL;
-	size_t size = ImageBpp(format) * width * height;
+	size_t size = ImageBytesPerPixel(format) * width * height;
 
 	if ((image = malloc(sizeof(struct Image) + size)) != NULL)
 	{
@@ -201,9 +183,9 @@ EXPORT int ImageExLoad(FILE* file, struct ImageEx* out, struct Status* st)
 
 /*-----------------------------
 
- ImageBpp()
+ ImageBytesPerPixel()
 -----------------------------*/
-EXPORT inline size_t ImageBpp(enum ImageFormat format)
+EXPORT inline int ImageBytesPerPixel(enum ImageFormat format)
 {
 	switch (format)
 	{
@@ -215,6 +197,50 @@ EXPORT inline size_t ImageBpp(enum ImageFormat format)
 	case IMAGE_GRAYA16: return 4;
 	case IMAGE_RGB16: return 6;
 	case IMAGE_RGBA16: return 8;
+	}
+
+	return 0;
+}
+
+
+/*-----------------------------
+
+ ImageBitsPerComponent()
+-----------------------------*/
+EXPORT inline int ImageBitsPerComponent(enum ImageFormat format)
+{
+	switch (format)
+	{
+	case IMAGE_GRAY8:
+	case IMAGE_GRAYA8:
+	case IMAGE_RGB8:
+	case IMAGE_RGBA8: return 8;
+	case IMAGE_GRAY16:
+	case IMAGE_GRAYA16:
+	case IMAGE_RGB16:
+	case IMAGE_RGBA16: return 16;
+	}
+
+	return 0;
+}
+
+
+/*-----------------------------
+
+ ImageChannels()
+-----------------------------*/
+EXPORT inline int ImageChannels(enum ImageFormat format)
+{
+	switch (format)
+	{
+	case IMAGE_GRAY8:
+	case IMAGE_GRAY16: return 1;
+	case IMAGE_GRAYA8:
+	case IMAGE_GRAYA16: return 2;
+	case IMAGE_RGB8:
+	case IMAGE_RGB16: return 3;
+	case IMAGE_RGBA8:
+	case IMAGE_RGBA16: return 4;
 	}
 
 	return 0;

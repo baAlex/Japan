@@ -341,7 +341,7 @@ EXPORT inline struct Matrix4 Matrix4RotateZ(struct Matrix4 mat, float angle)
 
  Matrix4Rotate()
 -----------------------------*/
-EXPORT inline void Matrix4Rotate(struct Matrix4 mat, struct Vector3 v, float angle)
+EXPORT inline struct Matrix4 Matrix4Rotate(struct Matrix4 mat, struct Vector3 v, float angle)
 {
 	// https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/glRotate.xml
 	float s = sinf(angle);
