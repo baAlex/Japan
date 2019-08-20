@@ -44,7 +44,7 @@ SOFTWARE.
 -----------------------------*/
 EXPORT inline struct Vector2 Vector2Clean()
 {
-	return (struct Vector2){0.0, 0.0};
+	return (struct Vector2){0.0f, 0.0f};
 }
 
 EXPORT inline struct Vector2 Vector2Set(float x, float y)
@@ -95,12 +95,12 @@ EXPORT inline float Vector2Cross(struct Vector2 a, struct Vector2 b)
 
 EXPORT inline float Vector2Length(struct Vector2 v)
 {
-	return sqrtf(powf(v.x, 2.0) + powf(v.y, 2.0));
+	return sqrtf(powf(v.x, 2.0f) + powf(v.y, 2.0f));
 }
 
 EXPORT inline float Vector2Distance(struct Vector2 a, struct Vector2 b)
 {
-	return sqrtf(powf(b.x - a.x, 2.0) + powf(b.y - a.y, 2.0));
+	return sqrtf(powf(b.x - a.x, 2.0f) + powf(b.y - a.y, 2.0f));
 }
 
 EXPORT inline float Vector2Dot(struct Vector2 a, struct Vector2 b)
@@ -123,7 +123,7 @@ EXPORT inline bool Vector2Equals(struct Vector2 a, struct Vector2 b)
 -----------------------------*/
 EXPORT inline struct Vector3 Vector3Clean()
 {
-	return (struct Vector3){0.0, 0.0, 0.0};
+	return (struct Vector3){0.0f, 0.0f, 0.0f};
 }
 
 EXPORT inline struct Vector3 Vector3Set(float x, float y, float z)
@@ -174,12 +174,12 @@ EXPORT inline struct Vector3 Vector3Cross(struct Vector3 a, struct Vector3 b)
 
 EXPORT inline float Vector3Length(struct Vector3 v)
 {
-	return sqrtf(powf(v.x, 2.0) + powf(v.y, 2.0) + powf(v.z, 2.0));
+	return sqrtf(powf(v.x, 2.0f) + powf(v.y, 2.0f) + powf(v.z, 2.0f));
 }
 
 EXPORT inline float Vector3Distance(struct Vector3 a, struct Vector3 b)
 {
-	return sqrtf(powf(b.x - a.x, 2.0) + powf(b.y - a.y, 2.0) + powf(b.z - a.z, 2.0));
+	return sqrtf(powf(b.x - a.x, 2.0f) + powf(b.y - a.y, 2.0f) + powf(b.z - a.z, 2.0f));
 }
 
 EXPORT inline float Vector3Dot(struct Vector3 a, struct Vector3 b)
@@ -202,7 +202,7 @@ EXPORT inline bool Vector3Equals(struct Vector3 a, struct Vector3 b)
 -----------------------------*/
 EXPORT inline struct Vector4 Vector4Clean()
 {
-	return (struct Vector4){0.0, 0.0, 0.0, 0.0};
+	return (struct Vector4){0.0f, 0.0f, 0.0f, 0.0f};
 }
 
 EXPORT inline struct Vector4 Vector4Set(float x, float y, float z, float u)
@@ -248,12 +248,12 @@ EXPORT inline struct Vector4 Vector4Normalize(struct Vector4 v)
 
 EXPORT inline float Vector4Length(struct Vector4 v)
 {
-	return sqrtf(powf(v.x, 2.0) + powf(v.y, 2.0) + powf(v.z, 2.0) + powf(v.u, 2.0));
+	return sqrtf(powf(v.x, 2.0f) + powf(v.y, 2.0f) + powf(v.z, 2.0f) + powf(v.u, 2.0f));
 }
 
 EXPORT inline float Vector4Distance(struct Vector4 a, struct Vector4 b)
 {
-	return sqrtf(powf(b.x - a.x, 2.0) + powf(b.y - a.y, 2.0) + powf(b.z - a.z, 2.0) + powf(b.u - a.u, 2.0));
+	return sqrtf(powf(b.x - a.x, 2.0f) + powf(b.y - a.y, 2.0f) + powf(b.z - a.z, 2.0f) + powf(b.u - a.u, 2.0f));
 }
 
 EXPORT inline float Vector4Dot(struct Vector4 a, struct Vector4 b)

@@ -97,9 +97,9 @@ struct Dictionary
 
  sPow()
 -----------------------------*/
-static inline int sPow(int base, int exp)
+static inline uint64_t sPow(uint64_t base, uint64_t exp)
 {
-	int result = 1;
+	uint64_t result = 1;
 
 	while (exp != 0)
 	{
@@ -131,7 +131,7 @@ static inline size_t sGetAddress(const struct Dictionary* dictionary, const char
 	{
 		for (size_t i = 0; i < size; i++)
 		{
-			hash = hash ^ key[i];
+			hash = hash ^ (uint64_t)key[i];
 			hash = hash * FNV_PRIME;
 		}
 	}

@@ -54,7 +54,7 @@ extern int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st);
 EXPORT struct Image* ImageCreate(enum ImageFormat format, size_t width, size_t height)
 {
 	struct Image* image = NULL;
-	size_t size = ImageBytesPerPixel(format) * width * height;
+	size_t size = (size_t)ImageBytesPerPixel(format) * width * height;
 
 	if ((image = malloc(sizeof(struct Image) + size)) != NULL)
 	{

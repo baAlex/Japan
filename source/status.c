@@ -40,8 +40,7 @@ SOFTWARE.
 #endif
 
 
-EXPORT void StatusSet(struct Status* st, const char* function_name, enum StatusCode code, const char* explanation_fmt,
-                      ...)
+EXPORT void StatusSet(struct Status* st, const char* function_name, enum StatusCode code, const char* explanation_fmt, ...)
 {
 	va_list args;
 
@@ -56,8 +55,7 @@ EXPORT void StatusSet(struct Status* st, const char* function_name, enum StatusC
 	if (explanation_fmt != NULL)
 	{
 		va_start(args, explanation_fmt);
-		vsnprintf(st->explanation, STATUS_EXPLANATION_LENGTH, explanation_fmt,
-		          args); // NOLINT(clang-analyzer-valist.Uninitialized)
+		vsnprintf(st->explanation, STATUS_EXPLANATION_LENGTH, explanation_fmt, args); // NOLINT(clang-analyzer-valist.Uninitialized)
 		va_end(args);
 	}
 }

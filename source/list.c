@@ -181,7 +181,7 @@ EXPORT void ListRemove(struct ListItem* item)
 	ListDetach(item);
 
 	if (item->callback_delete != NULL)
-		item->callback_delete(item);
+		item->callback_delete(item->data);
 
 	free(item);
 }

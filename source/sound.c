@@ -61,7 +61,7 @@ detriment.
 int WritePcm(FILE* file, struct Sound* sound, enum Endianness dest_endianness)
 {
 	enum Endianness sys_endianness = EndianSystem();
-	int bps = SoundBps(sound->format);
+	size_t bps = (size_t)SoundBps(sound->format);
 
 	union {
 		uint64_t u64;
@@ -91,17 +91,17 @@ int WritePcm(FILE* file, struct Sound* sound, enum Endianness dest_endianness)
 		{
 			if (sound->format == SOUND_I16)
 			{
-				sample.u16 = EndianTo_16(*src.u16, sys_endianness, dest_endianness);
+				sample.u16 = EndianTo(*src.u16, sys_endianness, dest_endianness);
 				src.u16++;
 			}
 			else if (sound->format == SOUND_I32 || sound->format == SOUND_F32)
 			{
-				sample.u32 = EndianTo_32(*src.u32, sys_endianness, dest_endianness);
+				sample.u32 = EndianTo(*src.u32, sys_endianness, dest_endianness);
 				src.u32++;
 			}
 			else if (sound->format == SOUND_F64)
 			{
-				sample.u64 = EndianTo_64(*src.u64, sys_endianness, dest_endianness);
+				sample.u64 = EndianTo(*src.u64, sys_endianness, dest_endianness);
 				src.u64++;
 			}
 
@@ -121,7 +121,7 @@ int WritePcm(FILE* file, struct Sound* sound, enum Endianness dest_endianness)
 EXPORT struct Sound* SoundCreate(enum SoundFormat format, size_t length, size_t channels, size_t frequency)
 {
 	struct Sound* sound = NULL;
-	size_t size = SoundBps(format) * length * channels;
+	size_t size = (size_t)SoundBps(format) * length * channels;
 
 	if ((sound = malloc(sizeof(struct Sound) + size)) != NULL)
 	{
@@ -206,7 +206,7 @@ EXPORT struct Sound* SoundLoad(const char* filename, struct Status* st)
 	DEBUG_PRINT(" - Data offset: 0x%zX\n", ex.data_offset);
 
 	// Data
-	if (fseek(file, ex.data_offset, SEEK_SET) != 0)
+	if (fseek(file, (long)ex.data_offset, SEEK_SET) != 0)
 	{
 		StatusSet(st, "SoundLoad", STATUS_UNEXPECTED_EOF, "at data seek ('%s')", filename);
 		goto return_failure;
@@ -295,7 +295,7 @@ EXPORT int SoundExLoad(FILE* file, struct SoundEx* out, struct Status* st)
 EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, void* out, struct Status* st)
 {
 	enum Endianness sys_endianness = EndianSystem();
-	size_t bps = SoundBps(ex.format);
+	size_t bps = (size_t)SoundBps(ex.format);
 	size_t bytes_write = 0;
 
 	union {
@@ -303,8 +303,7 @@ EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, vo
 		int8_t* i8;
 		int16_t* i16;
 		int32_t* i32;
-		float* f32;
-		double* f64;
+		uint64_t* u64;
 	} dest;
 
 	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
@@ -333,7 +332,11 @@ EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, vo
 				if (ex.unsigned_8bit == false)
 					break;
 
+				#pragma GCC diagnostic push
+				#pragma GCC diagnostic ignored "-Wconversion"
 				*dest.i8 = *dest.i8 + 0x80;
+				#pragma GCC diagnostic pop
+
 				dest.i8++;
 			}
 			else
@@ -343,18 +346,18 @@ EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, vo
 
 				if (ex.format == SOUND_I16)
 				{
-					*dest.i16 = EndianTo_16(*dest.i16, ex.endianness, sys_endianness);
+					*dest.i16 = EndianTo(*dest.i16, ex.endianness, sys_endianness);
 					dest.i16++;
 				}
 				else if (ex.format == SOUND_I32 || ex.format == SOUND_F32)
 				{
-					*dest.i32 = EndianTo_32(*dest.i32, ex.endianness, sys_endianness);
+					*dest.i32 = EndianTo(*dest.i32, ex.endianness, sys_endianness);
 					dest.i32++;
 				}
 				else if (ex.format == SOUND_F64)
 				{
-					*dest.f64 = EndianTo_64(*dest.f64, ex.endianness, sys_endianness);
-					dest.f64++;
+					*dest.u64 = EndianTo_u64(*dest.u64, ex.endianness, sys_endianness);
+					dest.u64++;
 				}
 			}
 		}
@@ -388,7 +391,11 @@ EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, vo
 			}
 			else if (ex.compression == SOUND_ULAW)
 			{
+				#pragma GCC diagnostic push
+				#pragma GCC diagnostic ignored "-Wconversion"
 				compressed = ~compressed;
+				#pragma GCC diagnostic pop
+
 				t = (((compressed & 0x0F) << 3) + ULAW_BIAS) << (((int)compressed & 0x70) >> 4);
 
 				*dest.i16 = (int16_t)((compressed & 0x80) ? (ULAW_BIAS - t) : (t - ULAW_BIAS));
@@ -409,7 +416,7 @@ return_failure:
 
  SoundBps()
 -----------------------------*/
-EXPORT inline size_t SoundBps(enum SoundFormat format)
+EXPORT inline int SoundBps(enum SoundFormat format)
 {
 	switch (format)
 	{

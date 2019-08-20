@@ -77,6 +77,6 @@
 	int SoundExLoad(FILE* file, struct SoundEx* out, struct Status*);
 	size_t SoundExRead(FILE* file, struct SoundEx ex, size_t out_size, void* out, struct Status*);
 
-	size_t SoundBps(enum SoundFormat);
+	int SoundBps(enum SoundFormat);
 
 #endif

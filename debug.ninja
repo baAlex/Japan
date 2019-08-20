@@ -1,6 +1,6 @@
 
 
-cflags = -fpic -O0 -std=c11 -Wall -Wextra -pedantic -g -fvisibility=hidden $
+cflags = -fpic -O0 -std=c11 -Wall -Wextra -Wconversion -pedantic -g -fvisibility=hidden $
 -I./include -DEXPORT_SYMBOLS -DDEBUG
 
 lflags = -lm -shared

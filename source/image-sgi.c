@@ -77,16 +77,16 @@ struct SgiHead
 int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st);
 
 
-static inline void sPlotPixel_8(int channel, int row, int col, struct Image* image, uint8_t value)
+static inline void sPlotPixel_8(size_t channel, size_t row, size_t col, struct Image* image, uint8_t value)
 {
-	uint8_t* data = (uint8_t*)image->data + (col + (image->width * row)) * ImageChannels(image->format);
+	uint8_t* data = (uint8_t*)image->data + (col + (image->width * row)) * (size_t)ImageChannels(image->format);
 	data[channel] = value;
 }
 
 
-static inline void sPlotPixel_16(int channel, int row, int col, struct Image* image, uint16_t value)
+static inline void sPlotPixel_16(size_t channel, size_t row, size_t col, struct Image* image, uint16_t value)
 {
-	uint16_t* data = (uint16_t*)image->data + (col + (image->width * row)) * ImageChannels(image->format);
+	uint16_t* data = (uint16_t*)image->data + (col + (image->width * row)) * (size_t)ImageChannels(image->format);
 	data[channel] = value;
 }
 
@@ -105,29 +105,29 @@ static int sReadUncompressed(FILE* file, struct Image* image)
 
 	if (ImageBitsPerComponent(image->format) == 8)
 	{
-		for (int channel = 0; channel < ImageChannels(image->format); channel++)
+		for (size_t channel = 0; channel < (size_t)ImageChannels(image->format); channel++)
 		{
-			for (int row = ((int)image->height - 1); row >= 0; row--)
-				for (int col = 0; col < (int)image->width; col++)
+			for (__ssize_t row = (__ssize_t)(image->height - 1); row >= 0; row--)
+				for (size_t col = 0; col < image->width; col++)
 				{
 					if (fread(&pixel.u8, 1, 1, file) != 1)
 						return 1;
 
-					sPlotPixel_8(channel, row, col, image, pixel.u8);
+					sPlotPixel_8(channel, (size_t)row, col, image, pixel.u8);
 				}
 		}
 	}
 	else
 	{
-		for (int channel = 0; channel < ImageChannels(image->format); channel++)
+		for (size_t channel = 0; channel < (size_t)ImageChannels(image->format); channel++)
 		{
-			for (int row = ((int)image->height - 1); row >= 0; row--)
-				for (int col = 0; col < (int)image->width; col++)
+			for (__ssize_t row = (__ssize_t)(image->height - 1); row >= 0; row--)
+				for (size_t col = 0; col < image->width; col++)
 				{
 					if (fread(&pixel.u16, sizeof(uint16_t), 1, file) != 1)
 						return 1;
 
-					sPlotPixel_16(channel, row, col, image, EndianTo_16(pixel.u16, ENDIAN_BIG, sys_endianness));
+					sPlotPixel_16(channel, (size_t)row, col, image, EndianTo(pixel.u16, ENDIAN_BIG, sys_endianness));
 				}
 		}
 	}
@@ -143,7 +143,7 @@ static int sReadUncompressed(FILE* file, struct Image* image)
 static int sReadCompressed_8(FILE* file, struct Image* image)
 {
 	void* buffer = NULL;
-	size_t table_len = image->height * ImageChannels(image->format);
+	size_t table_len = image->height * (size_t)ImageChannels(image->format);
 	uint32_t* offset_table = NULL;
 	uint32_t* size_table = NULL;
 
@@ -162,16 +162,16 @@ static int sReadCompressed_8(FILE* file, struct Image* image)
 
 	for (size_t i = 0; i < table_len; i++)
 	{
-		offset_table[i] = EndianTo_32(offset_table[i], ENDIAN_BIG, ENDIAN_SYSTEM);
-		size_table[i] = EndianTo_32(size_table[i], ENDIAN_BIG, ENDIAN_SYSTEM);
+		offset_table[i] = EndianTo(offset_table[i], ENDIAN_BIG, ENDIAN_SYSTEM);
+		size_table[i] = EndianTo(size_table[i], ENDIAN_BIG, ENDIAN_SYSTEM);
 	}
 
 	// Data
-	for (int channel = 0; channel < ImageChannels(image->format); channel++)
+	for (size_t channel = 0; channel < (size_t)ImageChannels(image->format); channel++)
 	{
-		for (int row = 0; row < (int)image->height; row++)
+		for (size_t row = 0; row < image->height; row++)
 		{
-			int col = 0;
+			size_t col = 0;
 
 			if (fseek(file, offset_table[channel * image->height + (image->height - row - 1)], SEEK_SET) != 0)
 				goto return_failure;
@@ -217,7 +217,7 @@ static int sReadCompressed_8(FILE* file, struct Image* image)
 			}
 
 			// Failure if scanline is broken
-			if (col != (int)image->width)
+			if (col != image->width)
 				goto return_failure;
 		}
 	}
@@ -238,7 +238,7 @@ return_failure:
 -----------------------------*/
 bool CheckMagicSgi(uint16_t value)
 {
-	if (EndianTo_16(value, ENDIAN_BIG, ENDIAN_SYSTEM) == SGI_MAGIC)
+	if (EndianTo(value, ENDIAN_BIG, ENDIAN_SYSTEM) == SGI_MAGIC)
 		return true;
 
 	return false;
@@ -267,7 +267,7 @@ struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Status* st)
 	DEBUG_PRINT(" - Format: %i\n", ex.format);
 	DEBUG_PRINT(" - Data offset: 0x%zX\n", ex.data_offset);
 
-	if (fseek(file, ex.data_offset, SEEK_SET) != 0)
+	if (fseek(file, (long)ex.data_offset, SEEK_SET) != 0)
 	{
 		StatusSet(st, "ImageLoadSgi", STATUS_UNEXPECTED_EOF, "at data seek ('%s')", filename);
 		goto return_failure;
@@ -323,15 +323,15 @@ int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st)
 		return 1;
 	}
 
-	out->width = EndianTo_16(head.x_size, ENDIAN_BIG, sys_endianness);
-	out->height = EndianTo_16(head.y_size, ENDIAN_BIG, sys_endianness);
+	out->width = (size_t)EndianTo(head.x_size, ENDIAN_BIG, sys_endianness);
+	out->height = (size_t)EndianTo(head.y_size, ENDIAN_BIG, sys_endianness);
 	out->data_offset = 512;
 	out->endianness = ENDIAN_BIG;
 	out->compression = (head.compression == 0) ? IMAGE_UNCOMPRESSED_PLANAR : IMAGE_SGI_RLE;
 
-	head.z_size = EndianTo_16(head.z_size, ENDIAN_BIG, sys_endianness);
+	head.z_size = EndianTo(head.z_size, ENDIAN_BIG, sys_endianness);
 
-	switch (EndianTo_32(head.pixel_type, ENDIAN_BIG, sys_endianness))
+	switch (EndianTo(head.pixel_type, ENDIAN_BIG, sys_endianness))
 	{
 	case 1: StatusSet(st, "ImageExLoadSgi", STATUS_OBSOLETE_FEATURE, "dithered image"); return 1;
 	case 2: StatusSet(st, "ImageExLoadSgi", STATUS_OBSOLETE_FEATURE, "indexed image"); return 1;
@@ -339,7 +339,7 @@ int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st)
 	case 0: break;
 	}
 
-	switch (EndianTo_16(head.dimension, ENDIAN_BIG, sys_endianness))
+	switch (EndianTo(head.dimension, ENDIAN_BIG, sys_endianness))
 	{
 	case 1: // One dimensional grayscale image (only uses width/x_size)
 		out->height = 1;
@@ -388,7 +388,7 @@ int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st)
 		return 1;
 	}
 
-	out->uncompressed_size = ImageBytesPerPixel(out->format) * out->width * out->height;
+	out->uncompressed_size = (size_t)ImageBytesPerPixel(out->format) * out->width * out->height;
 
 	return 0;
 }
@@ -426,14 +426,14 @@ EXPORT struct Status ImageSaveSgi(struct Image* image, const char* filename)
 	}
 
 	// Head
-	head.magic = EndianTo_16(SGI_MAGIC, sys_endianness, ENDIAN_BIG);
+	head.magic = EndianTo((int16_t)SGI_MAGIC, sys_endianness, ENDIAN_BIG);
 	head.compression = 0;
-	head.precision = ImageBitsPerComponent(image->format) / 8;
-	head.dimension = EndianTo_16(3, sys_endianness, ENDIAN_BIG);
+	head.precision = (int8_t)ImageBitsPerComponent(image->format) / 8;
+	head.dimension = EndianTo((uint16_t)3, sys_endianness, ENDIAN_BIG);
 
-	head.x_size = EndianTo_16(image->width, sys_endianness, ENDIAN_BIG);
-	head.y_size = EndianTo_16(image->height, sys_endianness, ENDIAN_BIG);
-	head.z_size = EndianTo_16(ImageChannels(image->format), sys_endianness, ENDIAN_BIG);
+	head.x_size = EndianTo((uint16_t)image->width, sys_endianness, ENDIAN_BIG);
+	head.y_size = EndianTo((uint16_t)image->height, sys_endianness, ENDIAN_BIG);
+	head.z_size = EndianTo((uint16_t)ImageChannels(image->format), sys_endianness, ENDIAN_BIG);
 
 	head.pixel_type = 0;
 
@@ -444,7 +444,7 @@ EXPORT struct Status ImageSaveSgi(struct Image* image, const char* filename)
 	}
 
 	// Data
-	size_t channels = ImageChannels(image->format);
+	size_t channels = (size_t)ImageChannels(image->format);
 
 	union {
 		uint8_t* u8;
@@ -460,17 +460,16 @@ EXPORT struct Status ImageSaveSgi(struct Image* image, const char* filename)
 		goto return_failure;
 	}
 
-	// TODO: '__ssize_t' not a standard
 	for (int channel = 0; channel < ImageChannels(image->format); channel++)
 	{
 		if (ImageBitsPerComponent(image->format) == 8)
 		{
 			src.u8 = (uint8_t*)image->data + channel;
 
-			for (__ssize_t row = (image->height - 1); row >= 0; row--)
+			for (__ssize_t row = (__ssize_t)(image->height - 1); row >= 0; row--)
 				for (size_t col = 0; col < image->width; col++)
 				{
-					if (fwrite(&src.u8[(image->width * row + col) * channels], 1, 1, file) != 1)
+					if (fwrite(&src.u8[(image->width * (size_t)row + col) * channels], 1, 1, file) != 1)
 					{
 						StatusSet(&st, "ImageSaveSgi", STATUS_IO_ERROR, "data ('%s')", filename);
 						goto return_failure;
@@ -482,10 +481,11 @@ EXPORT struct Status ImageSaveSgi(struct Image* image, const char* filename)
 			src.u16 = (uint16_t*)image->data + channel;
 			uint16_t pixel = 0;
 
-			for (__ssize_t row = (image->height - 1); row >= 0; row--)
+			for (__ssize_t row = (__ssize_t)(image->height - 1); row >= 0; row--)
 				for (size_t col = 0; col < image->width; col++)
 				{
-					pixel = EndianTo_16(src.u16[(image->width * row + col) * channels], sys_endianness, ENDIAN_BIG);
+					pixel =
+					    EndianTo(src.u16[(image->width * (size_t)row + col) * channels], sys_endianness, ENDIAN_BIG);
 
 					if (fwrite(&pixel, sizeof(uint16_t), 1, file) != 1)
 					{
