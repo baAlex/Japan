@@ -139,10 +139,10 @@ static inline size_t sGetAddress(const struct Dictionary* dictionary, const char
 		hash = dictionary->hash_function(key, size);
 
 	// Linear-hashing address
-	address = hash % (INITIAL_BUCKETS * sPow(2, dictionary->level));
+	address = (size_t)((hash % (INITIAL_BUCKETS * sPow(2, (uint64_t)dictionary->level))) % SIZE_MAX);
 
 	if (address < dictionary->pointer)
-		address = hash % (INITIAL_BUCKETS * sPow(2, dictionary->level + 1));
+		address = (size_t)((hash % (INITIAL_BUCKETS * sPow(2, (uint64_t)dictionary->level + 1))) % SIZE_MAX);
 
 	if (out_hash != NULL)
 		*out_hash = hash;
@@ -238,7 +238,7 @@ static int sResize(struct Dictionary* dictionary, enum ResizeDirection direction
 	{
 		dictionary->buckets_no += 1;
 
-		if (dictionary->pointer < (size_t)(INITIAL_BUCKETS * sPow(2, dictionary->level)))
+		if (dictionary->pointer < (size_t)((INITIAL_BUCKETS * sPow(2, (uint64_t)dictionary->level)) % SIZE_MAX))
 			dictionary->pointer += 1;
 		else
 		{
@@ -268,7 +268,7 @@ static int sResize(struct Dictionary* dictionary, enum ResizeDirection direction
 			dictionary->pointer -= 1;
 		else
 		{
-			dictionary->pointer = (size_t)(INITIAL_BUCKETS * sPow(2, dictionary->level));
+			dictionary->pointer = (size_t)((INITIAL_BUCKETS * sPow(2, dictionary->level)) % SIZE_MAX);
 			dictionary->level -= 1;
 		}
 	}
@@ -291,7 +291,7 @@ static int sResize(struct Dictionary* dictionary, enum ResizeDirection direction
 			if (sLocateInBucket(dictionary, item, address) == 0)
 			{
 				*item_slot = NULL;
-				DEBUG_PRINT(" - Rehashing '%s', address: %03lu -> %03lu\n", item->key, to_rehash, address);
+				DEBUG_PRINT(" - Rehashing '%s', address: %03zu -> %03zu\n", item->key, to_rehash, address);
 			}
 			else
 				return 1;
@@ -323,7 +323,7 @@ static int sResize(struct Dictionary* dictionary, enum ResizeDirection direction
 		}
 	}
 
-	DEBUG_PRINT(" - Buckets: %lu (p: %lu)\n", dictionary->buckets_no, dictionary->pointer);
+	DEBUG_PRINT(" - Buckets: %zu (p: %zu)\n", dictionary->buckets_no, dictionary->pointer);
 	return 0;
 }
 
@@ -429,7 +429,8 @@ EXPORT struct DictionaryItem* DictionaryAdd(struct Dictionary* dictionary, const
 	if (sLocateInBucket(dictionary, item, address) != 0)
 		goto return_failure;
 
-	DEBUG_PRINT("(DictionaryAdd) key: '%s', address: %03lu, hash: 0x%016lX\n", key, address, hash);
+	DEBUG_PRINT("(DictionaryAdd) key: '%s', address: %03zu, hash: 0x%016lX\n", key, address,
+	            (long)hash); // The long cast is a HACK!
 	dictionary->items_no++;
 
 	// Grown?
@@ -464,7 +465,8 @@ EXPORT struct DictionaryItem* DictionaryGet(const struct Dictionary* dictionary,
 		uint64_t hash = 0;
 		size_t address = sGetAddress(dictionary, key, &hash);
 
-		DEBUG_PRINT("(DictionaryGet) key: '%s', address: %03lu, hash: 0x%016lX\n", key, address, hash);
+		DEBUG_PRINT("(DictionaryGet) key: '%s', address: %03zu, hash: 0x%016lX\n", key, address,
+		            (long)hash); // The long cast is a HACK!
 
 		state.bucket = &dictionary->buckets[address];
 		while (sCycleBucket(&state, &item_slot) != 1)
@@ -504,7 +506,8 @@ EXPORT int DictionaryDetach(struct DictionaryItem* item)
 		uint64_t hash = 0;
 		size_t address = sGetAddress(item->dictionary, item->key, &hash);
 
-		DEBUG_PRINT("(DictionaryDetach) key: '%s', address: %03lu, hash: 0x%016lX\n", item->key, address, hash);
+		DEBUG_PRINT("(DictionaryDetach) key: '%s', address: %03zu, hash: 0x%016lX\n", item->key, address,
+		            (long)hash); // The long cast is a HACK!
 
 		state.bucket = &item->dictionary->buckets[address];
 		while (sCycleBucket(&state, &item_slot) != 1)

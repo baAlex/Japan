@@ -41,32 +41,44 @@ SOFTWARE.
 
 EXPORT inline int64_t EndianReverse_i64(int64_t value)
 {
-	return (int64_t)EndianReverse_u64((uint64_t)value);
+	union { int64_t i; uint64_t u; } conv = {.i = value};
+	conv.u = EndianReverse_u64(conv.u);
+	return conv.i;
 }
 
 EXPORT inline int32_t EndianReverse_i32(int32_t value)
 {
-	return (int32_t)EndianReverse_u32((uint32_t)value);
+	union { int32_t i; uint32_t u; } conv = {.i = value};
+	conv.u = EndianReverse_u32(conv.u);
+	return conv.i;
 }
 
 EXPORT inline int16_t EndianReverse_i16(int16_t value)
 {
-	return (int16_t)EndianReverse_u16((uint16_t)value);
+	union { int16_t i; uint16_t u; } conv = {.i = value};
+	conv.u = EndianReverse_u16(conv.u);
+	return conv.i;
 }
 
 EXPORT inline int64_t EndianTo_i64(int64_t value, enum Endianness from, enum Endianness to)
 {
-	return (int64_t)EndianTo_u64((uint64_t)value, from, to);
+	union { int64_t i; uint64_t u; } conv = {.i = value};
+	conv.u = EndianTo_u64(conv.u, from, to);
+	return conv.i;
 }
 
 EXPORT inline int32_t EndianTo_i32(int32_t value, enum Endianness from, enum Endianness to)
 {
-	return (int32_t)EndianTo_u32((uint32_t)value, from, to);
+	union { int32_t i; uint32_t u; } conv = {.i = value};
+	conv.u = EndianTo_u32(conv.u, from, to);
+	return conv.i;
 }
 
 EXPORT inline int16_t EndianTo_i16(int16_t value, enum Endianness from, enum Endianness to)
 {
-	return (int16_t)EndianTo_u16((uint16_t)value, from, to);
+	union { int16_t i; uint16_t u; } conv = {.i = value};
+	conv.u = EndianTo_u16(conv.u, from, to);
+	return conv.i;
 }
 
 
