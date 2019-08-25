@@ -1,11 +1,11 @@
 /*-----------------------------
 
- [sound-private.h]
+ [private.h]
  - Alexander Brandt 2019
 -----------------------------*/
 
-#ifndef SOUND_PRIVATE_H
-#define SOUND_PRIVATE_H
+#ifndef PRIVATE_H
+#define PRIVATE_H
 
 	#include <stdlib.h>
 	#include <string.h>
@@ -32,5 +32,8 @@
 	int SoundExLoadWav(FILE* file, struct SoundEx* out, struct Status* st);
 
 	int WritePcm(FILE* file, struct Sound* sound, enum Endianness);
+
+	int16_t AlawToInt16(uint8_t compressed);
+	int16_t UlawToInt16(uint8_t compressed);
 
 #endif

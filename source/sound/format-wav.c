@@ -24,7 +24,7 @@ SOFTWARE.
 
 -------------------------------
 
- [sound-wav.c]
+ [format-wav.c]
  - Alexander Brandt 2019
 
  http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html
@@ -39,7 +39,7 @@ SOFTWARE.
  https://docs.microsoft.com/en-us/windows-hardware/drivers/audio/extensible-wave-format-descriptors
 -----------------------------*/
 
-#include "sound-private.h"
+#include "private.h"
 
 #define WAVE_FORMAT_PCM 0x0001
 #define WAVE_FORMAT_IEEE_FLOAT 0x0003 // Requires a Fact block, ignored at loading

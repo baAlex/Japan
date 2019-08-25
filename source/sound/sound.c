@@ -24,34 +24,14 @@ SOFTWARE.
 
 -------------------------------
 
-SpanDSP - a series of DSP components for telephony
-g711.h - In line A-law and u-law conversion routines
-
-Written by Steve Underwood <steveu@coppice.org>
-
-Copyright (C) 2001 Steve Underwood
-
-Despite my general liking of the GPL, I place this code in the
-public domain for the benefit of all mankind - even the slimy
-ones who might try to proprietize my work and use it to my
-detriment.
-
--------------------------------
-
  [sound.c]
  - Alexander Brandt 2019
-
- https://webrtc.googlesource.com/src/+/refs/heads/master/modules/third_party/g711/g711.h
 -----------------------------*/
 
 #include <stdint.h>
 #include <string.h>
 
-#include "endianness.h"
-#include "sound-private.h"
-
-#define ULAW_BIAS 0x84
-#define ALAW_AMI_MASK 0x55
+#include "private.h"
 
 
 /*-----------------------------
@@ -365,7 +345,6 @@ EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, vo
 	else
 	{
 		uint8_t compressed = 0;
-		int t, seg;
 
 		for (bytes_write = 0; bytes_write < size_to_read; bytes_write += sizeof(int16_t))
 		{
@@ -376,31 +355,11 @@ EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, vo
 			}
 
 			if (ex.compression == SOUND_ALAW)
-			{
-				compressed ^= ALAW_AMI_MASK;
-				t = ((compressed & 0x0F) << 4);
-				seg = (((int)compressed & 0x70) >> 4);
-
-				if (seg)
-					t = (t + 0x108) << (seg - 1);
-				else
-					t += 8;
-
-				*dest.i16 = (int16_t)((compressed & 0x80) ? t : -t);
-				dest.i16++;
-			}
+				*dest.i16 = AlawToInt16(compressed);
 			else if (ex.compression == SOUND_ULAW)
-			{
-				#pragma GCC diagnostic push
-				#pragma GCC diagnostic ignored "-Wconversion"
-				compressed = ~compressed;
-				#pragma GCC diagnostic pop
+				*dest.i16 = UlawToInt16(compressed);
 
-				t = (((compressed & 0x0F) << 3) + ULAW_BIAS) << (((int)compressed & 0x70) >> 4);
-
-				*dest.i16 = (int16_t)((compressed & 0x80) ? (ULAW_BIAS - t) : (t - ULAW_BIAS));
-				dest.i16++;
-			}
+			dest.i16++;
 		}
 	}
 

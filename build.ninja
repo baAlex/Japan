@@ -13,28 +13,51 @@ rule pack
  command = ar rcs $out $in
 
 
-build ./objects/buffer.o:       compile ./source/buffer.c
-build ./objects/dictionary.o:   compile ./source/dictionary.c
-build ./objects/endianness.o:   compile ./source/endianness.c
-build ./objects/image.o:        compile ./source/image.c
-build ./objects/image-sgi.o:    compile ./source/image-sgi.c
-build ./objects/list.o:         compile ./source/list.c
-build ./objects/matrix.o:       compile ./source/matrix.c
-build ./objects/sound.o:        compile ./source/sound.c
-build ./objects/sound-au.o:     compile ./source/sound-au.c
-build ./objects/sound-wav.o:    compile ./source/sound-wav.c
-build ./objects/status.o:       compile ./source/status.c
-build ./objects/tree.o:         compile ./source/tree.c
-build ./objects/vector.o:       compile ./source/vector.c
+build ./objects/buffer.o:           compile ./source/buffer.c
+build ./objects/dictionary.o:       compile ./source/dictionary.c
+build ./objects/endianness.o:       compile ./source/endianness.c
+build ./objects/list.o:             compile ./source/list.c
+build ./objects/matrix.o:           compile ./source/matrix.c
+build ./objects/status.o:           compile ./source/status.c
+build ./objects/tree.o:             compile ./source/tree.c
+build ./objects/vector.o:           compile ./source/vector.c
+build ./objects/image/image.o:      compile ./source/image/image.c
+build ./objects/image/format-sgi.o: compile ./source/image/format-sgi.c
+build ./objects/sound/sound.o:      compile ./source/sound/sound.c
+build ./objects/sound/format-au.o:  compile ./source/sound/format-au.c
+build ./objects/sound/format-wav.o: compile ./source/sound/format-wav.c
+build ./objects/sound/laws.o:       compile ./source/sound/laws.c
 
 # Shared library
-build libjapan.so: link ./objects/buffer.o ./objects/dictionary.o $
-./objects/endianness.o ./objects/image.o ./objects/image-sgi.o $
-./objects/list.o ./objects/matrix.o ./objects/sound.o ./objects/sound-au.o $
-./objects/sound-wav.o ./objects/status.o ./objects/tree.o ./objects/vector.o
+build libjapan.so: link $
+./objects/buffer.o $
+./objects/dictionary.o $
+./objects/endianness.o $
+./objects/list.o $
+./objects/matrix.o $
+./objects/status.o $
+./objects/tree.o $
+./objects/vector.o $
+./objects/image/image.o $
+./objects/image/format-sgi.o $
+./objects/sound/sound.o $
+./objects/sound/format-au.o $
+./objects/sound/format-wav.o $
+./objects/sound/laws.o
 
 # Static library
-build libjapan.a: pack ./objects/buffer.o ./objects/dictionary.o $
-./objects/endianness.o ./objects/image.o ./objects/image-sgi.o $
-./objects/list.o ./objects/matrix.o ./objects/sound.o ./objects/sound-au.o $
-./objects/sound-wav.o ./objects/status.o ./objects/tree.o ./objects/vector.o
+build libjapan.a: pack $
+./objects/buffer.o $
+./objects/dictionary.o $
+./objects/endianness.o $
+./objects/list.o $
+./objects/matrix.o $
+./objects/status.o $
+./objects/tree.o $
+./objects/vector.o $
+./objects/image/image.o $
+./objects/image/format-sgi.o $
+./objects/sound/sound.o $
+./objects/sound/format-au.o $
+./objects/sound/format-wav.o $
+./objects/sound/laws.o

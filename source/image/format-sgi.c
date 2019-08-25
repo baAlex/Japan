@@ -24,7 +24,7 @@ SOFTWARE.
 
 -------------------------------
 
- [image-sgi.c]
+ [format-sgi.c]
  - Alexander Brandt 2019
 
  http://paulbourke.net/dataformats/sgirgb/sgiversion.html

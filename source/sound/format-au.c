@@ -24,13 +24,13 @@ SOFTWARE.
 
 -------------------------------
 
- [sound-au.c]
+ [format-au.c]
  - Alexander Brandt 2019
 
  http://pubs.opengroup.org/external/auformat.html
 -----------------------------*/
 
-#include "sound-private.h"
+#include "private.h"
 
 #define AU_MAGIC 0x2E736E64
 

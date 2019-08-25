@@ -15,32 +15,51 @@ rule pack
  command = ar rcs $out $in
 
 
-build ./objects/debug/buffer.o:       compile ./source/buffer.c
-build ./objects/debug/dictionary.o:   compile ./source/dictionary.c
-build ./objects/debug/endianness.o:   compile ./source/endianness.c
-build ./objects/debug/image.o:        compile ./source/image.c
-build ./objects/debug/image-sgi.o:    compile ./source/image-sgi.c
-build ./objects/debug/list.o:         compile ./source/list.c
-build ./objects/debug/matrix.o:       compile ./source/matrix.c
-build ./objects/debug/sound.o:        compile ./source/sound.c
-build ./objects/debug/sound-au.o:     compile ./source/sound-au.c
-build ./objects/debug/sound-wav.o:    compile ./source/sound-wav.c
-build ./objects/debug/status.o:       compile ./source/status.c
-build ./objects/debug/tree.o:         compile ./source/tree.c
-build ./objects/debug/vector.o:       compile ./source/vector.c
+build ./objects/debug/buffer.o:           compile ./source/buffer.c
+build ./objects/debug/dictionary.o:       compile ./source/dictionary.c
+build ./objects/debug/endianness.o:       compile ./source/endianness.c
+build ./objects/debug/list.o:             compile ./source/list.c
+build ./objects/debug/matrix.o:           compile ./source/matrix.c
+build ./objects/debug/status.o:           compile ./source/status.c
+build ./objects/debug/tree.o:             compile ./source/tree.c
+build ./objects/debug/vector.o:           compile ./source/vector.c
+build ./objects/debug/image/image.o:      compile ./source/image/image.c
+build ./objects/debug/image/format-sgi.o: compile ./source/image/format-sgi.c
+build ./objects/debug/sound/sound.o:      compile ./source/sound/sound.c
+build ./objects/debug/sound/format-au.o:  compile ./source/sound/format-au.c
+build ./objects/debug/sound/format-wav.o: compile ./source/sound/format-wav.c
+build ./objects/debug/sound/laws.o:       compile ./source/sound/laws.c
 
 # Shared library
-build libjapan-dbg.so: link ./objects/debug/buffer.o $
-./objects/debug/dictionary.o ./objects/debug/endianness.o $
-./objects/debug/image.o ./objects/debug/image-sgi.o ./objects/debug/list.o $
-./objects/debug/matrix.o ./objects/debug/sound.o ./objects/debug/sound-au.o $
-./objects/debug/sound-wav.o ./objects/debug/status.o ./objects/debug/tree.o $
-./objects/debug/vector.o
+build libjapan.so: link $
+./objects/debug/buffer.o $
+./objects/debug/dictionary.o $
+./objects/debug/endianness.o $
+./objects/debug/list.o $
+./objects/debug/matrix.o $
+./objects/debug/status.o $
+./objects/debug/tree.o $
+./objects/debug/vector.o $
+./objects/debug/image/image.o $
+./objects/debug/image/format-sgi.o $
+./objects/debug/sound/sound.o $
+./objects/debug/sound/format-au.o $
+./objects/debug/sound/format-wav.o $
+./objects/debug/sound/laws.o
 
 # Static library
-build libjapan-dbg.a: pack ./objects/debug/buffer.o $
-./objects/debug/dictionary.o ./objects/debug/endianness.o $
-./objects/debug/image.o ./objects/debug/image-sgi.o ./objects/debug/list.o $
-./objects/debug/matrix.o ./objects/debug/sound.o ./objects/debug/sound-au.o $
-./objects/debug/sound-wav.o ./objects/debug/status.o ./objects/debug/tree.o $
-./objects/debug/vector.o
+build libjapan.a: pack $
+./objects/debug/buffer.o $
+./objects/debug/dictionary.o $
+./objects/debug/endianness.o $
+./objects/debug/list.o $
+./objects/debug/matrix.o $
+./objects/debug/status.o $
+./objects/debug/tree.o $
+./objects/debug/vector.o $
+./objects/debug/image/image.o $
+./objects/debug/image/format-sgi.o $
+./objects/debug/sound/sound.o $
+./objects/debug/sound/format-au.o $
+./objects/debug/sound/format-wav.o $
+./objects/debug/sound/laws.o
