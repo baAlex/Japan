@@ -1,11 +1,13 @@
 
-cflags = -fpic -O0 -std=c99 -Wall -Wextra -Wconversion -pedantic -g -fvisibility=hidden $
--I./include -DEXPORT_SYMBOLS -DDEBUG
-
+cflags_so = -fpic -O0 -std=c99 -Wall -Wextra -Wconversion -pedantic -g -fvisibility=hidden -I./include -DEXPORT_SYMBOLS -DDEBUG
+cflags_a = -O0 -std=c99 -Wall -Wextra -Wconversion -pedantic -g -fvisibility=hidden -I./include -DEXPORT_SYMBOLS -DDEBUG
 lflags = -lm -shared
 
-rule compile
- command = cc $cflags -c $in -o $out
+rule compile_so
+ command = cc $cflags_so -c $in -o $out
+
+rule compile_a
+ command = cc $cflags_a -c $in -o $out
 
 rule link
  command = cc $in $lflags -o $out
@@ -14,54 +16,71 @@ rule pack
  command = ar rcs $out $in
 
 
-build ./objects/debug/buffer.o:           compile ./source/buffer.c
-build ./objects/debug/dictionary.o:       compile ./source/dictionary.c
-build ./objects/debug/endianness.o:       compile ./source/endianness.c
-build ./objects/debug/image/format-sgi.o: compile ./source/image/format-sgi.c
-build ./objects/debug/image/image.o:      compile ./source/image/image.c
-build ./objects/debug/list.o:             compile ./source/list.c
-build ./objects/debug/matrix.o:           compile ./source/matrix.c
-build ./objects/debug/sound/format-au.o:  compile ./source/sound/format-au.c
-build ./objects/debug/sound/format-wav.o: compile ./source/sound/format-wav.c
-build ./objects/debug/sound/laws.o:       compile ./source/sound/laws.c
-build ./objects/debug/sound/sound.o:      compile ./source/sound/sound.c
-build ./objects/debug/status.o:           compile ./source/status.c
-build ./objects/debug/tree.o:             compile ./source/tree.c
-build ./objects/debug/utilities.o:        compile ./source/utilities.c
-build ./objects/debug/vector.o:           compile ./source/vector.c
-
 # Shared library
+build ./objects/debug/so/buffer.o:           compile_so ./source/buffer.c
+build ./objects/debug/so/dictionary.o:       compile_so ./source/dictionary.c
+build ./objects/debug/so/endianness.o:       compile_so ./source/endianness.c
+build ./objects/debug/so/image/format-sgi.o: compile_so ./source/image/format-sgi.c
+build ./objects/debug/so/image/image.o:      compile_so ./source/image/image.c
+build ./objects/debug/so/list.o:             compile_so ./source/list.c
+build ./objects/debug/so/matrix.o:           compile_so ./source/matrix.c
+build ./objects/debug/so/sound/format-au.o:  compile_so ./source/sound/format-au.c
+build ./objects/debug/so/sound/format-wav.o: compile_so ./source/sound/format-wav.c
+build ./objects/debug/so/sound/laws.o:       compile_so ./source/sound/laws.c
+build ./objects/debug/so/sound/sound.o:      compile_so ./source/sound/sound.c
+build ./objects/debug/so/status.o:           compile_so ./source/status.c
+build ./objects/debug/so/tree.o:             compile_so ./source/tree.c
+build ./objects/debug/so/utilities.o:        compile_so ./source/utilities.c
+build ./objects/debug/so/vector.o:           compile_so ./source/vector.c
+
 build libjapan-dbg.so: link $
-./objects/debug/buffer.o $
-./objects/debug/dictionary.o $
-./objects/debug/endianness.o $
-./objects/debug/image/format-sgi.o $
-./objects/debug/image/image.o $
-./objects/debug/list.o $
-./objects/debug/matrix.o $
-./objects/debug/sound/format-au.o $
-./objects/debug/sound/format-wav.o $
-./objects/debug/sound/laws.o $
-./objects/debug/sound/sound.o $
-./objects/debug/status.o $
-./objects/debug/tree.o $
-./objects/debug/utilities.o $
-./objects/debug/vector.o
+./objects/debug/so/buffer.o $
+./objects/debug/so/dictionary.o $
+./objects/debug/so/endianness.o $
+./objects/debug/so/image/format-sgi.o $
+./objects/debug/so/image/image.o $
+./objects/debug/so/list.o $
+./objects/debug/so/matrix.o $
+./objects/debug/so/sound/format-au.o $
+./objects/debug/so/sound/format-wav.o $
+./objects/debug/so/sound/laws.o $
+./objects/debug/so/sound/sound.o $
+./objects/debug/so/status.o $
+./objects/debug/so/tree.o $
+./objects/debug/so/utilities.o $
+./objects/debug/so/vector.o
+
 
 # Static library
+build ./objects/debug/a/buffer.o:           compile_a ./source/buffer.c
+build ./objects/debug/a/dictionary.o:       compile_a ./source/dictionary.c
+build ./objects/debug/a/endianness.o:       compile_a ./source/endianness.c
+build ./objects/debug/a/image/format-sgi.o: compile_a ./source/image/format-sgi.c
+build ./objects/debug/a/image/image.o:      compile_a ./source/image/image.c
+build ./objects/debug/a/list.o:             compile_a ./source/list.c
+build ./objects/debug/a/matrix.o:           compile_a ./source/matrix.c
+build ./objects/debug/a/sound/format-au.o:  compile_a ./source/sound/format-au.c
+build ./objects/debug/a/sound/format-wav.o: compile_a ./source/sound/format-wav.c
+build ./objects/debug/a/sound/laws.o:       compile_a ./source/sound/laws.c
+build ./objects/debug/a/sound/sound.o:      compile_a ./source/sound/sound.c
+build ./objects/debug/a/status.o:           compile_a ./source/status.c
+build ./objects/debug/a/tree.o:             compile_a ./source/tree.c
+build ./objects/debug/a/utilities.o:        compile_a ./source/utilities.c
+build ./objects/debug/a/vector.o:           compile_a ./source/vector.c
+
 build libjapan-dbg.a: pack $
-./objects/debug/buffer.o $
-./objects/debug/dictionary.o $
-./objects/debug/endianness.o $
-./objects/debug/image/format-sgi.o $
-./objects/debug/image/image.o $
-./objects/debug/list.o $
-./objects/debug/matrix.o $
-./objects/debug/sound/format-au.o $
-./objects/debug/sound/format-wav.o $
-./objects/debug/sound/laws.o $
-./objects/debug/sound/sound.o $
-./objects/debug/status.o $
-./objects/debug/tree.o $
-./objects/debug/utilities.o $
-./objects/debug/vector.o
+./objects/debug/a/buffer.o $
+./objects/debug/a/dictionary.o $
+./objects/debug/a/endianness.o $
+./objects/debug/a/image/format-sgi.o $
+./objects/debug/a/image/image.o $
+./objects/debug/a/list.o $
+./objects/debug/a/matrix.o $
+./objects/debug/a/sound/format-au.o $
+./objects/debug/a/sound/format-wav.o $
+./objects/debug/a/sound/laws.o $
+./objects/debug/a/sound/sound.o $
+./objects/debug/a/status.o $
+./objects/debug/a/tree.o $
+./objects/debug/a/utilities.o $
+./objects/debug/a/vector.o

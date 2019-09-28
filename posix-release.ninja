@@ -1,9 +1,13 @@
 
-cflags = -fpic -O3 -mtune=generic -fvisibility=hidden -I./include -DEXPORT_SYMBOLS
+cflags_so = -fpic -O3 -mtune=generic -fvisibility=hidden -I./include -DEXPORT_SYMBOLS
+cflags_a = -O3 -mtune=generic -fvisibility=hidden -I./include -DEXPORT_SYMBOLS
 lflags = -lm -shared
 
-rule compile
- command = cc $cflags -c $in -o $out
+rule compile_so
+ command = cc $cflags_so -c $in -o $out
+
+rule compile_a
+ command = cc $cflags_a -c $in -o $out
 
 rule link
  command = cc $in $lflags -o $out
@@ -12,54 +16,71 @@ rule pack
  command = ar rcs $out $in
 
 
-build ./objects/buffer.o:           compile ./source/buffer.c
-build ./objects/dictionary.o:       compile ./source/dictionary.c
-build ./objects/endianness.o:       compile ./source/endianness.c
-build ./objects/image/format-sgi.o: compile ./source/image/format-sgi.c
-build ./objects/image/image.o:      compile ./source/image/image.c
-build ./objects/list.o:             compile ./source/list.c
-build ./objects/matrix.o:           compile ./source/matrix.c
-build ./objects/sound/format-au.o:  compile ./source/sound/format-au.c
-build ./objects/sound/format-wav.o: compile ./source/sound/format-wav.c
-build ./objects/sound/laws.o:       compile ./source/sound/laws.c
-build ./objects/sound/sound.o:      compile ./source/sound/sound.c
-build ./objects/status.o:           compile ./source/status.c
-build ./objects/tree.o:             compile ./source/tree.c
-build ./objects/utilities.o:        compile ./source/utilities.c
-build ./objects/vector.o:           compile ./source/vector.c
-
 # Shared library
+build ./objects/release/so/buffer.o:           compile_so ./source/buffer.c
+build ./objects/release/so/dictionary.o:       compile_so ./source/dictionary.c
+build ./objects/release/so/endianness.o:       compile_so ./source/endianness.c
+build ./objects/release/so/image/format-sgi.o: compile_so ./source/image/format-sgi.c
+build ./objects/release/so/image/image.o:      compile_so ./source/image/image.c
+build ./objects/release/so/list.o:             compile_so ./source/list.c
+build ./objects/release/so/matrix.o:           compile_so ./source/matrix.c
+build ./objects/release/so/sound/format-au.o:  compile_so ./source/sound/format-au.c
+build ./objects/release/so/sound/format-wav.o: compile_so ./source/sound/format-wav.c
+build ./objects/release/so/sound/laws.o:       compile_so ./source/sound/laws.c
+build ./objects/release/so/sound/sound.o:      compile_so ./source/sound/sound.c
+build ./objects/release/so/status.o:           compile_so ./source/status.c
+build ./objects/release/so/tree.o:             compile_so ./source/tree.c
+build ./objects/release/so/utilities.o:        compile_so ./source/utilities.c
+build ./objects/release/so/vector.o:           compile_so ./source/vector.c
+
 build libjapan.so: link $
-./objects/buffer.o $
-./objects/dictionary.o $
-./objects/endianness.o $
-./objects/image/format-sgi.o $
-./objects/image/image.o $
-./objects/list.o $
-./objects/matrix.o $
-./objects/sound/format-au.o $
-./objects/sound/format-wav.o $
-./objects/sound/laws.o $
-./objects/sound/sound.o $
-./objects/status.o $
-./objects/tree.o $
-./objects/utilities.o $
-./objects/vector.o
+./objects/release/so/buffer.o $
+./objects/release/so/dictionary.o $
+./objects/release/so/endianness.o $
+./objects/release/so/image/format-sgi.o $
+./objects/release/so/image/image.o $
+./objects/release/so/list.o $
+./objects/release/so/matrix.o $
+./objects/release/so/sound/format-au.o $
+./objects/release/so/sound/format-wav.o $
+./objects/release/so/sound/laws.o $
+./objects/release/so/sound/sound.o $
+./objects/release/so/status.o $
+./objects/release/so/tree.o $
+./objects/release/so/utilities.o $
+./objects/release/so/vector.o
+
 
 # Static library
+build ./objects/release/a/buffer.o:           compile_a ./source/buffer.c
+build ./objects/release/a/dictionary.o:       compile_a ./source/dictionary.c
+build ./objects/release/a/endianness.o:       compile_a ./source/endianness.c
+build ./objects/release/a/image/format-sgi.o: compile_a ./source/image/format-sgi.c
+build ./objects/release/a/image/image.o:      compile_a ./source/image/image.c
+build ./objects/release/a/list.o:             compile_a ./source/list.c
+build ./objects/release/a/matrix.o:           compile_a ./source/matrix.c
+build ./objects/release/a/sound/format-au.o:  compile_a ./source/sound/format-au.c
+build ./objects/release/a/sound/format-wav.o: compile_a ./source/sound/format-wav.c
+build ./objects/release/a/sound/laws.o:       compile_a ./source/sound/laws.c
+build ./objects/release/a/sound/sound.o:      compile_a ./source/sound/sound.c
+build ./objects/release/a/status.o:           compile_a ./source/status.c
+build ./objects/release/a/tree.o:             compile_a ./source/tree.c
+build ./objects/release/a/utilities.o:        compile_a ./source/utilities.c
+build ./objects/release/a/vector.o:           compile_a ./source/vector.c
+
 build libjapan.a: pack $
-./objects/buffer.o $
-./objects/dictionary.o $
-./objects/endianness.o $
-./objects/image/format-sgi.o $
-./objects/image/image.o $
-./objects/list.o $
-./objects/matrix.o $
-./objects/sound/format-au.o $
-./objects/sound/format-wav.o $
-./objects/sound/laws.o $
-./objects/sound/sound.o $
-./objects/status.o $
-./objects/tree.o $
-./objects/utilities.o $
-./objects/vector.o
+./objects/release/a/buffer.o $
+./objects/release/a/dictionary.o $
+./objects/release/a/endianness.o $
+./objects/release/a/image/format-sgi.o $
+./objects/release/a/image/image.o $
+./objects/release/a/list.o $
+./objects/release/a/matrix.o $
+./objects/release/a/sound/format-au.o $
+./objects/release/a/sound/format-wav.o $
+./objects/release/a/sound/laws.o $
+./objects/release/a/sound/sound.o $
+./objects/release/a/status.o $
+./objects/release/a/tree.o $
+./objects/release/a/utilities.o $
+./objects/release/a/vector.o
