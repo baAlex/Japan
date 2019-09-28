@@ -28,14 +28,10 @@ SOFTWARE.
  - Alexander Brandt 2019
 -----------------------------*/
 
-#include "vector.h"
 #include <math.h>
 
-#ifdef EXPORT_SYMBOLS
-#define EXPORT __attribute__((visibility("default")))
-#else
-#define EXPORT // Whitespace
-#endif
+#include "vector.h"
+#include "common.h"
 
 
 /*-----------------------------

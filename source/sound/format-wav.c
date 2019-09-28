@@ -39,7 +39,9 @@ SOFTWARE.
  https://docs.microsoft.com/en-us/windows-hardware/drivers/audio/extensible-wave-format-descriptors
 -----------------------------*/
 
+#include "../common.h"
 #include "private.h"
+
 
 #define WAVE_FORMAT_PCM 0x0001
 #define WAVE_FORMAT_IEEE_FLOAT 0x0003 // Requires a Fact block, ignored at loading
@@ -176,14 +178,14 @@ static int sReadFmtBlock(size_t block_size, FILE* file, struct SoundEx* out, str
 		return 1;
 	}
 
-	out->frequency = (size_t)EndianTo(fmt.frequency, ENDIAN_LITTLE, sys_endianness);
-	out->channels = (size_t)EndianTo(fmt.channels, ENDIAN_LITTLE, sys_endianness);
+	out->frequency = (size_t)EndianTo_u32(fmt.frequency, ENDIAN_LITTLE, sys_endianness);
+	out->channels = (size_t)EndianTo_u16(fmt.channels, ENDIAN_LITTLE, sys_endianness);
 	out->endianness = ENDIAN_LITTLE;
 	out->unsigned_8bit = true;
 	out->unspecified_size = false;
 
-	fmt.format = EndianTo(fmt.format, ENDIAN_LITTLE, sys_endianness);
-	fmt.bits_per_sample = EndianTo(fmt.bits_per_sample, ENDIAN_LITTLE, sys_endianness);
+	fmt.format = EndianTo_u16(fmt.format, ENDIAN_LITTLE, sys_endianness);
+	fmt.bits_per_sample = EndianTo_u16(fmt.bits_per_sample, ENDIAN_LITTLE, sys_endianness);
 
 	if (fmt.format == WAVE_FORMAT_ULAW)
 	{
@@ -308,7 +310,7 @@ int SoundExLoadWav(FILE* file, struct SoundEx* out, struct Status* st)
 				break; // We have all what we need
 		}
 
-		head.size = EndianTo(head.size, ENDIAN_LITTLE, ENDIAN_SYSTEM);
+		head.size = EndianTo_u32(head.size, ENDIAN_LITTLE, ENDIAN_SYSTEM);
 
 		// Riff block
 		if (strncmp(head.id, RIFF_ID, ID_LEN) == 0)
@@ -393,7 +395,7 @@ EXPORT struct Status SoundSaveWav(struct Sound* sound, const char* filename)
 		size += sizeof(struct GenericHead) + sound->size; // DataBlock
 
 		memcpy(head.id, RIFF_ID, ID_LEN);
-		head.size = EndianTo((uint32_t)size, sys_endianness, ENDIAN_LITTLE); // (*a)
+		head.size = EndianTo_u32((uint32_t)size, sys_endianness, ENDIAN_LITTLE); // (*a)
 
 		if (fwrite(&head, sizeof(struct GenericHead), 1, file) != 1)
 		{
@@ -415,7 +417,7 @@ EXPORT struct Status SoundSaveWav(struct Sound* sound, const char* filename)
 		struct FmtBlock fmt = {0};
 
 		memcpy(head.id, FMT_ID, ID_LEN);
-		head.size = EndianTo((uint32_t)16, sys_endianness, ENDIAN_LITTLE);
+		head.size = EndianTo_u32(16, sys_endianness, ENDIAN_LITTLE);
 
 		if (fwrite(&head, sizeof(struct GenericHead), 1, file) != 1)
 		{
@@ -426,35 +428,35 @@ EXPORT struct Status SoundSaveWav(struct Sound* sound, const char* filename)
 		switch (sound->format)
 		{
 		case SOUND_I8:
-			fmt.format = EndianTo((uint16_t)WAVE_FORMAT_PCM, sys_endianness, ENDIAN_LITTLE);
-			fmt.bits_per_sample = EndianTo((uint16_t)8, sys_endianness, ENDIAN_LITTLE);
+			fmt.format = EndianTo_u16(WAVE_FORMAT_PCM, sys_endianness, ENDIAN_LITTLE);
+			fmt.bits_per_sample = EndianTo_u16(8, sys_endianness, ENDIAN_LITTLE);
 			break;
 
 		case SOUND_I16:
-			fmt.format = EndianTo((uint16_t)WAVE_FORMAT_PCM, sys_endianness, ENDIAN_LITTLE);
-			fmt.bits_per_sample = EndianTo((uint16_t)16, sys_endianness, ENDIAN_LITTLE);
+			fmt.format = EndianTo_u16(WAVE_FORMAT_PCM, sys_endianness, ENDIAN_LITTLE);
+			fmt.bits_per_sample = EndianTo_u16(16, sys_endianness, ENDIAN_LITTLE);
 			break;
 
 		case SOUND_I32: // Audacity way
-			fmt.format = EndianTo((uint16_t)WAVE_FORMAT_PCM, sys_endianness, ENDIAN_LITTLE);
-			fmt.bits_per_sample = EndianTo((uint16_t)32, sys_endianness, ENDIAN_LITTLE);
+			fmt.format = EndianTo_u16(WAVE_FORMAT_PCM, sys_endianness, ENDIAN_LITTLE);
+			fmt.bits_per_sample = EndianTo_u16(32, sys_endianness, ENDIAN_LITTLE);
 			break;
 
 		case SOUND_F32:
-			fmt.format = EndianTo((uint16_t)WAVE_FORMAT_IEEE_FLOAT, sys_endianness, ENDIAN_LITTLE);
-			fmt.bits_per_sample = EndianTo((uint16_t)32, sys_endianness, ENDIAN_LITTLE);
+			fmt.format = EndianTo_u16(WAVE_FORMAT_IEEE_FLOAT, sys_endianness, ENDIAN_LITTLE);
+			fmt.bits_per_sample = EndianTo_u16(32, sys_endianness, ENDIAN_LITTLE);
 			break;
 
 		case SOUND_F64:
-			fmt.format = EndianTo((uint16_t)WAVE_FORMAT_IEEE_FLOAT, sys_endianness, ENDIAN_LITTLE);
-			fmt.bits_per_sample = EndianTo((uint16_t)64, sys_endianness, ENDIAN_LITTLE);
+			fmt.format = EndianTo_u16(WAVE_FORMAT_IEEE_FLOAT, sys_endianness, ENDIAN_LITTLE);
+			fmt.bits_per_sample = EndianTo_u16(64, sys_endianness, ENDIAN_LITTLE);
 			break;
 		}
 
-		fmt.channels = EndianTo((uint16_t)sound->channels, sys_endianness, ENDIAN_LITTLE);
-		fmt.frequency = EndianTo((uint32_t)sound->frequency, sys_endianness, ENDIAN_LITTLE);
-		fmt.avg_bytes_frequency = EndianTo((uint32_t)(sound->channels * sound->frequency * bps), sys_endianness, ENDIAN_LITTLE);
-		fmt.data_align_size = EndianTo((uint16_t)(sound->channels * bps), sys_endianness, ENDIAN_LITTLE);
+		fmt.channels = EndianTo_u16((uint16_t)sound->channels, sys_endianness, ENDIAN_LITTLE);
+		fmt.frequency = EndianTo_u32((uint32_t)sound->frequency, sys_endianness, ENDIAN_LITTLE);
+		fmt.avg_bytes_frequency = EndianTo_u32((uint32_t)(sound->channels * sound->frequency * bps), sys_endianness, ENDIAN_LITTLE);
+		fmt.data_align_size = EndianTo_u16((uint16_t)(sound->channels * bps), sys_endianness, ENDIAN_LITTLE);
 
 		if (fwrite(&fmt, 16, 1, file) != 1)
 		{
@@ -468,7 +470,7 @@ EXPORT struct Status SoundSaveWav(struct Sound* sound, const char* filename)
 		struct FactBlock fact = {0};
 
 		memcpy(head.id, FACT_ID, ID_LEN);
-		head.size = EndianTo((uint32_t)sizeof(struct FactBlock), sys_endianness, ENDIAN_LITTLE);
+		head.size = EndianTo_u32((uint32_t)sizeof(struct FactBlock), sys_endianness, ENDIAN_LITTLE);
 
 		if (fwrite(&head, sizeof(struct GenericHead), 1, file) != 1)
 		{
@@ -476,7 +478,7 @@ EXPORT struct Status SoundSaveWav(struct Sound* sound, const char* filename)
 			goto return_failure;
 		}
 
-		fact.samples_no = EndianTo((uint32_t)sound->length, sys_endianness, ENDIAN_LITTLE);
+		fact.samples_no = EndianTo_u32((uint32_t)sound->length, sys_endianness, ENDIAN_LITTLE);
 
 		if (fwrite(&fact, sizeof(struct FactBlock), 1, file) != 1)
 		{
@@ -490,7 +492,7 @@ EXPORT struct Status SoundSaveWav(struct Sound* sound, const char* filename)
 		int ret = 0;
 
 		memcpy(head.id, DATA_ID, ID_LEN);
-		head.size = EndianTo((uint32_t)sound->size, sys_endianness, ENDIAN_LITTLE);
+		head.size = EndianTo_u32((uint32_t)sound->size, sys_endianness, ENDIAN_LITTLE);
 
 		if (fwrite(&head, sizeof(struct GenericHead), 1, file) != 1)
 		{

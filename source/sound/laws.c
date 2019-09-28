@@ -26,7 +26,7 @@ detriment.
 #define ALAW_AMI_MASK 0x55
 
 
-inline int16_t AlawToInt16(uint8_t compressed)
+int16_t AlawToInt16(uint8_t compressed)
 {
 	compressed ^= ALAW_AMI_MASK;
 	int t = ((compressed & 0x0F) << 4);
@@ -41,7 +41,7 @@ inline int16_t AlawToInt16(uint8_t compressed)
 }
 
 
-inline int16_t UlawToInt16(uint8_t compressed)
+int16_t UlawToInt16(uint8_t compressed)
 {
 	#pragma GCC diagnostic push
 	#pragma GCC diagnostic ignored "-Wconversion"

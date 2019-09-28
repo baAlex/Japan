@@ -35,20 +35,8 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
+#include "common.h"
 #include "dictionary.h"
-
-#ifdef DEBUG
-#include <stdio.h>
-#define DEBUG_PRINT(fmt, ...) printf(fmt, __VA_ARGS__)
-#else
-#define DEBUG_PRINT(fmt, ...) // Whitespace
-#endif
-
-#ifdef EXPORT_SYMBOLS
-#define EXPORT __attribute__((visibility("default")))
-#else
-#define EXPORT // Whitespace
-#endif
 
 
 #define INITIAL_BUCKETS 8

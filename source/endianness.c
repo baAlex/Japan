@@ -31,12 +31,7 @@ SOFTWARE.
 -----------------------------*/
 
 #include "endianness.h"
-
-#ifdef EXPORT_SYMBOLS
-#define EXPORT __attribute__((visibility("default")))
-#else
-#define EXPORT // Whitespace
-#endif
+#include "common.h"
 
 
 EXPORT inline int64_t EndianReverse_i64(int64_t value)

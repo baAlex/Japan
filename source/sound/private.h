@@ -13,18 +13,6 @@
 	#include "sound.h"
 	#include "endianness.h"
 
-	#ifdef DEBUG
-	#define DEBUG_PRINT(fmt, ...) printf(fmt, __VA_ARGS__)
-	#else
-	#define DEBUG_PRINT(fmt, ...) // Whitespace
-	#endif
-
-	#ifdef EXPORT_SYMBOLS
-	#define EXPORT __attribute__((visibility("default")))
-	#else
-	#define EXPORT // Whitespace
-	#endif
-
 	bool CheckMagicAu(uint32_t value);
 	bool CheckMagicWav(uint32_t value);
 

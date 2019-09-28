@@ -30,10 +30,11 @@ SOFTWARE.
  http://pubs.opengroup.org/external/auformat.html
 -----------------------------*/
 
+#include "../common.h"
 #include "private.h"
 
-#define AU_MAGIC 0x2E736E64
 
+#define AU_MAGIC 0x2E736E64
 #define AU_UNKNOWN_SIZE (~0)
 
 #define AU_ULAW 1
@@ -66,7 +67,7 @@ struct AuHead
 -----------------------------*/
 bool CheckMagicAu(uint32_t value)
 {
-	if (EndianTo(value, ENDIAN_BIG, ENDIAN_SYSTEM) == AU_MAGIC)
+	if (EndianTo_u32(value, ENDIAN_BIG, ENDIAN_SYSTEM) == AU_MAGIC)
 		return true;
 
 	return false;
@@ -90,11 +91,11 @@ int SoundExLoadAu(FILE* file, struct SoundEx* out, struct Status* st)
 		return 1;
 	}
 
-	out->frequency = (size_t)EndianTo(head.frequency, ENDIAN_BIG, sys_endianness);
-	out->channels = (size_t)EndianTo(head.channels, ENDIAN_BIG, sys_endianness);
-	out->uncompressed_size = (size_t)EndianTo(head.data_size, ENDIAN_BIG, sys_endianness);
+	out->frequency = (size_t)EndianTo_u32(head.frequency, ENDIAN_BIG, sys_endianness);
+	out->channels = (size_t)EndianTo_u32(head.channels, ENDIAN_BIG, sys_endianness);
+	out->uncompressed_size = (size_t)EndianTo_u32(head.data_size, ENDIAN_BIG, sys_endianness);
 	out->endianness = ENDIAN_BIG;
-	out->data_offset = (size_t)EndianTo(head.data_offset, ENDIAN_BIG, sys_endianness);
+	out->data_offset = (size_t)EndianTo_u32(head.data_offset, ENDIAN_BIG, sys_endianness);
 	out->unsigned_8bit = false;
 	out->unspecified_size = false;
 
@@ -116,7 +117,7 @@ int SoundExLoadAu(FILE* file, struct SoundEx* out, struct Status* st)
 		out->unspecified_size = true;
 	}
 
-	switch (EndianTo(head.format, ENDIAN_BIG, sys_endianness))
+	switch (EndianTo_u32(head.format, ENDIAN_BIG, sys_endianness))
 	{
 	case AU_PCM8:
 		out->length = out->uncompressed_size / out->channels;
@@ -194,19 +195,19 @@ EXPORT struct Status SoundSaveAu(struct Sound* sound, const char* filename)
 	}
 
 	// Head
-	head.magic = EndianTo((uint32_t)AU_MAGIC, sys_endianness, ENDIAN_BIG);
-	head.data_offset = EndianTo((uint32_t)sizeof(struct AuHead), sys_endianness, ENDIAN_BIG);
-	head.data_size = EndianTo((uint32_t)sound->size, sys_endianness, ENDIAN_BIG);
-	head.frequency = EndianTo((uint32_t)sound->frequency, sys_endianness, ENDIAN_BIG);
-	head.channels = EndianTo((uint32_t)sound->channels, sys_endianness, ENDIAN_BIG);
+	head.magic = EndianTo_u32(AU_MAGIC, sys_endianness, ENDIAN_BIG);
+	head.data_offset = EndianTo_u32((uint32_t)sizeof(struct AuHead), sys_endianness, ENDIAN_BIG);
+	head.data_size = EndianTo_u32((uint32_t)sound->size, sys_endianness, ENDIAN_BIG);
+	head.frequency = EndianTo_u32((uint32_t)sound->frequency, sys_endianness, ENDIAN_BIG);
+	head.channels = EndianTo_u32((uint32_t)sound->channels, sys_endianness, ENDIAN_BIG);
 
 	switch (sound->format)
 	{
-	case SOUND_I8: head.format = EndianTo((uint32_t)AU_PCM8, sys_endianness, ENDIAN_BIG); break;
-	case SOUND_I16: head.format = EndianTo((uint32_t)AU_PCM16, sys_endianness, ENDIAN_BIG); break;
-	case SOUND_I32: head.format = EndianTo((uint32_t)AU_PCM32, sys_endianness, ENDIAN_BIG); break;
-	case SOUND_F32: head.format = EndianTo((uint32_t)AU_FLOAT, sys_endianness, ENDIAN_BIG); break;
-	case SOUND_F64: head.format = EndianTo((uint32_t)AU_DOUBLE, sys_endianness, ENDIAN_BIG); break;
+	case SOUND_I8: head.format = EndianTo_u32(AU_PCM8, sys_endianness, ENDIAN_BIG); break;
+	case SOUND_I16: head.format = EndianTo_u32(AU_PCM16, sys_endianness, ENDIAN_BIG); break;
+	case SOUND_I32: head.format = EndianTo_u32(AU_PCM32, sys_endianness, ENDIAN_BIG); break;
+	case SOUND_F32: head.format = EndianTo_u32(AU_FLOAT, sys_endianness, ENDIAN_BIG); break;
+	case SOUND_F64: head.format = EndianTo_u32(AU_DOUBLE, sys_endianness, ENDIAN_BIG); break;
 	}
 
 	if (fwrite(&head, sizeof(struct AuHead), 1, file) != 1)

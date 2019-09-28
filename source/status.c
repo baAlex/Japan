@@ -31,13 +31,8 @@ SOFTWARE.
 #include <stdio.h>
 #include <string.h>
 
+#include "common.h"
 #include "status.h"
-
-#ifdef EXPORT_SYMBOLS
-#define EXPORT __attribute__((visibility("default")))
-#else
-#define EXPORT // Whitespace
-#endif
 
 
 EXPORT void StatusSet(struct Status* st, const char* function_name, enum StatusCode code, const char* explanation_fmt, ...)

@@ -33,19 +33,7 @@ SOFTWARE.
 #include <string.h>
 
 #include "buffer.h"
-
-#ifdef DEBUG
-#include <stdio.h>
-#define DEBUG_PRINT(fmt, ...) printf(fmt, __VA_ARGS__)
-#else
-#define DEBUG_PRINT(fmt, ...)
-#endif
-
-#ifdef EXPORT_SYMBOLS
-#define EXPORT __attribute__((visibility("default")))
-#else
-#define EXPORT // Whitespace
-#endif
+#include "common.h"
 
 
 EXPORT inline void BufferClean(struct Buffer* buffer)

@@ -13,12 +13,12 @@ sudo apt install ninja-build
 To compile:
 ```
 cd Japan
-ninja
+ninja -f posix-release.ninja
 ```
 
 Optionally you can compile a debug build with:
 ```
-ninja -f debug.ninja
+ninja -f posix-debug.ninja
 ```
 
 

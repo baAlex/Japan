@@ -20,14 +20,10 @@ TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
  - Alexander Brandt 2019
 -----------------------------*/
 
-#include "matrix.h"
 #include <math.h>
 
-#ifdef EXPORT_SYMBOLS
-#define EXPORT __attribute__((visibility("default")))
-#else
-#define EXPORT // Whitespace
-#endif
+#include "common.h"
+#include "matrix.h"
 
 
 /*-----------------------------
