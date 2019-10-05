@@ -22,12 +22,15 @@
 	float RadToDeg(float value);
 
 	int Max_i(int a, int b);
+	size_t Max_z(size_t a, size_t b);
 	float Max_f(float a, float b);
 
 	int Min_i(int a, int b);
+	size_t Min_z(size_t a, size_t b);
 	float Min_f(float a, float b);
 
 	int Clamp_i(int v, int min, int max);
+	size_t Clamp_z(size_t v, size_t min, size_t max);
 	float Clamp_f(float v, float min, float max);
 
 
@@ -35,18 +38,21 @@
 
 	#define Max(a, b) _Generic((a), \
 			int: Max_i, \
+			size_t: Max_z, \
 			float: Max_f, \
 			default: Max_i \
 		)(a, b)
 
 	#define Min(a, b) _Generic((a), \
 			int: Min_i, \
+			size_t: Min_z, \
 			float: Min_f, \
 			default: Min_i \
 		)(a, b)
 
 	#define Clamp(value, min, max) _Generic((value), \
 			int: Clamp_i, \
+			size_t: Clamp_z, \
 			float: Clamp_f, \
 			default: Clamp_i \
 		)(value, min, max)
