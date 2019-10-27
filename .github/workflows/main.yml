@@ -9,6 +9,10 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install ninja-build
     - name: Compile posix-release build
       run: ninja -f posix-release.ninja
     - name: Compile posix-debug build
@@ -23,6 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         choco install llvm ninja
+        refreshenv
     - name: Compile windows-release build
       run: ninja -f windows-release.ninja
     - name: Compile windows-debug build
