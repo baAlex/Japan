@@ -28,6 +28,8 @@ jobs:
       run: |
         choco install llvm ninja
         refreshenv
+    - name: Information
+        clang -v
     - name: Compile windows-release build
       run: ninja -f windows-release.ninja
     - name: Compile windows-debug build
