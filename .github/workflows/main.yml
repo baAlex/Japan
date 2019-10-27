@@ -1,0 +1,29 @@
+name: CI
+
+on: [push]
+
+jobs:
+  Ubuntu:
+    name: "Ubuntu"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Compile posix-release build
+      run: ninja -f posix-release.ninja
+    - name: Compile posix-debug build
+      run: ninja -f posix-debug.ninja
+
+  Windows:
+    name: "Windows"
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install dependencies
+      run: |
+        choco install llvm ninja
+    - name: Compile windows-release build
+      run: ninja -f windows-release.ninja
+    - name: Compile windows-debug build
+      run: ninja -f windows-debug.ninja
