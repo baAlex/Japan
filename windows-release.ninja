@@ -1,0 +1,67 @@
+
+cflags = -O3 -mtune=generic -fvisibility=hidden -I./include -DEXPORT_SYMBOLS
+lflags = -fuse-ld=lld -shared
+
+rule compile
+ command = clang $cflags -c $in -o $out
+
+rule link
+ command = clang -v $in $lflags -o $out
+
+rule pack
+ command = llvm-ar rcs $out $in
+
+
+build .\objects\windows-release\buffer.o:           compile .\source\buffer.c
+build .\objects\windows-release\dictionary.o:       compile .\source\dictionary.c
+build .\objects\windows-release\endianness.o:       compile .\source\endianness.c
+build .\objects\windows-release\image\format-sgi.o: compile .\source\image\format-sgi.c
+build .\objects\windows-release\image\image.o:      compile .\source\image\image.c
+build .\objects\windows-release\list.o:             compile .\source\list.c
+build .\objects\windows-release\matrix.o:           compile .\source\matrix.c
+build .\objects\windows-release\sound\format-au.o:  compile .\source\sound\format-au.c
+build .\objects\windows-release\sound\format-wav.o: compile .\source\sound\format-wav.c
+build .\objects\windows-release\sound\laws.o:       compile .\source\sound\laws.c
+build .\objects\windows-release\sound\sound.o:      compile .\source\sound\sound.c
+build .\objects\windows-release\status.o:           compile .\source\status.c
+build .\objects\windows-release\tree.o:             compile .\source\tree.c
+build .\objects\windows-release\utilities.o:        compile .\source\utilities.c
+build .\objects\windows-release\vector.o:           compile .\source\vector.c
+
+
+# Shared library
+build libjapan.dll: link $
+.\objects\windows-release\buffer.o $
+.\objects\windows-release\dictionary.o $
+.\objects\windows-release\endianness.o $
+.\objects\windows-release\image\format-sgi.o $
+.\objects\windows-release\image\image.o $
+.\objects\windows-release\list.o $
+.\objects\windows-release\matrix.o $
+.\objects\windows-release\sound\format-au.o $
+.\objects\windows-release\sound\format-wav.o $
+.\objects\windows-release\sound\laws.o $
+.\objects\windows-release\sound\sound.o $
+.\objects\windows-release\status.o $
+.\objects\windows-release\tree.o $
+.\objects\windows-release\utilities.o $
+.\objects\windows-release\vector.o
+
+
+# Static library
+build libjapan-w.a: pack $
+.\objects\windows-release\buffer.o $
+.\objects\windows-release\dictionary.o $
+.\objects\windows-release\endianness.o $
+.\objects\windows-release\image\format-sgi.o $
+.\objects\windows-release\image\image.o $
+.\objects\windows-release\list.o $
+.\objects\windows-release\matrix.o $
+.\objects\windows-release\sound\format-au.o $
+.\objects\windows-release\sound\format-wav.o $
+.\objects\windows-release\sound\laws.o $
+.\objects\windows-release\sound\sound.o $
+.\objects\windows-release\status.o $
+.\objects\windows-release\tree.o $
+.\objects\windows-release\utilities.o $
+.\objects\windows-release\vector.o

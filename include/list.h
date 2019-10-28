@@ -11,6 +11,12 @@
 #define JAPAN_VERSION_PATCH 2
 #endif
 
+#if defined(EXPORT_SYMBOLS) && defined(_WIN32)
+#define DLL_EXP __declspec(dllexport)
+#else
+#define DLL_EXP // Whitespace
+#endif
+
 #ifndef LIST_H
 #define LIST_H
 
@@ -46,15 +52,15 @@
 		struct ListItem* future_return;
 	};
 
-	void ListClean(struct List* list);
+	DLL_EXP void ListClean(struct List* list);
 
-	struct ListItem* ListAdd(struct List* list, void* data, size_t data_size);
-	struct ListItem* ListAddAfter(struct ListItem* item, void* data, size_t data_size);
-	struct ListItem* ListAddBefore(struct ListItem* item, void* data, size_t data_size);
+	DLL_EXP struct ListItem* ListAdd(struct List* list, void* data, size_t data_size);
+	DLL_EXP struct ListItem* ListAddAfter(struct ListItem* item, void* data, size_t data_size);
+	DLL_EXP struct ListItem* ListAddBefore(struct ListItem* item, void* data, size_t data_size);
 
-	void ListRemove(struct ListItem* item);
-	int ListDetach(struct ListItem* item);
+	DLL_EXP void ListRemove(struct ListItem* item);
+	DLL_EXP int ListDetach(struct ListItem* item);
 
-	struct ListItem* ListIterate(struct ListState* state);
+	DLL_EXP struct ListItem* ListIterate(struct ListState* state);
 
 #endif

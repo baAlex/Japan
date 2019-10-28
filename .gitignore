@@ -1,5 +1,7 @@
 *.a
 *.so
+*.dll
+*.lib
 objects/
 dev/
 .vscode/

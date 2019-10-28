@@ -11,6 +11,12 @@
 #define JAPAN_VERSION_PATCH 2
 #endif
 
+#if defined(EXPORT_SYMBOLS) && defined(_WIN32)
+#define DLL_EXP __declspec(dllexport)
+#else
+#define DLL_EXP // Whitespace
+#endif
+
 #ifndef BUFFER_H
 #define BUFFER_H
 
@@ -22,8 +28,8 @@
 		size_t size;
 	};
 
-	void BufferClean(struct Buffer* buffer);
-	void* BufferResize(struct Buffer* buffer, size_t new_size);
-	void* BufferResizeZero(struct Buffer* buffer, size_t new_size);
+	DLL_EXP void BufferClean(struct Buffer* buffer);
+	DLL_EXP void* BufferResize(struct Buffer* buffer, size_t new_size);
+	DLL_EXP void* BufferResizeZero(struct Buffer* buffer, size_t new_size);
 
 #endif

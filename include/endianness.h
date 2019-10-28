@@ -11,6 +11,12 @@
 #define JAPAN_VERSION_PATCH 2
 #endif
 
+#if defined(EXPORT_SYMBOLS) && defined(_WIN32)
+#define DLL_EXP __declspec(dllexport)
+#else
+#define DLL_EXP // Whitespace
+#endif
+
 #ifndef ENDIANNESS_H
 #define ENDIANNESS_H
 
@@ -23,23 +29,23 @@
 		ENDIAN_BIG
 	};
 
-	enum Endianness EndianSystem();
+	DLL_EXP enum Endianness EndianSystem();
 
-	uint64_t EndianReverse_u64(uint64_t value);
-	uint32_t EndianReverse_u32(uint32_t value);
-	uint16_t EndianReverse_u16(uint16_t value);
+	DLL_EXP uint64_t EndianReverse_u64(uint64_t value);
+	DLL_EXP uint32_t EndianReverse_u32(uint32_t value);
+	DLL_EXP uint16_t EndianReverse_u16(uint16_t value);
 
-	int64_t EndianReverse_i64(int64_t value);
-	int32_t EndianReverse_i32(int32_t value);
-	int16_t EndianReverse_i16(int16_t value);
+	DLL_EXP int64_t EndianReverse_i64(int64_t value);
+	DLL_EXP int32_t EndianReverse_i32(int32_t value);
+	DLL_EXP int16_t EndianReverse_i16(int16_t value);
 
-	uint64_t EndianTo_u64(uint64_t value, enum Endianness from, enum Endianness to);
-	uint32_t EndianTo_u32(uint32_t value, enum Endianness from, enum Endianness to);
-	uint16_t EndianTo_u16(uint16_t value, enum Endianness from, enum Endianness to);
+	DLL_EXP uint64_t EndianTo_u64(uint64_t value, enum Endianness from, enum Endianness to);
+	DLL_EXP uint32_t EndianTo_u32(uint32_t value, enum Endianness from, enum Endianness to);
+	DLL_EXP uint16_t EndianTo_u16(uint16_t value, enum Endianness from, enum Endianness to);
 
-	int64_t EndianTo_i64(int64_t value, enum Endianness from, enum Endianness to);
-	int32_t EndianTo_i32(int32_t value, enum Endianness from, enum Endianness to);
-	int16_t EndianTo_i16(int16_t value, enum Endianness from, enum Endianness to);
+	DLL_EXP int64_t EndianTo_i64(int64_t value, enum Endianness from, enum Endianness to);
+	DLL_EXP int32_t EndianTo_i32(int32_t value, enum Endianness from, enum Endianness to);
+	DLL_EXP int16_t EndianTo_i16(int16_t value, enum Endianness from, enum Endianness to);
 
 
 	#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L

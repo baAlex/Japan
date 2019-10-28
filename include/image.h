@@ -11,6 +11,12 @@
 #define JAPAN_VERSION_PATCH 2
 #endif
 
+#if defined(EXPORT_SYMBOLS) && defined(_WIN32)
+#define DLL_EXP __declspec(dllexport)
+#else
+#define DLL_EXP // Whitespace
+#endif
+
 #ifndef IMAGE_H
 #define IMAGE_H
 
@@ -62,17 +68,17 @@
 		size_t data_offset;
 	};
 
-	struct Image* ImageCreate(enum ImageFormat, size_t width, size_t height);
-	void ImageDelete(struct Image* image);
+	DLL_EXP struct Image* ImageCreate(enum ImageFormat, size_t width, size_t height);
+	DLL_EXP void ImageDelete(struct Image* image);
 
-	struct Image* ImageLoad(const char* filename, struct Status*);
-	struct Status ImageSaveSgi(struct Image* image, const char* filename);
-	struct Status ImageSaveRaw(struct Image* image, const char* filename);
+	DLL_EXP struct Image* ImageLoad(const char* filename, struct Status*);
+	DLL_EXP struct Status ImageSaveSgi(struct Image* image, const char* filename);
+	DLL_EXP struct Status ImageSaveRaw(struct Image* image, const char* filename);
 
-	int ImageExLoad(FILE* file, struct ImageEx* out, struct Status*);
+	DLL_EXP int ImageExLoad(FILE* file, struct ImageEx* out, struct Status*);
 
-	int ImageBytesPerPixel(enum ImageFormat);
-	int ImageBitsPerComponent(enum ImageFormat);
-	int ImageChannels(enum ImageFormat);
+	DLL_EXP int ImageBytesPerPixel(enum ImageFormat);
+	DLL_EXP int ImageBitsPerComponent(enum ImageFormat);
+	DLL_EXP int ImageChannels(enum ImageFormat);
 
 #endif

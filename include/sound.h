@@ -11,6 +11,12 @@
 #define JAPAN_VERSION_PATCH 2
 #endif
 
+#if defined(EXPORT_SYMBOLS) && defined(_WIN32)
+#define DLL_EXP __declspec(dllexport)
+#else
+#define DLL_EXP // Whitespace
+#endif
+
 #ifndef SOUND_H
 #define SOUND_H
 
@@ -66,17 +72,17 @@
 		size_t data_offset;
 	};
 
-	struct Sound* SoundCreate(enum SoundFormat, size_t length, size_t channels, size_t frequency);
-	void SoundDelete(struct Sound* sound);
+	DLL_EXP struct Sound* SoundCreate(enum SoundFormat, size_t length, size_t channels, size_t frequency);
+	DLL_EXP void SoundDelete(struct Sound* sound);
 
-	struct Sound* SoundLoad(const char* filename, struct Status*);
-	struct Status SoundSaveAu(struct Sound* sound, const char* filename);
-	struct Status SoundSaveWav(struct Sound* sound, const char* filename);
-	struct Status SoundSaveRaw(struct Sound* sound, const char* filename);
+	DLL_EXP struct Sound* SoundLoad(const char* filename, struct Status*);
+	DLL_EXP struct Status SoundSaveAu(struct Sound* sound, const char* filename);
+	DLL_EXP struct Status SoundSaveWav(struct Sound* sound, const char* filename);
+	DLL_EXP struct Status SoundSaveRaw(struct Sound* sound, const char* filename);
 
-	int SoundExLoad(FILE* file, struct SoundEx* out, struct Status*);
-	size_t SoundExRead(FILE* file, struct SoundEx ex, size_t out_size, void* out, struct Status*);
+	DLL_EXP int SoundExLoad(FILE* file, struct SoundEx* out, struct Status*);
+	DLL_EXP size_t SoundExRead(FILE* file, struct SoundEx ex, size_t out_size, void* out, struct Status*);
 
-	int SoundBps(enum SoundFormat);
+	DLL_EXP int SoundBps(enum SoundFormat);
 
 #endif

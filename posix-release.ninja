@@ -17,70 +17,70 @@ rule pack
 
 
 # Shared library
-build ./objects/release/so/buffer.o:           compile_so ./source/buffer.c
-build ./objects/release/so/dictionary.o:       compile_so ./source/dictionary.c
-build ./objects/release/so/endianness.o:       compile_so ./source/endianness.c
-build ./objects/release/so/image/format-sgi.o: compile_so ./source/image/format-sgi.c
-build ./objects/release/so/image/image.o:      compile_so ./source/image/image.c
-build ./objects/release/so/list.o:             compile_so ./source/list.c
-build ./objects/release/so/matrix.o:           compile_so ./source/matrix.c
-build ./objects/release/so/sound/format-au.o:  compile_so ./source/sound/format-au.c
-build ./objects/release/so/sound/format-wav.o: compile_so ./source/sound/format-wav.c
-build ./objects/release/so/sound/laws.o:       compile_so ./source/sound/laws.c
-build ./objects/release/so/sound/sound.o:      compile_so ./source/sound/sound.c
-build ./objects/release/so/status.o:           compile_so ./source/status.c
-build ./objects/release/so/tree.o:             compile_so ./source/tree.c
-build ./objects/release/so/utilities.o:        compile_so ./source/utilities.c
-build ./objects/release/so/vector.o:           compile_so ./source/vector.c
+build ./objects/posix-release/so/buffer.o:           compile_so ./source/buffer.c
+build ./objects/posix-release/so/dictionary.o:       compile_so ./source/dictionary.c
+build ./objects/posix-release/so/endianness.o:       compile_so ./source/endianness.c
+build ./objects/posix-release/so/image/format-sgi.o: compile_so ./source/image/format-sgi.c
+build ./objects/posix-release/so/image/image.o:      compile_so ./source/image/image.c
+build ./objects/posix-release/so/list.o:             compile_so ./source/list.c
+build ./objects/posix-release/so/matrix.o:           compile_so ./source/matrix.c
+build ./objects/posix-release/so/sound/format-au.o:  compile_so ./source/sound/format-au.c
+build ./objects/posix-release/so/sound/format-wav.o: compile_so ./source/sound/format-wav.c
+build ./objects/posix-release/so/sound/laws.o:       compile_so ./source/sound/laws.c
+build ./objects/posix-release/so/sound/sound.o:      compile_so ./source/sound/sound.c
+build ./objects/posix-release/so/status.o:           compile_so ./source/status.c
+build ./objects/posix-release/so/tree.o:             compile_so ./source/tree.c
+build ./objects/posix-release/so/utilities.o:        compile_so ./source/utilities.c
+build ./objects/posix-release/so/vector.o:           compile_so ./source/vector.c
 
 build libjapan.so: link $
-./objects/release/so/buffer.o $
-./objects/release/so/dictionary.o $
-./objects/release/so/endianness.o $
-./objects/release/so/image/format-sgi.o $
-./objects/release/so/image/image.o $
-./objects/release/so/list.o $
-./objects/release/so/matrix.o $
-./objects/release/so/sound/format-au.o $
-./objects/release/so/sound/format-wav.o $
-./objects/release/so/sound/laws.o $
-./objects/release/so/sound/sound.o $
-./objects/release/so/status.o $
-./objects/release/so/tree.o $
-./objects/release/so/utilities.o $
-./objects/release/so/vector.o
+./objects/posix-release/so/buffer.o $
+./objects/posix-release/so/dictionary.o $
+./objects/posix-release/so/endianness.o $
+./objects/posix-release/so/image/format-sgi.o $
+./objects/posix-release/so/image/image.o $
+./objects/posix-release/so/list.o $
+./objects/posix-release/so/matrix.o $
+./objects/posix-release/so/sound/format-au.o $
+./objects/posix-release/so/sound/format-wav.o $
+./objects/posix-release/so/sound/laws.o $
+./objects/posix-release/so/sound/sound.o $
+./objects/posix-release/so/status.o $
+./objects/posix-release/so/tree.o $
+./objects/posix-release/so/utilities.o $
+./objects/posix-release/so/vector.o
 
 
 # Static library
-build ./objects/release/a/buffer.o:           compile_a ./source/buffer.c
-build ./objects/release/a/dictionary.o:       compile_a ./source/dictionary.c
-build ./objects/release/a/endianness.o:       compile_a ./source/endianness.c
-build ./objects/release/a/image/format-sgi.o: compile_a ./source/image/format-sgi.c
-build ./objects/release/a/image/image.o:      compile_a ./source/image/image.c
-build ./objects/release/a/list.o:             compile_a ./source/list.c
-build ./objects/release/a/matrix.o:           compile_a ./source/matrix.c
-build ./objects/release/a/sound/format-au.o:  compile_a ./source/sound/format-au.c
-build ./objects/release/a/sound/format-wav.o: compile_a ./source/sound/format-wav.c
-build ./objects/release/a/sound/laws.o:       compile_a ./source/sound/laws.c
-build ./objects/release/a/sound/sound.o:      compile_a ./source/sound/sound.c
-build ./objects/release/a/status.o:           compile_a ./source/status.c
-build ./objects/release/a/tree.o:             compile_a ./source/tree.c
-build ./objects/release/a/utilities.o:        compile_a ./source/utilities.c
-build ./objects/release/a/vector.o:           compile_a ./source/vector.c
+build ./objects/posix-release/a/buffer.o:           compile_a ./source/buffer.c
+build ./objects/posix-release/a/dictionary.o:       compile_a ./source/dictionary.c
+build ./objects/posix-release/a/endianness.o:       compile_a ./source/endianness.c
+build ./objects/posix-release/a/image/format-sgi.o: compile_a ./source/image/format-sgi.c
+build ./objects/posix-release/a/image/image.o:      compile_a ./source/image/image.c
+build ./objects/posix-release/a/list.o:             compile_a ./source/list.c
+build ./objects/posix-release/a/matrix.o:           compile_a ./source/matrix.c
+build ./objects/posix-release/a/sound/format-au.o:  compile_a ./source/sound/format-au.c
+build ./objects/posix-release/a/sound/format-wav.o: compile_a ./source/sound/format-wav.c
+build ./objects/posix-release/a/sound/laws.o:       compile_a ./source/sound/laws.c
+build ./objects/posix-release/a/sound/sound.o:      compile_a ./source/sound/sound.c
+build ./objects/posix-release/a/status.o:           compile_a ./source/status.c
+build ./objects/posix-release/a/tree.o:             compile_a ./source/tree.c
+build ./objects/posix-release/a/utilities.o:        compile_a ./source/utilities.c
+build ./objects/posix-release/a/vector.o:           compile_a ./source/vector.c
 
-build libjapan.a: pack $
-./objects/release/a/buffer.o $
-./objects/release/a/dictionary.o $
-./objects/release/a/endianness.o $
-./objects/release/a/image/format-sgi.o $
-./objects/release/a/image/image.o $
-./objects/release/a/list.o $
-./objects/release/a/matrix.o $
-./objects/release/a/sound/format-au.o $
-./objects/release/a/sound/format-wav.o $
-./objects/release/a/sound/laws.o $
-./objects/release/a/sound/sound.o $
-./objects/release/a/status.o $
-./objects/release/a/tree.o $
-./objects/release/a/utilities.o $
-./objects/release/a/vector.o
+build libjapan-p.a: pack $
+./objects/posix-release/a/buffer.o $
+./objects/posix-release/a/dictionary.o $
+./objects/posix-release/a/endianness.o $
+./objects/posix-release/a/image/format-sgi.o $
+./objects/posix-release/a/image/image.o $
+./objects/posix-release/a/list.o $
+./objects/posix-release/a/matrix.o $
+./objects/posix-release/a/sound/format-au.o $
+./objects/posix-release/a/sound/format-wav.o $
+./objects/posix-release/a/sound/laws.o $
+./objects/posix-release/a/sound/sound.o $
+./objects/posix-release/a/status.o $
+./objects/posix-release/a/tree.o $
+./objects/posix-release/a/utilities.o $
+./objects/posix-release/a/vector.o

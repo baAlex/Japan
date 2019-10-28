@@ -11,6 +11,12 @@
 #define JAPAN_VERSION_PATCH 2
 #endif
 
+#if defined(EXPORT_SYMBOLS) && defined(_WIN32)
+#define DLL_EXP __declspec(dllexport)
+#else
+#define DLL_EXP // Whitespace
+#endif
+
 #ifndef UTILITIES_H
 #define UTILITIES_H
 
@@ -18,20 +24,20 @@
 	#define M_PI 3.14159265358979323846264338327950288f
 	#endif
 
-	float DegToRad(float value);
-	float RadToDeg(float value);
+	DLL_EXP float DegToRad(float value);
+	DLL_EXP float RadToDeg(float value);
 
-	int Max_i(int a, int b);
-	size_t Max_z(size_t a, size_t b);
-	float Max_f(float a, float b);
+	DLL_EXP int Max_i(int a, int b);
+	DLL_EXP size_t Max_z(size_t a, size_t b);
+	DLL_EXP float Max_f(float a, float b);
 
-	int Min_i(int a, int b);
-	size_t Min_z(size_t a, size_t b);
-	float Min_f(float a, float b);
+	DLL_EXP int Min_i(int a, int b);
+	DLL_EXP size_t Min_z(size_t a, size_t b);
+	DLL_EXP float Min_f(float a, float b);
 
-	int Clamp_i(int v, int min, int max);
-	size_t Clamp_z(size_t v, size_t min, size_t max);
-	float Clamp_f(float v, float min, float max);
+	DLL_EXP int Clamp_i(int v, int min, int max);
+	DLL_EXP size_t Clamp_z(size_t v, size_t min, size_t max);
+	DLL_EXP float Clamp_f(float v, float min, float max);
 
 
 	#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
