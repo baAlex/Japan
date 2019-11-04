@@ -26,8 +26,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        choco install llvm ninja
-        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine")
+        choco install ninja llvm
+        $env:Path = [System.Environment]::ExpandEnvironmentVariables([System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User"))
     - name: Information
       run: clang -v
     - name: Compile windows-release build
