@@ -27,7 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         choco install llvm ninja
-        RefreshEnv
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine")
     - name: Information
       run: clang -v
     - name: Compile windows-release build
