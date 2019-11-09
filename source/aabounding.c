@@ -34,7 +34,7 @@ SOFTWARE.
 #include "common.h"
 
 
-EXPORT inline bool AabCollitionRectRect(struct AabRectangle a, struct AabRectangle b)
+EXPORT inline bool AabCollisionRectRect(struct AabRectangle a, struct AabRectangle b)
 {
 	if (a.max.x < b.min.x || a.min.x > b.max.x || a.max.y < b.min.y || a.min.y > b.max.y)
 		return false;
@@ -43,7 +43,7 @@ EXPORT inline bool AabCollitionRectRect(struct AabRectangle a, struct AabRectang
 }
 
 
-EXPORT inline bool AabCollitionRectCircle(struct AabRectangle rect, struct Circle c)
+EXPORT inline bool AabCollisionRectCircle(struct AabRectangle rect, struct Circle c)
 {
 
 	if (c.origin.x < (rect.min.x - c.radius) || c.origin.x > (rect.max.x + c.radius) ||
@@ -54,7 +54,7 @@ EXPORT inline bool AabCollitionRectCircle(struct AabRectangle rect, struct Circl
 }
 
 
-EXPORT inline bool AabCollitionBoxBox(struct AabBox a, struct AabBox b)
+EXPORT inline bool AabCollisionBoxBox(struct AabBox a, struct AabBox b)
 {
 	if (a.max.x < b.min.x || a.min.x > b.max.x || a.max.y < b.min.y || a.min.y > b.max.y || a.max.z < b.min.z ||
 	    a.min.z > b.max.z)
@@ -64,7 +64,7 @@ EXPORT inline bool AabCollitionBoxBox(struct AabBox a, struct AabBox b)
 }
 
 
-EXPORT inline bool AabCollitionBoxSphere(struct AabBox box, struct Sphere s)
+EXPORT inline bool AabCollisionBoxSphere(struct AabBox box, struct Sphere s)
 {
 	if (s.origin.x < (box.min.x - s.radius) || s.origin.x > (box.max.x + s.radius) ||
 	    s.origin.y < (box.min.y - s.radius) || s.origin.y > (box.max.y + s.radius) ||

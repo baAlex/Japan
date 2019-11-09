@@ -46,11 +46,11 @@
 		float radius;
 	};
 
-	DLL_EXP bool AabCollitionRectRect(struct AabRectangle a, struct AabRectangle b);
-	DLL_EXP bool AabCollitionRectCircle(struct AabRectangle, struct Circle);
+	DLL_EXP bool AabCollisionRectRect(struct AabRectangle a, struct AabRectangle b);
+	DLL_EXP bool AabCollisionRectCircle(struct AabRectangle, struct Circle);
 
-	DLL_EXP bool AabCollitionBoxBox(struct AabBox a, struct AabBox b);
-	DLL_EXP bool AabCollitionBoxSphere(struct AabBox, struct Sphere);
+	DLL_EXP bool AabCollisionBoxBox(struct AabBox a, struct AabBox b);
+	DLL_EXP bool AabCollisionBoxSphere(struct AabBox, struct Sphere);
 
 	DLL_EXP struct AabRectangle AabToRectangle(struct AabBox);
 	DLL_EXP struct AabBox AabToBox(struct AabRectangle, float min_z, float max_z);
@@ -61,16 +61,16 @@
 
 	#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
-	#define AabCollition(a, b) _Generic((a), \
+	#define AabCollision(a, b) _Generic((a), \
 		struct AabRectangle: _Generic((b), \
-			struct AabRectangle: AabCollitionRectRect, \
-			struct Circle: AabCollitionRectCircle, \
-			default: AabCollitionRectRect \
+			struct AabRectangle: AabCollisionRectRect, \
+			struct Circle: AabCollisionRectCircle, \
+			default: AabCollisionRectRect \
 		), \
 		struct AabBox: _Generic((b), \
-			struct AabBox: AabCollitionBoxBox, \
-			struct Sphere: AabCollitionBoxSphere, \
-			default: AabCollitionBoxBox \
+			struct AabBox: AabCollisionBoxBox, \
+			struct Sphere: AabCollisionBoxSphere, \
+			default: AabCollisionBoxBox \
 		) \
 	)(a, b)
 
