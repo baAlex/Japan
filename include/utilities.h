@@ -5,10 +5,10 @@
 -----------------------------*/
 
 #ifndef JAPAN_VERSION
-#define JAPAN_VERSION "0.2.2"
+#define JAPAN_VERSION "0.2.3"
 #define JAPAN_VERSION_MAJOR 0
 #define JAPAN_VERSION_MINOR 2
-#define JAPAN_VERSION_PATCH 2
+#define JAPAN_VERSION_PATCH 3
 #endif
 
 #if defined(EXPORT_SYMBOLS) && defined(_WIN32)

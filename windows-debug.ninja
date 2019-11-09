@@ -12,6 +12,7 @@ rule pack
  command = llvm-ar rcs $out $in
 
 
+build .\objects\windows-debug\aabounding.o:       compile .\source\aabounding.c
 build .\objects\windows-debug\buffer.o:           compile .\source\buffer.c
 build .\objects\windows-debug\dictionary.o:       compile .\source\dictionary.c
 build .\objects\windows-debug\endianness.o:       compile .\source\endianness.c
@@ -31,6 +32,7 @@ build .\objects\windows-debug\vector.o:           compile .\source\vector.c
 
 # Shared library
 build libjapan-dbg.dll: link $
+.\objects\windows-debug\aabounding.o $
 .\objects\windows-debug\buffer.o $
 .\objects\windows-debug\dictionary.o $
 .\objects\windows-debug\endianness.o $
@@ -50,6 +52,7 @@ build libjapan-dbg.dll: link $
 
 # Static library
 build libjapan-w-dbg.a: pack $
+.\objects\windows-debug\aabounding.o $
 .\objects\windows-debug\buffer.o $
 .\objects\windows-debug\dictionary.o $
 .\objects\windows-debug\endianness.o $

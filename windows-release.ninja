@@ -12,6 +12,7 @@ rule pack
  command = llvm-ar rcs $out $in
 
 
+build .\objects\windows-release\aabounding.o:       compile .\source\aabounding.c
 build .\objects\windows-release\buffer.o:           compile .\source\buffer.c
 build .\objects\windows-release\dictionary.o:       compile .\source\dictionary.c
 build .\objects\windows-release\endianness.o:       compile .\source\endianness.c
@@ -31,6 +32,7 @@ build .\objects\windows-release\vector.o:           compile .\source\vector.c
 
 # Shared library
 build libjapan.dll: link $
+.\objects\windows-release\aabounding.o $
 .\objects\windows-release\buffer.o $
 .\objects\windows-release\dictionary.o $
 .\objects\windows-release\endianness.o $
@@ -50,6 +52,7 @@ build libjapan.dll: link $
 
 # Static library
 build libjapan-w.a: pack $
+.\objects\windows-release\aabounding.o $
 .\objects\windows-release\buffer.o $
 .\objects\windows-release\dictionary.o $
 .\objects\windows-release\endianness.o $

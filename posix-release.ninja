@@ -17,6 +17,7 @@ rule pack
 
 
 # Shared library
+build ./objects/posix-release/so/aabounding.o:       compile_so ./source/aabounding.c
 build ./objects/posix-release/so/buffer.o:           compile_so ./source/buffer.c
 build ./objects/posix-release/so/dictionary.o:       compile_so ./source/dictionary.c
 build ./objects/posix-release/so/endianness.o:       compile_so ./source/endianness.c
@@ -34,6 +35,7 @@ build ./objects/posix-release/so/utilities.o:        compile_so ./source/utiliti
 build ./objects/posix-release/so/vector.o:           compile_so ./source/vector.c
 
 build libjapan.so: link $
+./objects/posix-release/so/aabounding.o $
 ./objects/posix-release/so/buffer.o $
 ./objects/posix-release/so/dictionary.o $
 ./objects/posix-release/so/endianness.o $
@@ -52,6 +54,7 @@ build libjapan.so: link $
 
 
 # Static library
+build ./objects/posix-release/a/aabounding.o:       compile_a ./source/aabounding.c
 build ./objects/posix-release/a/buffer.o:           compile_a ./source/buffer.c
 build ./objects/posix-release/a/dictionary.o:       compile_a ./source/dictionary.c
 build ./objects/posix-release/a/endianness.o:       compile_a ./source/endianness.c
@@ -69,6 +72,7 @@ build ./objects/posix-release/a/utilities.o:        compile_a ./source/utilities
 build ./objects/posix-release/a/vector.o:           compile_a ./source/vector.c
 
 build libjapan-p.a: pack $
+./objects/posix-release/a/aabounding.o $
 ./objects/posix-release/a/buffer.o $
 ./objects/posix-release/a/dictionary.o $
 ./objects/posix-release/a/endianness.o $
