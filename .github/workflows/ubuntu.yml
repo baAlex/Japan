@@ -1,0 +1,19 @@
+name: UbuntuCI
+
+on: [push]
+
+jobs:
+  Ubuntu:
+    name: "Ubuntu"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install ninja-build
+    - name: Compile posix-release build
+      run: ninja -f posix-release.ninja
+    - name: Compile posix-debug build
+      run: ninja -f posix-debug.ninja

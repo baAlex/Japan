@@ -1,5 +1,8 @@
 Japan
 =====
+![Ubuntu CI](https://github.com/baAlex/Japan/workflows/UbuntuCI/badge.svg)
+![Windows CI](https://github.com/baAlex/Japan/workflows/WindowsCI/badge.svg) (CI broken 😐)
+
 Personal C library.
 
 
