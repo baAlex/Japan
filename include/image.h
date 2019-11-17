@@ -12,9 +12,9 @@
 #endif
 
 #if defined(EXPORT_SYMBOLS) && defined(_WIN32)
-#define DLL_EXP __declspec(dllexport)
+#define JAPAN_API __declspec(dllexport)
 #else
-#define DLL_EXP // Whitespace
+#define JAPAN_API // Whitespace
 #endif
 
 #ifndef IMAGE_H
@@ -68,17 +68,17 @@
 		size_t data_offset;
 	};
 
-	DLL_EXP struct Image* ImageCreate(enum ImageFormat, size_t width, size_t height);
-	DLL_EXP void ImageDelete(struct Image* image);
+	JAPAN_API struct Image* ImageCreate(enum ImageFormat, size_t width, size_t height);
+	JAPAN_API void ImageDelete(struct Image* image);
 
-	DLL_EXP struct Image* ImageLoad(const char* filename, struct Status*);
-	DLL_EXP struct Status ImageSaveSgi(struct Image* image, const char* filename);
-	DLL_EXP struct Status ImageSaveRaw(struct Image* image, const char* filename);
+	JAPAN_API struct Image* ImageLoad(const char* filename, struct Status*);
+	JAPAN_API struct Status ImageSaveSgi(struct Image* image, const char* filename);
+	JAPAN_API struct Status ImageSaveRaw(struct Image* image, const char* filename);
 
-	DLL_EXP int ImageExLoad(FILE* file, struct ImageEx* out, struct Status*);
+	JAPAN_API int ImageExLoad(FILE* file, struct ImageEx* out, struct Status*);
 
-	DLL_EXP int ImageBytesPerPixel(enum ImageFormat);
-	DLL_EXP int ImageBitsPerComponent(enum ImageFormat);
-	DLL_EXP int ImageChannels(enum ImageFormat);
+	JAPAN_API int ImageBytesPerPixel(enum ImageFormat);
+	JAPAN_API int ImageBitsPerComponent(enum ImageFormat);
+	JAPAN_API int ImageChannels(enum ImageFormat);
 
 #endif

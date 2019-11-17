@@ -12,9 +12,9 @@
 #endif
 
 #if defined(EXPORT_SYMBOLS) && defined(_WIN32)
-#define DLL_EXP __declspec(dllexport)
+#define JAPAN_API __declspec(dllexport)
 #else
-#define DLL_EXP // Whitespace
+#define JAPAN_API // Whitespace
 #endif
 
 #ifndef ENDIANNESS_H
@@ -29,45 +29,45 @@
 		ENDIAN_BIG
 	};
 
-	DLL_EXP enum Endianness EndianSystem();
+	JAPAN_API enum Endianness EndianSystem();
 
-	DLL_EXP uint64_t EndianReverse_u64(uint64_t value);
-	DLL_EXP uint32_t EndianReverse_u32(uint32_t value);
-	DLL_EXP uint16_t EndianReverse_u16(uint16_t value);
+	JAPAN_API uint64_t EndianReverseU64(uint64_t value);
+	JAPAN_API uint32_t EndianReverseU32(uint32_t value);
+	JAPAN_API uint16_t EndianReverseU16(uint16_t value);
 
-	DLL_EXP int64_t EndianReverse_i64(int64_t value);
-	DLL_EXP int32_t EndianReverse_i32(int32_t value);
-	DLL_EXP int16_t EndianReverse_i16(int16_t value);
+	JAPAN_API int64_t EndianReverseI64(int64_t value);
+	JAPAN_API int32_t EndianReverseI32(int32_t value);
+	JAPAN_API int16_t EndianReverseI16(int16_t value);
 
-	DLL_EXP uint64_t EndianTo_u64(uint64_t value, enum Endianness from, enum Endianness to);
-	DLL_EXP uint32_t EndianTo_u32(uint32_t value, enum Endianness from, enum Endianness to);
-	DLL_EXP uint16_t EndianTo_u16(uint16_t value, enum Endianness from, enum Endianness to);
+	JAPAN_API uint64_t EndianToU64(uint64_t value, enum Endianness from, enum Endianness to);
+	JAPAN_API uint32_t EndianToU32(uint32_t value, enum Endianness from, enum Endianness to);
+	JAPAN_API uint16_t EndianToU16(uint16_t value, enum Endianness from, enum Endianness to);
 
-	DLL_EXP int64_t EndianTo_i64(int64_t value, enum Endianness from, enum Endianness to);
-	DLL_EXP int32_t EndianTo_i32(int32_t value, enum Endianness from, enum Endianness to);
-	DLL_EXP int16_t EndianTo_i16(int16_t value, enum Endianness from, enum Endianness to);
+	JAPAN_API int64_t EndianToI64(int64_t value, enum Endianness from, enum Endianness to);
+	JAPAN_API int32_t EndianToI32(int32_t value, enum Endianness from, enum Endianness to);
+	JAPAN_API int16_t EndianToI16(int16_t value, enum Endianness from, enum Endianness to);
 
 
 	#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
 	#define EndianReverse(value) _Generic((value), \
-		uint64_t: EndianReverse_u64, \
-		uint32_t: EndianReverse_u32, \
-		uint16_t: EndianReverse_u16, \
-		int64_t: EndianReverse_i64, \
-		int32_t: EndianReverse_i32, \
-		int16_t: EndianReverse_i16, \
-		default: EndianReverse_i32 \
+		uint64_t: EndianReverseU64, \
+		uint32_t: EndianReverseU32, \
+		uint16_t: EndianReverseU16, \
+		int64_t: EndianReverseI64, \
+		int32_t: EndianReverseI32, \
+		int16_t: EndianReverseI16, \
+		default: EndianReverseI32 \
 	)(value)
 
 	#define EndianTo(value, from, to) _Generic((value), \
-		uint64_t: EndianTo_u64, \
-		uint32_t: EndianTo_u32, \
-		uint16_t: EndianTo_u16, \
-		int64_t: EndianTo_i64, \
-		int32_t: EndianTo_i32, \
-		int16_t: EndianTo_i16, \
-		default: EndianTo_i32 \
+		uint64_t: EndianToU64, \
+		uint32_t: EndianToU32, \
+		uint16_t: EndianToU16, \
+		int64_t: EndianToI64, \
+		int32_t: EndianToI32, \
+		int16_t: EndianToI16, \
+		default: EndianToI32 \
 	)(value, from, to)
 
 	 #endif

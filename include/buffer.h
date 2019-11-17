@@ -12,9 +12,9 @@
 #endif
 
 #if defined(EXPORT_SYMBOLS) && defined(_WIN32)
-#define DLL_EXP __declspec(dllexport)
+#define JAPAN_API __declspec(dllexport)
 #else
-#define DLL_EXP // Whitespace
+#define JAPAN_API // Whitespace
 #endif
 
 #ifndef BUFFER_H
@@ -28,8 +28,8 @@
 		size_t size;
 	};
 
-	DLL_EXP void BufferClean(struct Buffer* buffer);
-	DLL_EXP void* BufferResize(struct Buffer* buffer, size_t new_size);
-	DLL_EXP void* BufferResizeZero(struct Buffer* buffer, size_t new_size);
+	JAPAN_API void BufferClean(struct Buffer* buffer);
+	JAPAN_API void* BufferResize(struct Buffer* buffer, size_t new_size);
+	JAPAN_API void* BufferResizeZero(struct Buffer* buffer, size_t new_size);
 
 #endif

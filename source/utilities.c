@@ -46,39 +46,39 @@ EXPORT inline float RadToDeg(float value)
 }
 
 
-EXPORT inline int Max_i(int a, int b)
+EXPORT inline int MaxInt(int a, int b)
 {
 	return (a > b) ? a : b;
 }
 
-EXPORT inline size_t Max_z(size_t a, size_t b)
+EXPORT inline size_t MaxSizeT(size_t a, size_t b)
 {
 	return (a > b) ? a : b;
 }
 
-EXPORT inline float Max_f(float a, float b)
+EXPORT inline float MaxFloat(float a, float b)
 {
 	return (a > b) ? a : b;
 }
 
 
-EXPORT inline int Min_i(int a, int b)
+EXPORT inline int MinInt(int a, int b)
 {
 	return (a < b) ? a : b;
 }
 
-EXPORT inline size_t Min_z(size_t a, size_t b)
+EXPORT inline size_t MinSizeT(size_t a, size_t b)
 {
 	return (a < b) ? a : b;
 }
 
-EXPORT inline float Min_f(float a, float b)
+EXPORT inline float MinFloat(float a, float b)
 {
 	return (a < b) ? a : b;
 }
 
 
-EXPORT inline int Clamp_i(int v, int min, int max)
+EXPORT inline int ClampInt(int v, int min, int max)
 {
 	if (v > max)
 		return max;
@@ -89,7 +89,7 @@ EXPORT inline int Clamp_i(int v, int min, int max)
 	return v;
 }
 
-EXPORT inline size_t Clamp_z(size_t v, size_t min, size_t max)
+EXPORT inline size_t ClampSizeT(size_t v, size_t min, size_t max)
 {
 	if (v > max)
 		return max;
@@ -100,7 +100,7 @@ EXPORT inline size_t Clamp_z(size_t v, size_t min, size_t max)
 	return v;
 }
 
-EXPORT inline float Clamp_f(float v, float min, float max)
+EXPORT inline float ClampFloat(float v, float min, float max)
 {
 	if (v > max)
 		return max;

@@ -117,7 +117,7 @@ static int sReadUncompressed(FILE* file, struct Image* image)
 					if (fread(&pixel.u16, sizeof(uint16_t), 1, file) != 1)
 						return 1;
 
-					sPlotPixel_16(channel, (size_t)row, col, image, EndianTo_u16(pixel.u16, ENDIAN_BIG, sys_endianness));
+					sPlotPixel_16(channel, (size_t)row, col, image, EndianToU16(pixel.u16, ENDIAN_BIG, sys_endianness));
 				}
 		}
 	}
@@ -152,8 +152,8 @@ static int sReadCompressed_8(FILE* file, struct Image* image)
 
 	for (size_t i = 0; i < table_len; i++)
 	{
-		offset_table[i] = EndianTo_u32(offset_table[i], ENDIAN_BIG, ENDIAN_SYSTEM);
-		size_table[i] = EndianTo_u32(size_table[i], ENDIAN_BIG, ENDIAN_SYSTEM);
+		offset_table[i] = EndianToU32(offset_table[i], ENDIAN_BIG, ENDIAN_SYSTEM);
+		size_table[i] = EndianToU32(size_table[i], ENDIAN_BIG, ENDIAN_SYSTEM);
 	}
 
 	// Data
@@ -163,7 +163,7 @@ static int sReadCompressed_8(FILE* file, struct Image* image)
 		{
 			size_t col = 0;
 
-			if (fseek(file, offset_table[channel * image->height + (image->height - row - 1)], SEEK_SET) != 0)
+			if (fseek(file, (long)offset_table[channel * image->height + (image->height - row - 1)], SEEK_SET) != 0)
 				goto return_failure;
 
 			// RLE scanline
@@ -228,7 +228,7 @@ return_failure:
 -----------------------------*/
 bool CheckMagicSgi(uint16_t value)
 {
-	if (EndianTo_u16(value, ENDIAN_BIG, ENDIAN_SYSTEM) == SGI_MAGIC)
+	if (EndianToU16(value, ENDIAN_BIG, ENDIAN_SYSTEM) == SGI_MAGIC)
 		return true;
 
 	return false;
@@ -313,15 +313,15 @@ int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st)
 		return 1;
 	}
 
-	out->width = (size_t)EndianTo_u16(head.x_size, ENDIAN_BIG, sys_endianness);
-	out->height = (size_t)EndianTo_u16(head.y_size, ENDIAN_BIG, sys_endianness);
+	out->width = (size_t)EndianToU16(head.x_size, ENDIAN_BIG, sys_endianness);
+	out->height = (size_t)EndianToU16(head.y_size, ENDIAN_BIG, sys_endianness);
 	out->data_offset = 512;
 	out->endianness = ENDIAN_BIG;
 	out->compression = (head.compression == 0) ? IMAGE_UNCOMPRESSED_PLANAR : IMAGE_SGI_RLE;
 
-	head.z_size = EndianTo_u16(head.z_size, ENDIAN_BIG, sys_endianness);
+	head.z_size = EndianToU16(head.z_size, ENDIAN_BIG, sys_endianness);
 
-	switch (EndianTo_i32(head.pixel_type, ENDIAN_BIG, sys_endianness))
+	switch (EndianToI32(head.pixel_type, ENDIAN_BIG, sys_endianness))
 	{
 	case 1: StatusSet(st, "ImageExLoadSgi", STATUS_OBSOLETE_FEATURE, "dithered image"); return 1;
 	case 2: StatusSet(st, "ImageExLoadSgi", STATUS_OBSOLETE_FEATURE, "indexed image"); return 1;
@@ -329,7 +329,7 @@ int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st)
 	case 0: break;
 	}
 
-	switch (EndianTo_u16(head.dimension, ENDIAN_BIG, sys_endianness))
+	switch (EndianToU16(head.dimension, ENDIAN_BIG, sys_endianness))
 	{
 	case 1: // One dimensional grayscale image (only uses width/x_size)
 		out->height = 1;
@@ -416,14 +416,14 @@ EXPORT struct Status ImageSaveSgi(struct Image* image, const char* filename)
 	}
 
 	// Head
-	head.magic = EndianTo_i16(SGI_MAGIC, sys_endianness, ENDIAN_BIG);
+	head.magic = EndianToI16(SGI_MAGIC, sys_endianness, ENDIAN_BIG);
 	head.compression = 0;
 	head.precision = (int8_t)ImageBitsPerComponent(image->format) / 8;
-	head.dimension = EndianTo_u16(3, sys_endianness, ENDIAN_BIG);
+	head.dimension = EndianToU16(3, sys_endianness, ENDIAN_BIG);
 
-	head.x_size = EndianTo_u16((uint16_t)image->width, sys_endianness, ENDIAN_BIG);
-	head.y_size = EndianTo_u16((uint16_t)image->height, sys_endianness, ENDIAN_BIG);
-	head.z_size = EndianTo_u16((uint16_t)ImageChannels(image->format), sys_endianness, ENDIAN_BIG);
+	head.x_size = EndianToU16((uint16_t)image->width, sys_endianness, ENDIAN_BIG);
+	head.y_size = EndianToU16((uint16_t)image->height, sys_endianness, ENDIAN_BIG);
+	head.z_size = EndianToU16((uint16_t)ImageChannels(image->format), sys_endianness, ENDIAN_BIG);
 
 	head.pixel_type = 0;
 
@@ -475,7 +475,7 @@ EXPORT struct Status ImageSaveSgi(struct Image* image, const char* filename)
 				for (size_t col = 0; col < image->width; col++)
 				{
 					pixel =
-					    EndianTo_u16(src.u16[(image->width * (size_t)row + col) * channels], sys_endianness, ENDIAN_BIG);
+					    EndianToU16(src.u16[(image->width * (size_t)row + col) * channels], sys_endianness, ENDIAN_BIG);
 
 					if (fwrite(&pixel, sizeof(uint16_t), 1, file) != 1)
 					{

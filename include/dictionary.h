@@ -12,9 +12,9 @@
 #endif
 
 #if defined(EXPORT_SYMBOLS) && defined(_WIN32)
-#define DLL_EXP __declspec(dllexport)
+#define JAPAN_API __declspec(dllexport)
 #else
-#define DLL_EXP // Whitespace
+#define JAPAN_API // Whitespace
 #endif
 
 #ifndef DICTIONARY_H
@@ -33,15 +33,15 @@
 		char key[];
 	};
 
-	DLL_EXP struct Dictionary* DictionaryCreate(uint64_t (*hash_function)(const char*, size_t));
-	DLL_EXP void DictionaryDelete(struct Dictionary* dictionary);
+	JAPAN_API struct Dictionary* DictionaryCreate(uint64_t (*hash_function)(const char*, size_t));
+	JAPAN_API void DictionaryDelete(struct Dictionary* dictionary);
 
-	DLL_EXP struct DictionaryItem* DictionaryAdd(struct Dictionary* dictionary, const char* key, void* data, size_t data_size);
-	DLL_EXP struct DictionaryItem* DictionaryGet(const struct Dictionary* dictionary, const char* key);
+	JAPAN_API struct DictionaryItem* DictionaryAdd(struct Dictionary* dictionary, const char* key, void* data, size_t data_size);
+	JAPAN_API struct DictionaryItem* DictionaryGet(const struct Dictionary* dictionary, const char* key);
 
-	DLL_EXP void DictionaryRemove(struct DictionaryItem* item);
-	DLL_EXP int DictionaryDetach(struct DictionaryItem* item);
+	JAPAN_API void DictionaryRemove(struct DictionaryItem* item);
+	JAPAN_API int DictionaryDetach(struct DictionaryItem* item);
 
-	DLL_EXP void DictionaryIterate(struct Dictionary*, void (*callback)(struct DictionaryItem*, void*), void* extra_data);
+	JAPAN_API void DictionaryIterate(struct Dictionary*, void (*callback)(struct DictionaryItem*, void*), void* extra_data);
 
 #endif

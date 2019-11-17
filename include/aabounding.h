@@ -12,9 +12,9 @@
 #endif
 
 #if defined(EXPORT_SYMBOLS) && defined(_WIN32)
-#define DLL_EXP __declspec(dllexport)
+#define JAPAN_API __declspec(dllexport)
 #else
-#define DLL_EXP // Whitespace
+#define JAPAN_API // Whitespace
 #endif
 
 #ifndef AABOUNDING_H
@@ -46,17 +46,17 @@
 		float radius;
 	};
 
-	DLL_EXP bool AabCollisionRectRect(struct AabRectangle a, struct AabRectangle b);
-	DLL_EXP bool AabCollisionRectCircle(struct AabRectangle, struct Circle);
+	JAPAN_API bool AabCollisionRectRect(struct AabRectangle a, struct AabRectangle b);
+	JAPAN_API bool AabCollisionRectCircle(struct AabRectangle, struct Circle);
 
-	DLL_EXP bool AabCollisionBoxBox(struct AabBox a, struct AabBox b);
-	DLL_EXP bool AabCollisionBoxSphere(struct AabBox, struct Sphere);
+	JAPAN_API bool AabCollisionBoxBox(struct AabBox a, struct AabBox b);
+	JAPAN_API bool AabCollisionBoxSphere(struct AabBox, struct Sphere);
 
-	DLL_EXP struct AabRectangle AabToRectangle(struct AabBox);
-	DLL_EXP struct AabBox AabToBox(struct AabRectangle, float min_z, float max_z);
+	JAPAN_API struct AabRectangle AabToRectangle(struct AabBox);
+	JAPAN_API struct AabBox AabToBox(struct AabRectangle, float min_z, float max_z);
 
-	DLL_EXP struct Vector2 AabMiddleRect(struct AabRectangle);
-	DLL_EXP struct Vector3 AabMiddleBox(struct AabBox);
+	JAPAN_API struct Vector2 AabMiddleRect(struct AabRectangle);
+	JAPAN_API struct Vector3 AabMiddleBox(struct AabBox);
 
 
 	#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L

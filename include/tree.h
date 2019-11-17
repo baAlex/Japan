@@ -12,9 +12,9 @@
 #endif
 
 #if defined(EXPORT_SYMBOLS) && defined(_WIN32)
-#define DLL_EXP __declspec(dllexport)
+#define JAPAN_API __declspec(dllexport)
 #else
-#define DLL_EXP // Whitespace
+#define JAPAN_API // Whitespace
 #endif
 
 #ifndef TREE_H
@@ -51,12 +51,12 @@
 		struct Tree* future_parent[TREE_STACK_DEPTH];
 	};
 
-	DLL_EXP struct Tree* TreeCreate(struct Tree* parent, void* data, size_t data_size);
-	DLL_EXP void TreeDelete(struct Tree* tree);
+	JAPAN_API struct Tree* TreeCreate(struct Tree* parent, void* data, size_t data_size);
+	JAPAN_API void TreeDelete(struct Tree* tree);
 
-	DLL_EXP struct Tree* TreeIterate(struct TreeState* state, struct Buffer* buffer);
+	JAPAN_API struct Tree* TreeIterate(struct TreeState* state, struct Buffer* buffer);
 
-	DLL_EXP int TreeAttach(struct Tree* tree, struct Tree* new_parent);
-	DLL_EXP int TreeDetach(struct Tree* tree);
+	JAPAN_API int TreeAttach(struct Tree* tree, struct Tree* new_parent);
+	JAPAN_API int TreeDetach(struct Tree* tree);
 
 #endif

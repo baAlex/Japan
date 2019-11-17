@@ -453,9 +453,6 @@ EXPORT struct DictionaryItem* DictionaryGet(const struct Dictionary* dictionary,
 		uint64_t hash = 0;
 		size_t address = sGetAddress(dictionary, key, &hash);
 
-		DEBUG_PRINT("(DictionaryGet) key: '%s', address: %03zu, hash: 0x%016lX\n", key, address,
-		            (long)hash); // The long cast is a HACK!
-
 		state.bucket = &dictionary->buckets[address];
 		while (sCycleBucket(&state, &item_slot) != 1)
 		{

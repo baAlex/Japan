@@ -72,17 +72,17 @@ int WritePcm(FILE* file, struct Sound* sound, enum Endianness dest_endianness)
 		{
 			if (sound->format == SOUND_I16)
 			{
-				sample.u16 = EndianTo_u16(*src.u16, sys_endianness, dest_endianness);
+				sample.u16 = EndianToU16(*src.u16, sys_endianness, dest_endianness);
 				src.u16++;
 			}
 			else if (sound->format == SOUND_I32 || sound->format == SOUND_F32)
 			{
-				sample.u32 = EndianTo_u32(*src.u32, sys_endianness, dest_endianness);
+				sample.u32 = EndianToU32(*src.u32, sys_endianness, dest_endianness);
 				src.u32++;
 			}
 			else if (sound->format == SOUND_F64)
 			{
-				sample.u64 = EndianTo_u64(*src.u64, sys_endianness, dest_endianness);
+				sample.u64 = EndianToU64(*src.u64, sys_endianness, dest_endianness);
 				src.u64++;
 			}
 
@@ -327,17 +327,17 @@ EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, vo
 
 				if (ex.format == SOUND_I16)
 				{
-					*dest.i16 = EndianTo_i16(*dest.i16, ex.endianness, sys_endianness);
+					*dest.i16 = EndianToI16(*dest.i16, ex.endianness, sys_endianness);
 					dest.i16++;
 				}
 				else if (ex.format == SOUND_I32 || ex.format == SOUND_F32)
 				{
-					*dest.i32 = EndianTo_i32(*dest.i32, ex.endianness, sys_endianness);
+					*dest.i32 = EndianToI32(*dest.i32, ex.endianness, sys_endianness);
 					dest.i32++;
 				}
 				else if (ex.format == SOUND_F64)
 				{
-					*dest.u64 = EndianTo_u64(*dest.u64, ex.endianness, sys_endianness);
+					*dest.u64 = EndianToU64(*dest.u64, ex.endianness, sys_endianness);
 					dest.u64++;
 				}
 			}

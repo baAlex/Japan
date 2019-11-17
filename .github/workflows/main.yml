@@ -25,16 +25,12 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: Install dependencies
-      shell: cmd
       run: |
         choco install ninja llvm
         refreshenv
     - name: Information
-      shell: cmd
       run: clang -v
     - name: Compile windows-release build
-      shell: cmd
       run: ninja -f windows-release.ninja
     - name: Compile windows-debug build
-      shell: cmd
       run: ninja -f windows-debug.ninja

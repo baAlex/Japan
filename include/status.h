@@ -12,9 +12,9 @@
 #endif
 
 #if defined(EXPORT_SYMBOLS) && defined(_WIN32)
-#define DLL_EXP __declspec(dllexport)
+#define JAPAN_API __declspec(dllexport)
 #else
-#define DLL_EXP // Whitespace
+#define JAPAN_API // Whitespace
 #endif
 
 #ifndef STATUS_H
@@ -52,7 +52,7 @@
 		char explanation[STATUS_EXPLANATION_LENGTH];
 	};
 
-	DLL_EXP void StatusSet(struct Status* st, const char* function_name, enum StatusCode code, const char* explanation_fmt, ...);
-	DLL_EXP int StatusPrint(const char* app_name, struct Status st);
+	JAPAN_API void StatusSet(struct Status* st, const char* function_name, enum StatusCode code, const char* explanation_fmt, ...);
+	JAPAN_API int StatusPrint(const char* app_name, struct Status st);
 
 #endif

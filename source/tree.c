@@ -71,7 +71,7 @@ EXPORT struct Tree* TreeIterate(struct TreeState* state, struct Buffer* buffer)
 			}
 			else if (buffer != NULL)
 			{
-				if (BufferResize(buffer, state->depth * sizeof(void*)) == NULL)
+				if (BufferResize(buffer, (state->depth + 1) * sizeof(void*)) == NULL)
 					return NULL;
 
 				future_parent_heap = buffer->data;

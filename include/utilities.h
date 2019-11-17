@@ -12,9 +12,9 @@
 #endif
 
 #if defined(EXPORT_SYMBOLS) && defined(_WIN32)
-#define DLL_EXP __declspec(dllexport)
+#define JAPAN_API __declspec(dllexport)
 #else
-#define DLL_EXP // Whitespace
+#define JAPAN_API // Whitespace
 #endif
 
 #ifndef UTILITIES_H
@@ -24,43 +24,43 @@
 	#define M_PI 3.14159265358979323846264338327950288f
 	#endif
 
-	DLL_EXP float DegToRad(float value);
-	DLL_EXP float RadToDeg(float value);
+	JAPAN_API float DegToRad(float value);
+	JAPAN_API float RadToDeg(float value);
 
-	DLL_EXP int Max_i(int a, int b);
-	DLL_EXP size_t Max_z(size_t a, size_t b);
-	DLL_EXP float Max_f(float a, float b);
+	JAPAN_API int MaxInt(int a, int b);
+	JAPAN_API size_t MaxSizeT(size_t a, size_t b);
+	JAPAN_API float MaxFloat(float a, float b);
 
-	DLL_EXP int Min_i(int a, int b);
-	DLL_EXP size_t Min_z(size_t a, size_t b);
-	DLL_EXP float Min_f(float a, float b);
+	JAPAN_API int MinInt(int a, int b);
+	JAPAN_API size_t MinSizeT(size_t a, size_t b);
+	JAPAN_API float MinFloat(float a, float b);
 
-	DLL_EXP int Clamp_i(int v, int min, int max);
-	DLL_EXP size_t Clamp_z(size_t v, size_t min, size_t max);
-	DLL_EXP float Clamp_f(float v, float min, float max);
+	JAPAN_API int ClampInt(int v, int min, int max);
+	JAPAN_API size_t ClampSizeT(size_t v, size_t min, size_t max);
+	JAPAN_API float ClampFloat(float v, float min, float max);
 
 
 	#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
 	#define Max(a, b) _Generic((a), \
-			int: Max_i, \
-			size_t: Max_z, \
-			float: Max_f, \
-			default: Max_i \
+			int: MaxInt, \
+			size_t: MaxSizeT, \
+			float: MaxFloat, \
+			default: MaxInt \
 		)(a, b)
 
 	#define Min(a, b) _Generic((a), \
-			int: Min_i, \
-			size_t: Min_z, \
-			float: Min_f, \
-			default: Min_i \
+			int: MinInt, \
+			size_t: MinSizeT, \
+			float: MinFloat, \
+			default: MinInt \
 		)(a, b)
 
 	#define Clamp(value, min, max) _Generic((value), \
-			int: Clamp_i, \
-			size_t: Clamp_z, \
-			float: Clamp_f, \
-			default: Clamp_i \
+			int: ClampInt, \
+			size_t: ClampSizeT, \
+			float: ClampFloat, \
+			default: ClampInt \
 		)(value, min, max)
 
 	#endif
