@@ -11,8 +11,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        choco install ninja llvm
-        refreshenv
+        choco install ninja
     - name: Information
       run: clang -v
     - name: Compile windows-release build
