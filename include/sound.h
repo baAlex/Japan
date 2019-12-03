@@ -27,6 +27,13 @@
 	#include "endianness.h"
 	#include "status.h"
 
+	enum SoundStorage
+	{
+		SOUND_UNCOMPRESSED = 0,
+		SOUND_ALAW,
+		SOUND_ULAW
+	};
+
 	enum SoundFormat
 	{
 		SOUND_I8 = 0,
@@ -34,13 +41,6 @@
 		SOUND_I32,
 		SOUND_F32,
 		SOUND_F64
-	};
-
-	enum SoundCompression
-	{
-		SOUND_UNCOMPRESSED = 0,
-		SOUND_ALAW,
-		SOUND_ULAW
 	};
 
 	struct Sound
@@ -58,16 +58,17 @@
 	{
 		size_t frequency;
 		size_t channels;
-		size_t length;            // In frames
-		size_t uncompressed_size; // In bytes
-		size_t minimum_unit_size; // In bytes
+		size_t length;            // In frames, ignored by SoundExLoadRaw() if set to 0
+
+		size_t uncompressed_size; // In bytes, ignored by SoundExLoadRaw()
+		size_t minimum_unit_size; // In bytes, ignored by SoundExLoadRaw()
 
 		enum Endianness endianness;
-		enum SoundCompression compression;
+		enum SoundStorage storage;
 		enum SoundFormat format;
 
 		bool unsigned_8bit;
-		bool unspecified_size;
+		bool unspecified_size; // Ignored by SoundExLoadRaw()
 
 		size_t data_offset;
 	};
@@ -76,10 +77,11 @@
 	JAPAN_API void SoundDelete(struct Sound* sound);
 
 	JAPAN_API struct Sound* SoundLoad(const char* filename, struct Status*);
-	JAPAN_API struct Status SoundSaveAu(struct Sound* sound, const char* filename);
-	JAPAN_API struct Status SoundSaveWav(struct Sound* sound, const char* filename);
-	JAPAN_API struct Status SoundSaveRaw(struct Sound* sound, const char* filename);
+	JAPAN_API int SoundSaveAu(const struct Sound* sound, const char* filename, struct Status*);
+	JAPAN_API int SoundSaveWav(const struct Sound* sound, const char* filename, struct Status*);
+	JAPAN_API int SoundSaveRaw(const struct Sound* sound, const char* filename, struct Status*);
 
+	JAPAN_API struct Sound* SoundLoadRaw(FILE* file, const struct SoundEx* in, struct Status*);
 	JAPAN_API int SoundExLoad(FILE* file, struct SoundEx* out, struct Status*);
 	JAPAN_API size_t SoundExRead(FILE* file, struct SoundEx ex, size_t out_size, void* out, struct Status*);
 

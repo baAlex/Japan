@@ -20,8 +20,14 @@
 #ifndef UTILITIES_H
 #define UTILITIES_H
 
+	#include <stddef.h>
+
 	#ifndef M_PI
 	#define M_PI 3.14159265358979323846264338327950288f
+	#endif
+
+	#ifndef M_2PI
+	#define M_2PI (3.14159265358979323846264338327950288f * 2.0f)
 	#endif
 
 	JAPAN_API float DegToRad(float value);

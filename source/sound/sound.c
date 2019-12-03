@@ -39,7 +39,7 @@ SOFTWARE.
 
  WritePcm()
 -----------------------------*/
-int WritePcm(FILE* file, struct Sound* sound, enum Endianness dest_endianness)
+int WritePcm(FILE* file, const struct Sound* sound, enum Endianness dest_endianness)
 {
 	enum Endianness sys_endianness = EndianSystem();
 	size_t bps = (size_t)SoundBps(sound->format);
@@ -139,7 +139,7 @@ EXPORT struct Sound* SoundLoad(const char* filename, struct Status* st)
 	struct Sound* sound = NULL;
 	uint32_t magic = 0;
 
-	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
+	StatusSet(st, "SoundLoad", STATUS_SUCCESS, NULL);
 
 	if ((file = fopen(filename, "rb")) == NULL)
 	{
@@ -182,7 +182,7 @@ EXPORT struct Sound* SoundLoad(const char* filename, struct Status* st)
 	DEBUG_PRINT(" - Uncompressed size: %zu bytes\n", ex.uncompressed_size);
 	DEBUG_PRINT(" - Minimum unit size: %zu bytes\n", ex.minimum_unit_size);
 	DEBUG_PRINT(" - Endianness: %s\n", (ex.endianness == ENDIAN_LITTLE) ? "little" : "big");
-	DEBUG_PRINT(" - Compression: %i\n", ex.compression);
+	DEBUG_PRINT(" - Storage: %i\n", ex.storage);
 	DEBUG_PRINT(" - Format: %i\n", ex.format);
 	DEBUG_PRINT(" - Data offset: 0x%zX\n", ex.data_offset);
 
@@ -217,26 +217,27 @@ return_failure:
 
  SoundSaveRaw()
 -----------------------------*/
-EXPORT struct Status SoundSaveRaw(struct Sound* sound, const char* filename)
+EXPORT int SoundSaveRaw(const struct Sound* sound, const char* filename, struct Status* st)
 {
-	struct Status st = {.code = STATUS_SUCCESS};
 	FILE* file = NULL;
+
+	StatusSet(st, "SoundSaveRaw", STATUS_SUCCESS, NULL);
 
 	if ((file = fopen(filename, "wb")) == NULL)
 	{
-		StatusSet(&st, "SoundSaveRaw", STATUS_FS_ERROR, "'%s'", filename);
-		return st;
+		StatusSet(st, "SoundSaveRaw", STATUS_FS_ERROR, "'%s'", filename);
+		return 1;
 	}
 
 	if (fwrite(sound->data, sound->size, 1, file) != 1)
 	{
-		StatusSet(&st, "SoundSaveRaw", STATUS_IO_ERROR, "'%s'", filename);
+		StatusSet(st, "SoundSaveRaw", STATUS_IO_ERROR, "'%s'", filename);
 		fclose(file);
-		return st;
+		return 1;
 	}
 
 	fclose(file);
-	return st;
+	return 0;
 }
 
 
@@ -248,7 +249,7 @@ EXPORT int SoundExLoad(FILE* file, struct SoundEx* out, struct Status* st)
 {
 	uint32_t magic = 0;
 
-	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
+	StatusSet(st, "SoundExLoad", STATUS_SUCCESS, NULL);
 
 	if (fread(&magic, sizeof(uint32_t), 1, file) != 1)
 	{
@@ -287,7 +288,7 @@ EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, vo
 		uint64_t* u64;
 	} dest;
 
-	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
+	StatusSet(st, "SoundExRead", STATUS_SUCCESS, NULL);
 	dest.raw = out;
 
 	if ((size_to_read % ex.minimum_unit_size) != 0)
@@ -296,7 +297,7 @@ EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, vo
 		size_to_read -= (size_to_read % ex.minimum_unit_size);
 	}
 
-	if (ex.compression == SOUND_UNCOMPRESSED)
+	if (ex.storage == SOUND_UNCOMPRESSED)
 	{
 		if (fread(dest.raw, size_to_read, 1, file) != 1)
 		{
@@ -355,9 +356,9 @@ EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, vo
 				goto return_failure;
 			}
 
-			if (ex.compression == SOUND_ALAW)
+			if (ex.storage == SOUND_ALAW)
 				*dest.i16 = AlawToInt16(compressed);
-			else if (ex.compression == SOUND_ULAW)
+			else if (ex.storage == SOUND_ULAW)
 				*dest.i16 = UlawToInt16(compressed);
 
 			dest.i16++;

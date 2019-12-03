@@ -244,7 +244,7 @@ struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Status* st)
 	struct ImageEx ex = {0};
 	struct Image* image = NULL;
 
-	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
+	StatusSet(st, "ImageLoadSgi", STATUS_SUCCESS, NULL);
 
 	if (ImageExLoadSgi(file, &ex, st) != 0)
 		goto return_failure;
@@ -253,7 +253,7 @@ struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Status* st)
 	DEBUG_PRINT(" - Dimensions: %zux%zu px\n", ex.width, ex.height);
 	DEBUG_PRINT(" - Uncompressed size: %zu bytes\n", ex.uncompressed_size);
 	DEBUG_PRINT(" - Endianness: %s\n", (ex.endianness == ENDIAN_LITTLE) ? "little" : "big");
-	DEBUG_PRINT(" - Compression: %s (%u)\n", (ex.compression == IMAGE_SGI_RLE) ? "rle" : "none", ex.compression);
+	DEBUG_PRINT(" - Storage: %s (%u)\n", (ex.storage == IMAGE_SGI_RLE) ? "sgi rle" : "planar", ex.storage);
 	DEBUG_PRINT(" - Format: %i\n", ex.format);
 	DEBUG_PRINT(" - Data offset: 0x%zX\n", ex.data_offset);
 
@@ -266,7 +266,7 @@ struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Status* st)
 	if ((image = ImageCreate(ex.format, ex.width, ex.height)) == NULL)
 		goto return_failure;
 
-	if (ex.compression == IMAGE_SGI_RLE)
+	if (ex.storage == IMAGE_SGI_RLE)
 	{
 		if (ImageBitsPerComponent(ex.format) == 8 && sReadCompressed_8(file, image) != 0)
 		{
@@ -305,7 +305,7 @@ int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st)
 	struct SgiHead head;
 	enum Endianness sys_endianness = EndianSystem();
 
-	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
+	StatusSet(st, "ImageExLoadSgi", STATUS_SUCCESS, NULL);
 
 	if (fread(&head, sizeof(struct SgiHead), 1, file) != 1)
 	{
@@ -317,7 +317,7 @@ int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st)
 	out->height = (size_t)EndianToU16(head.y_size, ENDIAN_BIG, sys_endianness);
 	out->data_offset = 512;
 	out->endianness = ENDIAN_BIG;
-	out->compression = (head.compression == 0) ? IMAGE_UNCOMPRESSED_PLANAR : IMAGE_SGI_RLE;
+	out->storage = (head.compression == 0) ? IMAGE_UNCOMPRESSED_PLANAR : IMAGE_SGI_RLE;
 
 	head.z_size = EndianToU16(head.z_size, ENDIAN_BIG, sys_endianness);
 
@@ -388,31 +388,32 @@ int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st)
 
  ImageSaveSgi()
 -----------------------------*/
-EXPORT struct Status ImageSaveSgi(struct Image* image, const char* filename)
+EXPORT int ImageSaveSgi(const struct Image* image, const char* filename, struct Status* st)
 {
-	struct Status st = {.code = STATUS_SUCCESS};
 	struct SgiHead head = {0};
 	FILE* file = NULL;
 	enum Endianness sys_endianness = EndianSystem();
 
+	StatusSet(st, "ImageSaveSgi", STATUS_SUCCESS, NULL);
+
 	if (image->width > UINT16_MAX || image->height > UINT16_MAX)
 	{
-		StatusSet(&st, "ImageSaveSgi", STATUS_UNSUPPORTED_FEATURE, "image dimensions ('%s')", filename);
-		return st;
+		StatusSet(st, "ImageSaveSgi", STATUS_UNSUPPORTED_FEATURE, "image dimensions ('%s')", filename);
+		return 1;
 	}
 
 	if (image->format != IMAGE_GRAY8 && image->format != IMAGE_GRAYA8 && image->format != IMAGE_RGB8 &&
 	    image->format != IMAGE_RGBA8 && image->format != IMAGE_GRAY16 && image->format != IMAGE_GRAYA16 &&
 	    image->format != IMAGE_RGB16 && image->format != IMAGE_RGBA16)
 	{
-		StatusSet(&st, "ImageSaveSgi", STATUS_UNSUPPORTED_FEATURE, "image format ('%s')", filename);
-		return st;
+		StatusSet(st, "ImageSaveSgi", STATUS_UNSUPPORTED_FEATURE, "image format ('%s')", filename);
+		return 1;
 	}
 
 	if ((file = fopen(filename, "wb")) == NULL)
 	{
-		StatusSet(&st, "ImageSaveSgi", STATUS_FS_ERROR, "'%s'", filename);
-		return st;
+		StatusSet(st, "ImageSaveSgi", STATUS_FS_ERROR, "'%s'", filename);
+		return 1;
 	}
 
 	// Head
@@ -429,7 +430,7 @@ EXPORT struct Status ImageSaveSgi(struct Image* image, const char* filename)
 
 	if (fwrite(&head, sizeof(struct SgiHead), 1, file) != 1)
 	{
-		StatusSet(&st, "ImageSaveSgi", STATUS_IO_ERROR, "head ('%s')", filename);
+		StatusSet(st, "ImageSaveSgi", STATUS_IO_ERROR, "head ('%s')", filename);
 		goto return_failure;
 	}
 
@@ -446,7 +447,7 @@ EXPORT struct Status ImageSaveSgi(struct Image* image, const char* filename)
 
 	if (fseek(file, 512, SEEK_SET) != 0) // Data start at offset 512
 	{
-		StatusSet(&st, "ImageSaveSgi", STATUS_IO_ERROR, "at data seek ('%s')", filename);
+		StatusSet(st, "ImageSaveSgi", STATUS_IO_ERROR, "at data seek ('%s')", filename);
 		goto return_failure;
 	}
 
@@ -461,7 +462,7 @@ EXPORT struct Status ImageSaveSgi(struct Image* image, const char* filename)
 				{
 					if (fwrite(&src.u8[(image->width * (size_t)row + col) * channels], 1, 1, file) != 1)
 					{
-						StatusSet(&st, "ImageSaveSgi", STATUS_IO_ERROR, "data ('%s')", filename);
+						StatusSet(st, "ImageSaveSgi", STATUS_IO_ERROR, "data ('%s')", filename);
 						goto return_failure;
 					}
 				}
@@ -479,7 +480,7 @@ EXPORT struct Status ImageSaveSgi(struct Image* image, const char* filename)
 
 					if (fwrite(&pixel, sizeof(uint16_t), 1, file) != 1)
 					{
-						StatusSet(&st, "ImageSaveSgi", STATUS_IO_ERROR, "data ('%s')", filename);
+						StatusSet(st, "ImageSaveSgi", STATUS_IO_ERROR, "data ('%s')", filename);
 						goto return_failure;
 					}
 				}
@@ -488,9 +489,9 @@ EXPORT struct Status ImageSaveSgi(struct Image* image, const char* filename)
 
 	// Bye!
 	fclose(file);
-	return st;
+	return 0;
 
 return_failure:
 	fclose(file);
-	return st;
+	return 1;
 }

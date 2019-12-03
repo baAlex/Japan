@@ -19,7 +19,7 @@
 	int SoundExLoadAu(FILE* file, struct SoundEx* out, struct Status* st);
 	int SoundExLoadWav(FILE* file, struct SoundEx* out, struct Status* st);
 
-	int WritePcm(FILE* file, struct Sound* sound, enum Endianness);
+	int WritePcm(FILE* file, const struct Sound* sound, enum Endianness);
 
 	int16_t AlawToInt16(uint8_t compressed);
 	int16_t UlawToInt16(uint8_t compressed);

@@ -83,7 +83,7 @@ int SoundExLoadAu(FILE* file, struct SoundEx* out, struct Status* st)
 	struct AuHead head;
 	enum Endianness sys_endianness = EndianSystem();
 
-	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
+	StatusSet(st, "SoundExLoadAu", STATUS_SUCCESS, NULL);
 
 	if (fread(&head, sizeof(struct AuHead), 1, file) != 1)
 	{
@@ -122,44 +122,44 @@ int SoundExLoadAu(FILE* file, struct SoundEx* out, struct Status* st)
 	case AU_PCM8:
 		out->length = out->uncompressed_size / out->channels;
 		out->format = SOUND_I8;
-		out->compression = SOUND_UNCOMPRESSED;
+		out->storage = SOUND_UNCOMPRESSED;
 		out->minimum_unit_size = sizeof(int8_t);
 		break;
 	case AU_PCM16:
 		out->length = out->uncompressed_size / sizeof(int16_t) / out->channels;
 		out->format = SOUND_I16;
-		out->compression = SOUND_UNCOMPRESSED;
+		out->storage = SOUND_UNCOMPRESSED;
 		out->minimum_unit_size = sizeof(int16_t);
 		break;
 	case AU_PCM32:
 		out->length = out->uncompressed_size / sizeof(int32_t) / out->channels;
 		out->format = SOUND_I32;
-		out->compression = SOUND_UNCOMPRESSED;
+		out->storage = SOUND_UNCOMPRESSED;
 		out->minimum_unit_size = sizeof(int32_t);
 		break;
 	case AU_FLOAT:
 		out->length = out->uncompressed_size / sizeof(float) / out->channels;
 		out->format = SOUND_F32;
-		out->compression = SOUND_UNCOMPRESSED;
+		out->storage = SOUND_UNCOMPRESSED;
 		out->minimum_unit_size = sizeof(float);
 		break;
 	case AU_DOUBLE:
 		out->length = out->uncompressed_size / sizeof(double) / out->channels;
 		out->format = SOUND_F64;
-		out->compression = SOUND_UNCOMPRESSED;
+		out->storage = SOUND_UNCOMPRESSED;
 		out->minimum_unit_size = sizeof(double);
 		break;
 	case AU_ULAW:
 		out->length = out->uncompressed_size / out->channels;
 		out->format = SOUND_I16;
-		out->compression = SOUND_ULAW;
+		out->storage = SOUND_ULAW;
 		out->minimum_unit_size = sizeof(int16_t);
 		out->uncompressed_size = out->uncompressed_size * 2;
 		break;
 	case AU_ALAW:
 		out->length = out->uncompressed_size / out->channels;
 		out->format = SOUND_I16;
-		out->compression = SOUND_ALAW;
+		out->storage = SOUND_ALAW;
 		out->minimum_unit_size = sizeof(int16_t);
 		out->uncompressed_size = out->uncompressed_size * 2;
 		break;
@@ -175,23 +175,24 @@ int SoundExLoadAu(FILE* file, struct SoundEx* out, struct Status* st)
 
  SoundSaveAu()
 -----------------------------*/
-EXPORT struct Status SoundSaveAu(struct Sound* sound, const char* filename)
+EXPORT int SoundSaveAu(const struct Sound* sound, const char* filename, struct Status* st)
 {
-	struct Status st = {.code = STATUS_SUCCESS};
 	struct AuHead head;
 	FILE* file = NULL;
 	enum Endianness sys_endianness = EndianSystem();
 
+	StatusSet(st, "SoundSaveAu", STATUS_SUCCESS, NULL);
+
 	if (sound->channels > UINT32_MAX || sound->frequency > UINT32_MAX || sound->size > UINT32_MAX)
 	{
-		StatusSet(&st, "SoundSaveAu", STATUS_UNSUPPORTED_FEATURE, "format ('%s')", filename);
-		return st;
+		StatusSet(st, "SoundSaveAu", STATUS_UNSUPPORTED_FEATURE, "format ('%s')", filename);
+		return 1;
 	}
 
 	if ((file = fopen(filename, "wb")) == NULL)
 	{
-		StatusSet(&st, "SoundSaveAu", STATUS_FS_ERROR, "'%s'", filename);
-		return st;
+		StatusSet(st, "SoundSaveAu", STATUS_FS_ERROR, "'%s'", filename);
+		return 1;
 	}
 
 	// Head
@@ -212,19 +213,21 @@ EXPORT struct Status SoundSaveAu(struct Sound* sound, const char* filename)
 
 	if (fwrite(&head, sizeof(struct AuHead), 1, file) != 1)
 	{
-		StatusSet(&st, "SoundSaveAu", STATUS_IO_ERROR, "head ('%s')", filename);
+		StatusSet(st, "SoundSaveAu", STATUS_IO_ERROR, "head ('%s')", filename);
 		goto return_failure;
 	}
 
 	// Data
 	if (WritePcm(file, sound, ENDIAN_BIG) != 0)
 	{
-		StatusSet(&st, "SoundSaveAu", STATUS_IO_ERROR, "data ('%s')", filename);
+		StatusSet(st, "SoundSaveAu", STATUS_IO_ERROR, "data ('%s')", filename);
 		goto return_failure;
 	}
 
 	// Bye!
+	return 1;
+
 return_failure:
 	fclose(file);
-	return st;
+	return 0;
 }

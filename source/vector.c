@@ -208,58 +208,58 @@ EXPORT inline struct Vector4 Vector4Set(float x, float y, float z, float u)
 
 EXPORT inline struct Vector4 Vector4Add(struct Vector4 a, struct Vector4 b)
 {
-	return (struct Vector4){(a.x + b.x), (a.y + b.y), (a.z + b.z), (a.u + b.u)};
+	return (struct Vector4){(a.x + b.x), (a.y + b.y), (a.z + b.z), (a.w + b.w)};
 }
 
 EXPORT inline struct Vector4 Vector4Subtract(struct Vector4 a, struct Vector4 b)
 {
-	return (struct Vector4){(a.x - b.x), (a.y - b.y), (a.z - b.z), (a.u - b.u)};
+	return (struct Vector4){(a.x - b.x), (a.y - b.y), (a.z - b.z), (a.w - b.w)};
 }
 
 EXPORT inline struct Vector4 Vector4Multiply(struct Vector4 a, struct Vector4 b)
 {
-	return (struct Vector4){(a.x * b.x), (a.y * b.y), (a.z * b.z), (a.u * b.u)};
+	return (struct Vector4){(a.x * b.x), (a.y * b.y), (a.z * b.z), (a.w * b.w)};
 }
 
 EXPORT inline struct Vector4 Vector4Divide(struct Vector4 a, struct Vector4 b)
 {
-	return (struct Vector4){(a.x / b.x), (a.y / b.y), (a.z / b.z), (a.u / b.u)};
+	return (struct Vector4){(a.x / b.x), (a.y / b.y), (a.z / b.z), (a.w / b.w)};
 }
 
 EXPORT inline struct Vector4 Vector4Invert(struct Vector4 v)
 {
-	return (struct Vector4){(-v.x), (-v.y), (-v.z), (-v.u)};
+	return (struct Vector4){(-v.x), (-v.y), (-v.z), (-v.w)};
 }
 
 EXPORT inline struct Vector4 Vector4Scale(struct Vector4 v, float scale)
 {
-	return (struct Vector4){(v.x * scale), (v.y * scale), (v.z * scale), (v.u * scale)};
+	return (struct Vector4){(v.x * scale), (v.y * scale), (v.z * scale), (v.w * scale)};
 }
 
 EXPORT inline struct Vector4 Vector4Normalize(struct Vector4 v)
 {
 	float length = Vector4Length(v);
-	return (struct Vector4){(v.x / length), (v.y / length), (v.z / length), (v.u / length)};
+	return (struct Vector4){(v.x / length), (v.y / length), (v.z / length), (v.w / length)};
 }
 
 EXPORT inline float Vector4Length(struct Vector4 v)
 {
-	return sqrtf(powf(v.x, 2.0f) + powf(v.y, 2.0f) + powf(v.z, 2.0f) + powf(v.u, 2.0f));
+	return sqrtf(powf(v.x, 2.0f) + powf(v.y, 2.0f) + powf(v.z, 2.0f) + powf(v.w, 2.0f));
 }
 
 EXPORT inline float Vector4Distance(struct Vector4 a, struct Vector4 b)
 {
-	return sqrtf(powf(b.x - a.x, 2.0f) + powf(b.y - a.y, 2.0f) + powf(b.z - a.z, 2.0f) + powf(b.u - a.u, 2.0f));
+	return sqrtf(powf(b.x - a.x, 2.0f) + powf(b.y - a.y, 2.0f) + powf(b.z - a.z, 2.0f) + powf(b.w - a.w, 2.0f));
 }
 
 EXPORT inline float Vector4Dot(struct Vector4 a, struct Vector4 b)
 {
-	return (a.x * b.x) + (a.y * b.y) + (a.z * b.z) + (a.u * b.u);
+	return (a.x * b.x) + (a.y * b.y) + (a.z * b.z) + (a.w * b.w);
 }
 
 EXPORT inline bool Vector4Equals(struct Vector4 a, struct Vector4 b)
 {
-	if (a.x != b.x || a.y != b.y || a.z != b.z || a.u != b.u)
+	if (a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w)
 		return false;
 
 	return true;

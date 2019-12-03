@@ -102,7 +102,7 @@ struct FactBlock
 
  WriteU8Pcm()
 -----------------------------*/
-static int WriteU8Pcm(FILE* file, struct Sound* sound)
+static int WriteU8Pcm(FILE* file, const struct Sound* sound)
 {
 	uint8_t* org = NULL;
 	uint8_t* end = (uint8_t*)sound->data + sound->size;
@@ -190,18 +190,18 @@ static int sReadFmtBlock(size_t block_size, FILE* file, struct SoundEx* out, str
 	if (fmt.format == WAVE_FORMAT_ULAW)
 	{
 		out->format = SOUND_I16;
-		out->compression = SOUND_ULAW;
+		out->storage = SOUND_ULAW;
 		out->minimum_unit_size = sizeof(int16_t);
 	}
 	else if (fmt.format == WAVE_FORMAT_ALAW)
 	{
 		out->format = SOUND_I16;
-		out->compression = SOUND_ALAW;
+		out->storage = SOUND_ALAW;
 		out->minimum_unit_size = sizeof(int16_t);
 	}
 	else if (fmt.format == WAVE_FORMAT_PCM)
 	{
-		out->compression = SOUND_UNCOMPRESSED;
+		out->storage = SOUND_UNCOMPRESSED;
 		out->minimum_unit_size = fmt.bits_per_sample / 8;
 
 		if (fmt.bits_per_sample == 8)
@@ -218,7 +218,7 @@ static int sReadFmtBlock(size_t block_size, FILE* file, struct SoundEx* out, str
 	}
 	else if (fmt.format == WAVE_FORMAT_IEEE_FLOAT)
 	{
-		out->compression = SOUND_UNCOMPRESSED;
+		out->storage = SOUND_UNCOMPRESSED;
 		out->minimum_unit_size = fmt.bits_per_sample / 8;
 
 		if (fmt.bits_per_sample == 32)
@@ -256,7 +256,7 @@ static int sReadDataBlock(size_t block_size, FILE* file, struct SoundEx* out, st
 	out->uncompressed_size = block_size;
 	out->data_offset = (size_t)ftell(file);
 
-	if (out->compression != SOUND_UNCOMPRESSED)
+	if (out->storage != SOUND_UNCOMPRESSED)
 		out->uncompressed_size = block_size * 2;
 
 	if (fseek(file, (long)block_size, SEEK_CUR) != 0)
@@ -294,7 +294,7 @@ int SoundExLoadWav(FILE* file, struct SoundEx* out, struct Status* st)
 
 	struct GenericHead head;
 
-	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
+	StatusSet(st, "SoundExLoadWav", STATUS_SUCCESS, NULL);
 
 	while (1)
 	{
@@ -370,18 +370,19 @@ int SoundExLoadWav(FILE* file, struct SoundEx* out, struct Status* st)
 
  SoundSaveWav()
 -----------------------------*/
-EXPORT struct Status SoundSaveWav(struct Sound* sound, const char* filename)
+EXPORT int SoundSaveWav(const struct Sound* sound, const char* filename, struct Status* st)
 {
-	struct Status st = {.code = STATUS_SUCCESS};
 	FILE* file = NULL;
 	enum Endianness sys_endianness = EndianSystem();
 	struct GenericHead head;
 	size_t bps = (size_t)SoundBps(sound->format);
 
+	StatusSet(st, "SoundSaveWav", STATUS_SUCCESS, NULL);
+
 	if ((file = fopen(filename, "wb")) == NULL)
 	{
-		StatusSet(&st, "SoundSaveWav", STATUS_FS_ERROR, "'%s'", filename);
-		return st;
+		StatusSet(st, "SoundSaveWav", STATUS_FS_ERROR, "'%s'", filename);
+		return 1;
 	}
 
 	// Riff block
@@ -399,7 +400,7 @@ EXPORT struct Status SoundSaveWav(struct Sound* sound, const char* filename)
 
 		if (fwrite(&head, sizeof(struct GenericHead), 1, file) != 1)
 		{
-			StatusSet(&st, "SoundSaveWav", STATUS_IO_ERROR, "riff head ('%s')", filename);
+			StatusSet(st, "SoundSaveWav", STATUS_IO_ERROR, "riff head ('%s')", filename);
 			goto return_failure;
 		}
 
@@ -407,7 +408,7 @@ EXPORT struct Status SoundSaveWav(struct Sound* sound, const char* filename)
 
 		if (fwrite(&riff, sizeof(struct RiffBlock), 1, file) != 1)
 		{
-			StatusSet(&st, "SoundSaveWav", STATUS_IO_ERROR, "riff block ('%s')", filename);
+			StatusSet(st, "SoundSaveWav", STATUS_IO_ERROR, "riff block ('%s')", filename);
 			goto return_failure;
 		}
 	}
@@ -421,7 +422,7 @@ EXPORT struct Status SoundSaveWav(struct Sound* sound, const char* filename)
 
 		if (fwrite(&head, sizeof(struct GenericHead), 1, file) != 1)
 		{
-			StatusSet(&st, "SoundSaveWav", STATUS_IO_ERROR, "fmt head ('%s')", filename);
+			StatusSet(st, "SoundSaveWav", STATUS_IO_ERROR, "fmt head ('%s')", filename);
 			goto return_failure;
 		}
 
@@ -460,7 +461,7 @@ EXPORT struct Status SoundSaveWav(struct Sound* sound, const char* filename)
 
 		if (fwrite(&fmt, 16, 1, file) != 1)
 		{
-			StatusSet(&st, "SoundSaveWav", STATUS_IO_ERROR, "fmt block ('%s')", filename);
+			StatusSet(st, "SoundSaveWav", STATUS_IO_ERROR, "fmt block ('%s')", filename);
 			goto return_failure;
 		}
 	}
@@ -474,7 +475,7 @@ EXPORT struct Status SoundSaveWav(struct Sound* sound, const char* filename)
 
 		if (fwrite(&head, sizeof(struct GenericHead), 1, file) != 1)
 		{
-			StatusSet(&st, "SoundSaveWav", STATUS_IO_ERROR, "fact head ('%s')", filename);
+			StatusSet(st, "SoundSaveWav", STATUS_IO_ERROR, "fact head ('%s')", filename);
 			goto return_failure;
 		}
 
@@ -482,7 +483,7 @@ EXPORT struct Status SoundSaveWav(struct Sound* sound, const char* filename)
 
 		if (fwrite(&fact, sizeof(struct FactBlock), 1, file) != 1)
 		{
-			StatusSet(&st, "SoundSaveWav", STATUS_IO_ERROR, "fact block ('%s')", filename);
+			StatusSet(st, "SoundSaveWav", STATUS_IO_ERROR, "fact block ('%s')", filename);
 			goto return_failure;
 		}
 	}
@@ -496,7 +497,7 @@ EXPORT struct Status SoundSaveWav(struct Sound* sound, const char* filename)
 
 		if (fwrite(&head, sizeof(struct GenericHead), 1, file) != 1)
 		{
-			StatusSet(&st, "SoundSaveWav", STATUS_IO_ERROR, "data head ('%s')", filename);
+			StatusSet(st, "SoundSaveWav", STATUS_IO_ERROR, "data head ('%s')", filename);
 			goto return_failure;
 		}
 
@@ -504,13 +505,15 @@ EXPORT struct Status SoundSaveWav(struct Sound* sound, const char* filename)
 
 		if (ret != 1)
 		{
-			StatusSet(&st, "SoundSaveWav", STATUS_IO_ERROR, "data block ('%s')", filename);
+			StatusSet(st, "SoundSaveWav", STATUS_IO_ERROR, "data block ('%s')", filename);
 			goto return_failure;
 		}
 	}
 
 	// Bye!
+	return 0;
+
 return_failure:
 	fclose(file);
-	return st;
+	return 1;
 }

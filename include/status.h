@@ -53,6 +53,8 @@
 	};
 
 	JAPAN_API void StatusSet(struct Status* st, const char* function_name, enum StatusCode code, const char* explanation_fmt, ...);
+	JAPAN_API void StatusCopy(const struct Status* org, struct Status* dest);
+
 	JAPAN_API int StatusPrint(const char* app_name, struct Status st);
 
 #endif

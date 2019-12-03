@@ -84,7 +84,7 @@ EXPORT struct Image* ImageLoad(const char* filename, struct Status* st)
 	struct Image* image = NULL;
 	uint16_t magic = 0;
 
-	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
+	StatusSet(st, "ImageLoad", STATUS_SUCCESS, NULL);
 
 	if ((file = fopen(filename, "rb")) == NULL)
 	{
@@ -124,26 +124,27 @@ return_failure:
 
  ImageSaveRaw()
 -----------------------------*/
-EXPORT struct Status ImageSaveRaw(struct Image* image, const char* filename)
+EXPORT int ImageSaveRaw(const struct Image* image, const char* filename, struct Status* st)
 {
-	struct Status st = {.code = STATUS_SUCCESS};
 	FILE* file = NULL;
+
+	StatusSet(st, "ImageSaveRaw", STATUS_SUCCESS, NULL);
 
 	if ((file = fopen(filename, "wb")) == NULL)
 	{
-		StatusSet(&st, "ImageSaveRaw", STATUS_FS_ERROR, "'%s'", filename);
-		return st;
+		StatusSet(st, "ImageSaveRaw", STATUS_FS_ERROR, "'%s'", filename);
+		return 1;
 	}
 
 	if (fwrite(image->data, image->size, 1, file) != 1)
 	{
-		StatusSet(&st, "ImageSaveRaw", STATUS_IO_ERROR, "'%s'", filename);
+		StatusSet(st, "ImageSaveRaw", STATUS_IO_ERROR, "'%s'", filename);
 		fclose(file);
-		return st;
+		return 1;
 	}
 
 	fclose(file);
-	return st;
+	return 0;
 }
 
 
@@ -155,7 +156,7 @@ EXPORT int ImageExLoad(FILE* file, struct ImageEx* out, struct Status* st)
 {
 	uint16_t magic = 0;
 
-	StatusSet(st, NULL, STATUS_SUCCESS, NULL);
+	StatusSet(st, "ImageExLoad", STATUS_SUCCESS, NULL);
 
 	if (fread(&magic, sizeof(uint16_t), 1, file) != 1)
 	{

@@ -26,7 +26,7 @@
 	#include "endianness.h"
 	#include "status.h"
 
-	enum ImageCompression
+	enum ImageStorage
 	{
 		IMAGE_UNCOMPRESSED_INTERLEAVED = 0, // (r, g, b), (r, g, b), (r, g, b)...
 		IMAGE_UNCOMPRESSED_PLANAR,          // (r, r, r...), (g, g, g...), (b, b, b...)
@@ -57,12 +57,13 @@
 
 	struct ImageEx
 	{
-		size_t width;
-		size_t height;
-		size_t uncompressed_size; // In bytes
+		size_t width;             // In pixels
+		size_t height;            // In pixels, Ignored by ImageExLoadRaw() if set to 0
+
+		size_t uncompressed_size; // Ignored by ImageExLoadRaw()
 
 		enum Endianness endianness;
-		enum ImageCompression compression;
+		enum ImageStorage storage;
 		enum ImageFormat format;
 
 		size_t data_offset;
@@ -72,9 +73,10 @@
 	JAPAN_API void ImageDelete(struct Image* image);
 
 	JAPAN_API struct Image* ImageLoad(const char* filename, struct Status*);
-	JAPAN_API struct Status ImageSaveSgi(struct Image* image, const char* filename);
-	JAPAN_API struct Status ImageSaveRaw(struct Image* image, const char* filename);
+	JAPAN_API int ImageSaveSgi(const struct Image* image, const char* filename, struct Status*);
+	JAPAN_API int ImageSaveRaw(const struct Image* image, const char* filename, struct Status*);
 
+	JAPAN_API struct Image* ImageLoadRaw(FILE* file, const struct ImageEx* in_ex, struct Status*);
 	JAPAN_API int ImageExLoad(FILE* file, struct ImageEx* out, struct Status*);
 
 	JAPAN_API int ImageBytesPerPixel(enum ImageFormat);

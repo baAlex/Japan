@@ -24,7 +24,7 @@
 
 	struct Vector2i { int x, y; };
 	struct Vector3i { int x, y, z; };
-	struct Vector4i { int x, y, u; };
+	struct Vector4i { int x, y, z, w; };
 
 	struct Vector2
 	{
@@ -80,11 +80,11 @@
 		float x;
 		float y;
 		float z;
-		float u;
+		float w;
 	};
 
 	JAPAN_API struct Vector4 Vector4Clean();
-	JAPAN_API struct Vector4 Vector4Set(float x, float y, float z, float u);
+	JAPAN_API struct Vector4 Vector4Set(float x, float y, float z, float w);
 
 	JAPAN_API struct Vector4 Vector4Add(struct Vector4 vec_a, struct Vector4 vec_b);
 	JAPAN_API struct Vector4 Vector4Subtract(struct Vector4 vec_a, struct Vector4 vec_b);

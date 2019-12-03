@@ -17,8 +17,8 @@ int main(int argc, char* argv[])
 
 	if ((img = ImageLoad(argv[1], &st)) != NULL)
 	{
-		ImageSaveSgi(img, "/tmp/test.sgi");
-		ImageSaveRaw(img, "/tmp/test.data");
+		ImageSaveSgi(img, "/tmp/test.sgi", NULL);
+		ImageSaveRaw(img, "/tmp/test.data", NULL);
 		ImageDelete(img);
 	}
 	else

@@ -17,9 +17,9 @@ int main(int argc, char* argv[])
 
 	if ((snd = SoundLoad(argv[1], &st)) != NULL)
 	{
-		SoundSaveAu(snd, "/tmp/test.au");
-		SoundSaveWav(snd, "/tmp/test.wav");
-		SoundSaveRaw(snd, "/tmp/test.data");
+		SoundSaveAu(snd, "/tmp/test.au", NULL);
+		SoundSaveWav(snd, "/tmp/test.wav", NULL);
+		SoundSaveRaw(snd, "/tmp/test.data", NULL);
 		SoundDelete(snd);
 	}
 	else

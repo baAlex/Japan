@@ -56,6 +56,13 @@ EXPORT void StatusSet(struct Status* st, const char* function_name, enum StatusC
 }
 
 
+EXPORT inline void StatusCopy(const struct Status* org, struct Status* dest)
+{
+	if(org != NULL && dest != NULL)
+		memcpy(dest, org, sizeof(struct Status));
+}
+
+
 EXPORT int StatusPrint(const char* app_name, struct Status st)
 {
 	char* explanation = (st.explanation[0] != '\0') ? st.explanation : "";
