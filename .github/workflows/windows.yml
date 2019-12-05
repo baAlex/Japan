@@ -1,10 +1,10 @@
-name: WindowsCI
+name: Windows
 
 on: [push]
 
 jobs:
-  Windows:
-    name: "Windows"
+  builds:
+    name: "Builds"
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v1
@@ -12,8 +12,11 @@ jobs:
     - name: Install dependencies
       run: |
         choco install ninja llvm
-    - name: Information
-      run: clang -v
+    - name: LLVM tools
+      run: |
+        cp "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\Llvm\bin\clang.exe" "clang.exe"
+        cp "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\Llvm\bin\lld-link.exe" "lld-link.exe"
+        cp "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\Llvm\bin\llvm-ar.exe" "llvm-ar.exe"
     - name: Compile windows-release build
       run: ninja -f windows-release.ninja
     - name: Compile windows-debug build
