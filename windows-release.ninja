@@ -1,12 +1,12 @@
 
-cflags = -O3 -mtune=generic -fvisibility=hidden -I./include -DEXPORT_SYMBOLS
+cflags = -O3 -mtune=generic -fvisibility=hidden -Wno-deprecated -I./include -DEXPORT_SYMBOLS
 lflags = -fuse-ld=lld -shared
 
 rule compile
  command = clang $cflags -c $in -o $out
 
 rule link
- command = clang -v $in $lflags -o $out
+ command = clang $in $lflags -o $out
 
 rule pack
  command = llvm-ar rcs $out $in

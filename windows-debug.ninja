@@ -1,12 +1,12 @@
 
-cflags = -O0 -std=c99 -Wall -Wextra -Wconversion -pedantic -g -I.\include -fvisibility=hidden -DEXPORT_SYMBOLS -DDEBUG
+cflags = -O0 -std=c99 -Wall -Wextra -Wconversion -pedantic -Wno-deprecated -g -I.\include -fvisibility=hidden -DEXPORT_SYMBOLS -DDEBUG
 lflags = -fuse-ld=lld -shared
 
 rule compile
  command = clang $cflags -c $in -o $out
 
 rule link
- command = clang -v $in $lflags -o $out
+ command = clang $in $lflags -o $out
 
 rule pack
  command = llvm-ar rcs $out $in
