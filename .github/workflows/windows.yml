@@ -12,17 +12,17 @@ jobs:
     - name: Compile release build
       shell: cmd
       run: |
-        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\vcvars64.bat"
+        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
         mkdir build-release
         cd build-release
-        cmake -DCMAKE_BUILD_TYPE=Release ..
+        cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ..
         nmake
 
     - name: Compile debug build
       shell: cmd
       run: |
-        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\vcvars64.bat"
+        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
         mkdir build-debug
         cd build-debug
-        cmake -DCMAKE_BUILD_TYPE=Debug ..
+        cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Debug ..
         nmake
