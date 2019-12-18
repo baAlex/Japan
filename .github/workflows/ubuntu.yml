@@ -9,11 +9,16 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-    - name: Install dependencies
+    - name: Compile release build
       run: |
-        sudo apt update
-        sudo apt install ninja-build
-    - name: Compile posix-release build
-      run: ninja -f posix-release.ninja
-    - name: Compile posix-debug build
-      run: ninja -f posix-debug.ninja
+        mkdir build-release
+        cd build-release
+        cmake -DCMAKE_BUILD_TYPE=Release ..
+        make
+
+    - name: Compile debug build
+      run: |
+        mkdir build-debug
+        cd build-debug
+        cmake -DCMAKE_BUILD_TYPE=Debug ..
+        make

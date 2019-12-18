@@ -5,26 +5,6 @@ Japan
 
 Personal C library.
 
-
-Compilation
------------
-There are no runtime dependencies except for the standard library. Compilation dependencies only include *Ninja*, on Ubuntu you can install it with:
-```
-sudo apt install ninja-build
-```
-
-To compile:
-```
-cd Japan
-ninja -f posix-release.ninja
-```
-
-Optionally you can compile a debug build with:
-```
-ninja -f posix-debug.ninja
-```
-
-
 License
 -------
 Under [MIT License](LICENSE).

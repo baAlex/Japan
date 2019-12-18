@@ -6,4 +6,7 @@
 /.ninja_log
 /objects/
 /dev/
+/build/
+/build-debug/
+/build-release/
 /.vscode/
