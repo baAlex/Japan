@@ -10,14 +10,18 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: Compile release build
+      shell: cmd
       run: |
+        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\vcvars64.bat"
         mkdir build-release
         cd build-release
         cmake -DCMAKE_BUILD_TYPE=Release ..
         nmake
 
     - name: Compile debug build
+      shell: cmd
       run: |
+        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\vcvars64.bat"
         mkdir build-debug
         cd build-debug
         cmake -DCMAKE_BUILD_TYPE=Debug ..
