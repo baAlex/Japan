@@ -33,5 +33,3 @@ set(SOURCES
 
 add_library("japan-static" STATIC ${SOURCES})
 add_library("japan" SHARED ${SOURCES})
-
-target_link_libraries("japan" m)
