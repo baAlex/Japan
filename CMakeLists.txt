@@ -5,10 +5,13 @@ include_directories("./include/")
 
 if ((CMAKE_C_COMPILER_ID MATCHES "Clang") OR (CMAKE_C_COMPILER_ID MATCHES "GNU"))
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden -DEXPORT_SYMBOLS")
-	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -g -std=c99 -Wall -Wextra -Wconversion -pedantic")
+	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -g -std=c99 -Wall -Wextra -Wconversion -pedantic -DDEBUG")
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -mtune=generic")
 
 elseif (CMAKE_C_COMPILER_ID MATCHES "MSVC")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /DEXPORT_SYMBOLS")
+	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Od /Zi /Wall /W4 /DDEBUG")
+	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /O2")
 
 endif()
 

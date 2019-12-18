@@ -36,7 +36,7 @@ SOFTWARE.
 #include "common.h"
 
 
-EXPORT inline void BufferClean(struct Buffer* buffer)
+EXPORT_INLINED void BufferClean(struct Buffer* buffer)
 {
 	if (buffer->data != NULL)
 		free(buffer->data);
