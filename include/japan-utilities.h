@@ -49,19 +49,15 @@ JA_EXPORT int jaClampInt(int v, int min, int max);
 JA_EXPORT size_t jaClampSizeT(size_t v, size_t min, size_t max);
 JA_EXPORT float jaClampFloat(float v, float min, float max);
 
-
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-
 #define jaMax(a, b) _Generic((a), int : jaMaxInt, size_t : jaMaxSizeT, float : fmaxf, default : jaMaxInt)(a, b)
 #define jaMin(a, b) _Generic((a), int : jaMinInt, size_t : jaMinSizeT, float : fminf, default : jaMinInt)(a, b)
 
 #define jaClamp(value, min, max)\
-	_Generic((value), int\
-	         : jaClampInt, size_t\
-	         : jaClampSizeT, float\
-	         : jaClampFloat, default\
-	         : jaClampInt)(value, min, max)
-
-#endif
+	_Generic((value),\
+		int : jaClampInt,\
+		size_t : jaClampSizeT,\
+		float : jaClampFloat,\
+		default : jaClampInt\
+	)(value, min, max)
 
 #endif

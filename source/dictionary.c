@@ -388,12 +388,12 @@ struct jaDictionaryItem* jaDictionaryAdd(struct jaDictionary* dictionary, const 
 	if (dictionary == NULL || key == NULL)
 		return NULL;
 
-	key_size = strlen(key) + 1;
+	key_size = strlen(key);
 
-	if ((item = malloc(sizeof(struct jaDictionaryItem) + key_size + data_size)) != NULL)
+	if ((item = malloc(sizeof(struct jaDictionaryItem) + (key_size + 1) + data_size)) != NULL)
 	{
 		item->dictionary = dictionary;
-		strncpy(item->key, key, key_size);
+		strncpy_s(item->key, key_size, key, key_size);
 
 		if (data_size == 0)
 			item->data = data;

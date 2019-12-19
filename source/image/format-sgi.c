@@ -410,7 +410,9 @@ int jaImageSaveSgi(const struct jaImage* image, const char* filename, struct jaS
 		return 1;
 	}
 
-	if ((file = fopen(filename, "wb")) == NULL)
+	fopen_s(&file, filename, "wb");
+
+	if (file == NULL)
 	{
 		jaStatusSet(st, "jaImageSaveSgi", STATUS_FS_ERROR, "'%s'", filename);
 		return 1;

@@ -52,29 +52,26 @@ JA_EXPORT int64_t jaEndianToI64(int64_t value, enum jaEndianness from, enum jaEn
 JA_EXPORT int32_t jaEndianToI32(int32_t value, enum jaEndianness from, enum jaEndianness to);
 JA_EXPORT int16_t jaEndianToI16(int16_t value, enum jaEndianness from, enum jaEndianness to);
 
-
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-
 #define jaEndianReverse(value)\
-	_Generic((value), uint64_t\
-	         : jaEndianReverseU64, uint32_t\
-	         : jaEndianReverseU32, uint16_t\
-	         : jaEndianReverseU16, int64_t\
-	         : jaEndianReverseI64, int32_t\
-	         : jaEndianReverseI32, int16_t\
-	         : jaEndianReverseI16, default\
-	         : jaEndianReverseI32)(value)
+	_Generic((value),\
+		uint64_t : jaEndianReverseU64,\
+		uint32_t : jaEndianReverseU32,\
+		uint16_t : jaEndianReverseU16,\
+		int64_t : jaEndianReverseI64,\
+		int32_t : jaEndianReverseI32,\
+		int16_t : jaEndianReverseI16,\
+		default : jaEndianReverseI32\
+	)(value)
 
 #define jaEndianTo(value, from, to)\
-	_Generic((value), uint64_t\
-	         : jaEndianToU64, uint32_t\
-	         : jaEndianToU32, uint16_t\
-	         : jaEndianToU16, int64_t\
-	         : jaEndianToI64, int32_t\
-	         : jaEndianToI32, int16_t\
-	         : jaEndianToI16, default\
-	         : jaEndianToI32)(value, from, to)
-
-#endif
+	_Generic((value),\
+		uint64_t : jaEndianToU64,\
+		uint32_t : jaEndianToU32,\
+		uint16_t : jaEndianToU16,\
+		int64_t : jaEndianToI64,\
+		int32_t : jaEndianToI32,\
+		int16_t : jaEndianToI16,\
+		default : jaEndianToI32\
+	)(value, from, to)
 
 #endif

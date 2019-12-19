@@ -140,8 +140,9 @@ struct jaSound* jaSoundLoad(const char* filename, struct jaStatus* st)
 	uint32_t magic = 0;
 
 	jaStatusSet(st, "jaSoundLoad", STATUS_SUCCESS, NULL);
+	fopen_s(&file, filename, "wb");
 
-	if ((file = fopen(filename, "rb")) == NULL)
+	if (file == NULL)
 	{
 		jaStatusSet(st, "jaSoundLoad", STATUS_FS_ERROR, "'%s'", filename);
 		return NULL;
@@ -222,8 +223,9 @@ int jaSoundSaveRaw(const struct jaSound* sound, const char* filename, struct jaS
 	FILE* file = NULL;
 
 	jaStatusSet(st, "jaSoundSaveRaw", STATUS_SUCCESS, NULL);
+	fopen_s(&file, filename, "wb");
 
-	if ((file = fopen(filename, "wb")) == NULL)
+	if (file == NULL)
 	{
 		jaStatusSet(st, "jaSoundSaveRaw", STATUS_FS_ERROR, "'%s'", filename);
 		return 1;

@@ -33,7 +33,7 @@ struct jaAABBox
 	struct jaVector3 max;
 };
 
-struct jaAARectangle
+struct jaAABRectangle
 {
 	struct jaVector2 min;
 	struct jaVector2 max;
@@ -51,39 +51,35 @@ struct jaCircle
 	float radius;
 };
 
-JA_EXPORT bool jaAABCollisionRectRect(struct jaAARectangle a, struct jaAARectangle b);
-JA_EXPORT bool jaAABCollisionRectCircle(struct jaAARectangle, struct jaCircle);
+JA_EXPORT bool jaAABCollisionRectRect(struct jaAABRectangle a, struct jaAABRectangle b);
+JA_EXPORT bool jaAABCollisionRectCircle(struct jaAABRectangle, struct jaCircle);
 
 JA_EXPORT bool jaAABCollisionBoxBox(struct jaAABBox a, struct jaAABBox b);
 JA_EXPORT bool jaAABCollisionBoxSphere(struct jaAABBox, struct jaSphere);
 
-JA_EXPORT struct jaAARectangle jaAABToRectangle(struct jaAABBox);
-JA_EXPORT struct jaAABBox jaAABToBox(struct jaAARectangle, float min_z, float max_z);
+JA_EXPORT struct jaAABRectangle jaAABToRectangle(struct jaAABBox);
+JA_EXPORT struct jaAABBox jaAABToBox(struct jaAABRectangle, float min_z, float max_z);
 
-JA_EXPORT struct jaVector2 jaAABMiddleRect(struct jaAARectangle);
+JA_EXPORT struct jaVector2 jaAABMiddleRect(struct jaAABRectangle);
 JA_EXPORT struct jaVector3 jaAABMiddleBox(struct jaAABBox);
 
-
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-
 #define jaAABCollision(a, b)\
-	_Generic((a), struct jaAARectangle\
-	         : _Generic((b), struct jaAARectangle\
-	                    : jaAABCollisionRectRect, struct jaCircle\
-	                    : jaAABCollisionRectCircle, default\
-	                    : jaAABCollisionRectRect),\
-	           struct jaAABBox\
-	         : _Generic((b), struct jaAABBox\
-	                    : jaAABCollisionBoxBox, struct jaSphere\
-	                    : jaAABCollisionBoxSphere, default\
-	                    : jaAABCollisionBoxBox))(a, b)
+	_Generic((a),\
+		struct jaAABRectangle : _Generic((b),\
+			struct jaAABRectangle : jaAABCollisionRectRect,\
+			struct jaCircle : jaAABCollisionRectCircle,\
+			default : jaAABCollisionRectRect),\
+		struct jaAABBox : _Generic((b),\
+			struct jaAABBox : jaAABCollisionBoxBox,\
+			struct jaSphere : jaAABCollisionBoxSphere,\
+			default : jaAABCollisionBoxBox)\
+	)(a, b)
 
 #define jaAABMiddle(obj)\
-	_Generic((obj), struct jaAARectangle\
-	         : jaAABMiddleRect, struct jaAABBox\
-	         : jaAABMiddleBox, default\
-	         : jaAABMiddleRect)(obj)
-
-#endif
+	_Generic((obj),\
+		struct jaAABRectangle : jaAABMiddleRect,\
+		struct jaAABBox : jaAABMiddleBox,\
+		default : jaAABMiddleRect\
+	)(obj)
 
 #endif

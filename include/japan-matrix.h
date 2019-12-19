@@ -41,7 +41,7 @@ JA_EXPORT struct jaMatrix4 jaMatrix4Orthographic(float left, float right, float 
 JA_EXPORT struct jaMatrix4 jaMatrix4Perspective(float y_fov, float aspect, float near, float far);
 JA_EXPORT struct jaMatrix4 jaMatrix4LookAt(struct jaVector3 eye, struct jaVector3 center, struct jaVector3 up);
 
-JA_EXPORT struct jaMatrix4 jaMatrix4Multiply(struct jaMatrix4 mat_a, const struct jaMatrix4 mat_b);
+JA_EXPORT struct jaMatrix4 jaMatrix4Multiply(struct jaMatrix4 mat_a, struct jaMatrix4 mat_b);
 JA_EXPORT struct jaMatrix4 jaMatrix4RotateX(struct jaMatrix4 mat, float angle);
 JA_EXPORT struct jaMatrix4 jaMatrix4RotateY(struct jaMatrix4 mat, float angle);
 JA_EXPORT struct jaMatrix4 jaMatrix4RotateZ(struct jaMatrix4 mat, float angle);

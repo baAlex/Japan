@@ -375,8 +375,9 @@ int jaSoundSaveWav(const struct jaSound* sound, const char* filename, struct jaS
 	size_t bps = (size_t)jaBytesPerSample(sound->format);
 
 	jaStatusSet(st, "jaSoundSaveWav", STATUS_SUCCESS, NULL);
+	fopen_s(&file, filename, "wb");
 
-	if ((file = fopen(filename, "wb")) == NULL)
+	if (file == NULL)
 	{
 		jaStatusSet(st, "jaSoundSaveWav", STATUS_FS_ERROR, "'%s'", filename);
 		return 1;

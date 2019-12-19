@@ -32,7 +32,7 @@ SOFTWARE.
 #include <math.h>
 
 
-inline bool jaAABCollisionRectRect(struct jaAARectangle a, struct jaAARectangle b)
+inline bool jaAABCollisionRectRect(struct jaAABRectangle a, struct jaAABRectangle b)
 {
 	if (a.max.x < b.min.x || a.min.x > b.max.x || a.max.y < b.min.y || a.min.y > b.max.y)
 		return false;
@@ -41,7 +41,7 @@ inline bool jaAABCollisionRectRect(struct jaAARectangle a, struct jaAARectangle 
 }
 
 
-inline bool jaAABCollisionRectCircle(struct jaAARectangle rect, struct jaCircle c)
+inline bool jaAABCollisionRectCircle(struct jaAABRectangle rect, struct jaCircle c)
 {
 
 	if (c.origin.x < (rect.min.x - c.radius) || c.origin.x > (rect.max.x + c.radius) ||
@@ -73,19 +73,19 @@ inline bool jaAABCollisionBoxSphere(struct jaAABBox box, struct jaSphere s)
 }
 
 
-inline struct jaAARectangle jaAABToRectangle(struct jaAABBox box)
+inline struct jaAABRectangle jaAABToRectangle(struct jaAABBox box)
 {
-	return (struct jaAARectangle){.min = {box.min.x, box.min.y}, .max = {box.max.x, box.max.y}};
+	return (struct jaAABRectangle){.min = {box.min.x, box.min.y}, .max = {box.max.x, box.max.y}};
 }
 
 
-inline struct jaAABBox jaAABToBox(struct jaAARectangle rect, float min_z, float max_z)
+inline struct jaAABBox jaAABToBox(struct jaAABRectangle rect, float min_z, float max_z)
 {
 	return (struct jaAABBox){.min = {rect.min.x, rect.min.y, min_z}, .max = {rect.max.x, rect.max.y, max_z}};
 }
 
 
-inline struct jaVector2 jaAABMiddleRect(struct jaAARectangle rect)
+inline struct jaVector2 jaAABMiddleRect(struct jaAABRectangle rect)
 {
 	return (struct jaVector2){.x = (rect.min.x + (rect.max.x - rect.min.x) / 2.0f),
 	                          .y = (rect.min.y + (rect.max.y - rect.min.y) / 2.0f)};

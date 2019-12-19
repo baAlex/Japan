@@ -44,7 +44,7 @@ void jaStatusSet(struct jaStatus* st, const char* function_name, enum jaStatusCo
 	st->code = c;
 
 	if (function_name != NULL)
-		strncpy(st->function_name, function_name, JA_STATUS_FNAME_LEN);
+		strncpy_s(st->function_name, JA_STATUS_FNAME_LEN, function_name, strlen(function_name));
 
 	if (explanation_fmt != NULL)
 	{

@@ -49,17 +49,13 @@ JA_EXPORT int jaOptionsRetrieveBool(const struct jaOptions*, const char* name, b
 JA_EXPORT int jaOptionsRetrieveFloat(const struct jaOptions*, const char* name, float* dest, struct jaStatus*);
 JA_EXPORT int jaOptionsRetrieveString(const struct jaOptions*, const char* name, const char** dest, struct jaStatus*);
 
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-
-#define jaOptionsRetrieve(options, name, dest, st)                                                                     \
-	_Generic((dest), \
-		int*: jaOptionsRetrieveInt, \
-		bool*: jaOptionsRetrieveBool, \
-		float*: jaOptionsRetrieveFloat, \
-		char*: jaOptionsRetrieveString, \
-		default: jaOptionsRetrieveInt \
+#define jaOptionsRetrieve(options, name, dest, st)\
+	_Generic((dest),\
+		int* : jaOptionsRetrieveInt,\
+		bool* : jaOptionsRetrieveBool,\
+		float* : jaOptionsRetrieveFloat,\
+		char* : jaOptionsRetrieveString,\
+		default : jaOptionsRetrieveInt\
 	)(options, name, dest, st)
-
-#endif
 
 #endif

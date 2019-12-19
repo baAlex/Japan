@@ -189,7 +189,9 @@ int jaSoundSaveAu(const struct jaSound* sound, const char* filename, struct jaSt
 		return 1;
 	}
 
-	if ((file = fopen(filename, "wb")) == NULL)
+	fopen_s(&file, filename, "wb");
+
+	if (file == NULL)
 	{
 		jaStatusSet(st, "jaSoundSaveAu", STATUS_FS_ERROR, "'%s'", filename);
 		return 1;
