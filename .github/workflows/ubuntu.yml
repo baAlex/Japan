@@ -29,4 +29,6 @@ jobs:
         make
 
     - name: Run test suite
-      run: ./test-suite
+      run: |
+        cd build-debug
+        ./test-suite
