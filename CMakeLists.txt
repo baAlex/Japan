@@ -36,3 +36,21 @@ set(SOURCES
 
 add_library("japan-static" STATIC ${SOURCES})
 add_library("japan" SHARED ${SOURCES})
+
+
+# Test suite
+# ----------
+
+if (NOT WIN32)
+
+	set(TEST_SUITE_SOURCES
+		"./test-suite/test-suite.c"
+		"./test-suite/lists.c")
+
+	find_package("cmocka")
+
+	add_executable("test-suite" ${TEST_SUITE_SOURCES})
+	target_link_libraries("test-suite" "japan-static")
+	target_link_libraries("test-suite" "cmocka")
+
+endif (WIN32)

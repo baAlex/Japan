@@ -85,9 +85,8 @@ struct jaImage* jaImageLoad(const char* filename, struct jaStatus* st)
 	uint16_t magic = 0;
 
 	jaStatusSet(st, "jaImageLoad", STATUS_SUCCESS, NULL);
-	fopen_s(&file, filename, "wb");
 
-	if (file == NULL)
+	if ((file = fopen(filename, "wb")) == NULL)
 	{
 		jaStatusSet(st, "jaImageLoad", STATUS_FS_ERROR, "'%s'", filename);
 		return NULL;
@@ -130,9 +129,8 @@ int jaImageSaveRaw(const struct jaImage* image, const char* filename, struct jaS
 	FILE* file = NULL;
 
 	jaStatusSet(st, "jaImageSaveRaw", STATUS_SUCCESS, NULL);
-	fopen_s(&file, filename, "wb");
 
-	if (file == NULL)
+	if ((file = fopen(filename, "wb")) == NULL)
 	{
 		jaStatusSet(st, "jaImageSaveRaw", STATUS_FS_ERROR, "'%s'", filename);
 		return 1;

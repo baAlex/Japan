@@ -35,6 +35,7 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
+#include "annex-k.h"
 #include "common.h"
 #include "japan-dictionary.h"
 
@@ -393,7 +394,7 @@ struct jaDictionaryItem* jaDictionaryAdd(struct jaDictionary* dictionary, const 
 	if ((item = malloc(sizeof(struct jaDictionaryItem) + (key_size + 1) + data_size)) != NULL)
 	{
 		item->dictionary = dictionary;
-		strncpy_s(item->key, key_size, key, key_size);
+		strncpy(item->key, key, key_size);
 
 		if (data_size == 0)
 			item->data = data;

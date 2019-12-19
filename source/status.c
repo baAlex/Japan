@@ -31,8 +31,8 @@ SOFTWARE.
 #include <stdio.h>
 #include <string.h>
 
+#include "annex-k.h"
 #include "japan-status.h"
-
 
 void jaStatusSet(struct jaStatus* st, const char* function_name, enum jaStatusCode c, const char* explanation_fmt, ...)
 {
@@ -44,7 +44,7 @@ void jaStatusSet(struct jaStatus* st, const char* function_name, enum jaStatusCo
 	st->code = c;
 
 	if (function_name != NULL)
-		strncpy_s(st->function_name, JA_STATUS_FNAME_LEN, function_name, strlen(function_name));
+		strncpy(st->function_name, function_name, JA_STATUS_FNAME_LEN);
 
 	if (explanation_fmt != NULL)
 	{

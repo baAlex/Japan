@@ -30,7 +30,6 @@ SOFTWARE.
  http://pubs.opengroup.org/external/auformat.html
 -----------------------------*/
 
-#include "../common.h"
 #include "private.h"
 
 
@@ -189,9 +188,7 @@ int jaSoundSaveAu(const struct jaSound* sound, const char* filename, struct jaSt
 		return 1;
 	}
 
-	fopen_s(&file, filename, "wb");
-
-	if (file == NULL)
+	if ((file = fopen(filename, "wb")) == NULL)
 	{
 		jaStatusSet(st, "jaSoundSaveAu", STATUS_FS_ERROR, "'%s'", filename);
 		return 1;
