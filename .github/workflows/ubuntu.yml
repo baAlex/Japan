@@ -3,11 +3,16 @@ name: Ubuntu
 on: [push]
 
 jobs:
-  builds:
-    name: "Builds"
+  ci:
+    name: "CI"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install libcmocka-dev
 
     - name: Compile release build
       run: |
@@ -22,3 +27,6 @@ jobs:
         cd build-debug
         cmake -DCMAKE_BUILD_TYPE=Debug ..
         make
+
+    - name: Run test suite
+      run: ./test-suite

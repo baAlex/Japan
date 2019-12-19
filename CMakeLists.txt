@@ -53,4 +53,4 @@ if (NOT WIN32)
 	target_link_libraries("test-suite" "japan-static")
 	target_link_libraries("test-suite" "cmocka")
 
-endif (WIN32)
+endif (NOT WIN32)
