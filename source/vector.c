@@ -28,83 +28,94 @@ SOFTWARE.
  - Alexander Brandt 2019
 -----------------------------*/
 
+#include "japan-vector.h"
 #include <math.h>
-
-#include "vector.h"
-#include "common.h"
 
 
 /*-----------------------------
 
  Vector2
 -----------------------------*/
-EXPORT inline struct Vector2 Vector2Clean()
+inline struct jaVector2 jaVector2Clean()
 {
-	return (struct Vector2){0.0f, 0.0f};
+	return (struct jaVector2){0.0f, 0.0f};
 }
 
-EXPORT inline struct Vector2 Vector2Set(float x, float y)
+
+inline struct jaVector2 jaVector2Set(float x, float y)
 {
-	return (struct Vector2){x, y};
+	return (struct jaVector2){x, y};
 }
 
-EXPORT inline struct Vector2 Vector2Add(struct Vector2 a, struct Vector2 b)
+
+inline struct jaVector2 jaVector2Add(struct jaVector2 a, struct jaVector2 b)
 {
-	return (struct Vector2){(a.x + b.x), (a.y + b.y)};
+	return (struct jaVector2){(a.x + b.x), (a.y + b.y)};
 }
 
-EXPORT inline struct Vector2 Vector2Subtract(struct Vector2 a, struct Vector2 b)
+
+inline struct jaVector2 jaVector2Subtract(struct jaVector2 a, struct jaVector2 b)
 {
-	return (struct Vector2){(a.x - b.x), (a.y - b.y)};
+	return (struct jaVector2){(a.x - b.x), (a.y - b.y)};
 }
 
-EXPORT inline struct Vector2 Vector2Multiply(struct Vector2 a, struct Vector2 b)
+
+inline struct jaVector2 jaVector2Multiply(struct jaVector2 a, struct jaVector2 b)
 {
-	return (struct Vector2){(a.x * b.x), (a.y * b.y)};
+	return (struct jaVector2){(a.x * b.x), (a.y * b.y)};
 }
 
-EXPORT inline struct Vector2 Vector2Divide(struct Vector2 a, struct Vector2 b)
+
+inline struct jaVector2 jaVector2Divide(struct jaVector2 a, struct jaVector2 b)
 {
-	return (struct Vector2){(a.x / b.x), (a.y / b.y)};
+	return (struct jaVector2){(a.x / b.x), (a.y / b.y)};
 }
 
-EXPORT inline struct Vector2 Vector2Invert(struct Vector2 v)
+
+inline struct jaVector2 jaVector2Invert(struct jaVector2 v)
 {
-	return (struct Vector2){(-v.x), (-v.y)};
+	return (struct jaVector2){(-v.x), (-v.y)};
 }
 
-EXPORT inline struct Vector2 Vector2Scale(struct Vector2 v, float scale)
+
+inline struct jaVector2 jaVector2Scale(struct jaVector2 v, float scale)
 {
-	return (struct Vector2){(v.x * scale), (v.y * scale)};
+	return (struct jaVector2){(v.x * scale), (v.y * scale)};
 }
 
-EXPORT inline struct Vector2 Vector2Normalize(struct Vector2 v)
+
+inline struct jaVector2 jaVector2Normalize(struct jaVector2 v)
 {
-	float length = Vector2Length(v);
-	return (struct Vector2){(v.x / length), (v.y / length)};
+	float length = jaVector2Length(v);
+	return (struct jaVector2){(v.x / length), (v.y / length)};
 }
 
-EXPORT inline float Vector2Cross(struct Vector2 a, struct Vector2 b)
+
+inline float jaVector2Cross(struct jaVector2 a, struct jaVector2 b)
 {
 	return (a.x * b.y) - (a.y * b.x);
 }
 
-EXPORT inline float Vector2Length(struct Vector2 v)
+
+inline float jaVector2Length(struct jaVector2 v)
 {
 	return sqrtf(powf(v.x, 2.0f) + powf(v.y, 2.0f));
 }
 
-EXPORT inline float Vector2Distance(struct Vector2 a, struct Vector2 b)
+
+inline float jaVector2Distance(struct jaVector2 a, struct jaVector2 b)
 {
 	return sqrtf(powf(b.x - a.x, 2.0f) + powf(b.y - a.y, 2.0f));
 }
 
-EXPORT inline float Vector2Dot(struct Vector2 a, struct Vector2 b)
+
+inline float jaVector2Dot(struct jaVector2 a, struct jaVector2 b)
 {
 	return (a.x * b.x) + (a.y * b.y);
 }
 
-EXPORT inline bool Vector2Equals(struct Vector2 a, struct Vector2 b)
+
+inline bool jaVector2Equals(struct jaVector2 a, struct jaVector2 b)
 {
 	if (a.x != b.x || a.y != b.y)
 		return false;
@@ -117,73 +128,86 @@ EXPORT inline bool Vector2Equals(struct Vector2 a, struct Vector2 b)
 
  Vector3
 -----------------------------*/
-EXPORT inline struct Vector3 Vector3Clean()
+inline struct jaVector3 jaVector3Clean()
 {
-	return (struct Vector3){0.0f, 0.0f, 0.0f};
+	return (struct jaVector3){0.0f, 0.0f, 0.0f};
 }
 
-EXPORT inline struct Vector3 Vector3Set(float x, float y, float z)
+
+inline struct jaVector3 jaVector3Set(float x, float y, float z)
 {
-	return (struct Vector3){x, y, z};
+	return (struct jaVector3){x, y, z};
 }
 
-EXPORT inline struct Vector3 Vector3Add(struct Vector3 a, struct Vector3 b)
+
+inline struct jaVector3 jaVector3Add(struct jaVector3 a, struct jaVector3 b)
 {
-	return (struct Vector3){(a.x + b.x), (a.y + b.y), (a.z + b.z)};
+	return (struct jaVector3){(a.x + b.x), (a.y + b.y), (a.z + b.z)};
 }
 
-EXPORT inline struct Vector3 Vector3Subtract(struct Vector3 a, struct Vector3 b)
+
+inline struct jaVector3 jaVector3Subtract(struct jaVector3 a, struct jaVector3 b)
 {
-	return (struct Vector3){(a.x - b.x), (a.y - b.y), (a.z - b.z)};
+	return (struct jaVector3){(a.x - b.x), (a.y - b.y), (a.z - b.z)};
 }
 
-EXPORT inline struct Vector3 Vector3Multiply(struct Vector3 a, struct Vector3 b)
+
+inline struct jaVector3 jaVector3Multiply(struct jaVector3 a, struct jaVector3 b)
 {
-	return (struct Vector3){(a.x * b.x), (a.y * b.y), (a.z * b.z)};
+	return (struct jaVector3){(a.x * b.x), (a.y * b.y), (a.z * b.z)};
 }
 
-EXPORT inline struct Vector3 Vector3Divide(struct Vector3 a, struct Vector3 b)
+
+inline struct jaVector3 jaVector3Divide(struct jaVector3 a, struct jaVector3 b)
 {
-	return (struct Vector3){(a.x / b.x), (a.y / b.y), (a.z / b.z)};
+	return (struct jaVector3){(a.x / b.x), (a.y / b.y), (a.z / b.z)};
 }
 
-EXPORT inline struct Vector3 Vector3Invert(struct Vector3 v)
+
+inline struct jaVector3 jaVector3Invert(struct jaVector3 v)
 {
-	return (struct Vector3){(-v.x), (-v.y), (-v.z)};
+	return (struct jaVector3){(-v.x), (-v.y), (-v.z)};
 }
 
-EXPORT inline struct Vector3 Vector3Scale(struct Vector3 v, float scale)
+
+inline struct jaVector3 jaVector3Scale(struct jaVector3 v, float scale)
 {
-	return (struct Vector3){(v.x * scale), (v.y * scale), (v.z * scale)};
+	return (struct jaVector3){(v.x * scale), (v.y * scale), (v.z * scale)};
 }
 
-EXPORT inline struct Vector3 Vector3Normalize(struct Vector3 v)
+
+inline struct jaVector3 jaVector3Normalize(struct jaVector3 v)
 {
-	float length = Vector3Length(v);
-	return (struct Vector3){(v.x / length), (v.y / length), (v.z / length)};
+	float length = jaVector3Length(v);
+	return (struct jaVector3){(v.x / length), (v.y / length), (v.z / length)};
 }
 
-EXPORT inline struct Vector3 Vector3Cross(struct Vector3 a, struct Vector3 b)
+
+inline struct jaVector3 jaVector3Cross(struct jaVector3 a, struct jaVector3 b)
 {
-	return (struct Vector3){(a.y * b.z - a.z * b.y), (a.z * b.x - a.x * b.z), (a.x * b.y - a.y * b.x)};
+	return (struct jaVector3){(a.y * b.z - a.z * b.y), (a.z * b.x - a.x * b.z), (a.x * b.y - a.y * b.x)};
 }
 
-EXPORT inline float Vector3Length(struct Vector3 v)
+
+inline float jaVector3Length(struct jaVector3 v)
 {
 	return sqrtf(powf(v.x, 2.0f) + powf(v.y, 2.0f) + powf(v.z, 2.0f));
 }
 
-EXPORT inline float Vector3Distance(struct Vector3 a, struct Vector3 b)
+
+inline float jaVector3Distance(struct jaVector3 a, struct jaVector3 b)
 {
 	return sqrtf(powf(b.x - a.x, 2.0f) + powf(b.y - a.y, 2.0f) + powf(b.z - a.z, 2.0f));
 }
 
-EXPORT inline float Vector3Dot(struct Vector3 a, struct Vector3 b)
+
+inline float jaVector3Dot(struct jaVector3 a, struct jaVector3 b)
 {
 	return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
 }
 
-EXPORT inline bool Vector3Equals(struct Vector3 a, struct Vector3 b)
+
+inline bool jaVector3Equals(struct jaVector3 a, struct jaVector3 b)
 {
 	if (a.x != b.x || a.y != b.y || a.z != b.z)
 		return false;
@@ -196,68 +220,80 @@ EXPORT inline bool Vector3Equals(struct Vector3 a, struct Vector3 b)
 
  Vector4
 -----------------------------*/
-EXPORT inline struct Vector4 Vector4Clean()
+inline struct jaVector4 jaVector4Clean()
 {
-	return (struct Vector4){0.0f, 0.0f, 0.0f, 0.0f};
+	return (struct jaVector4){0.0f, 0.0f, 0.0f, 0.0f};
 }
 
-EXPORT inline struct Vector4 Vector4Set(float x, float y, float z, float u)
+
+inline struct jaVector4 jaVector4Set(float x, float y, float z, float u)
 {
-	return (struct Vector4){x, y, z, u};
+	return (struct jaVector4){x, y, z, u};
 }
 
-EXPORT inline struct Vector4 Vector4Add(struct Vector4 a, struct Vector4 b)
+
+inline struct jaVector4 jaVector4Add(struct jaVector4 a, struct jaVector4 b)
 {
-	return (struct Vector4){(a.x + b.x), (a.y + b.y), (a.z + b.z), (a.w + b.w)};
+	return (struct jaVector4){(a.x + b.x), (a.y + b.y), (a.z + b.z), (a.w + b.w)};
 }
 
-EXPORT inline struct Vector4 Vector4Subtract(struct Vector4 a, struct Vector4 b)
+
+inline struct jaVector4 jaVector4Subtract(struct jaVector4 a, struct jaVector4 b)
 {
-	return (struct Vector4){(a.x - b.x), (a.y - b.y), (a.z - b.z), (a.w - b.w)};
+	return (struct jaVector4){(a.x - b.x), (a.y - b.y), (a.z - b.z), (a.w - b.w)};
 }
 
-EXPORT inline struct Vector4 Vector4Multiply(struct Vector4 a, struct Vector4 b)
+
+inline struct jaVector4 jaVector4Multiply(struct jaVector4 a, struct jaVector4 b)
 {
-	return (struct Vector4){(a.x * b.x), (a.y * b.y), (a.z * b.z), (a.w * b.w)};
+	return (struct jaVector4){(a.x * b.x), (a.y * b.y), (a.z * b.z), (a.w * b.w)};
 }
 
-EXPORT inline struct Vector4 Vector4Divide(struct Vector4 a, struct Vector4 b)
+
+inline struct jaVector4 jaVector4Divide(struct jaVector4 a, struct jaVector4 b)
 {
-	return (struct Vector4){(a.x / b.x), (a.y / b.y), (a.z / b.z), (a.w / b.w)};
+	return (struct jaVector4){(a.x / b.x), (a.y / b.y), (a.z / b.z), (a.w / b.w)};
 }
 
-EXPORT inline struct Vector4 Vector4Invert(struct Vector4 v)
+
+inline struct jaVector4 jaVector4Invert(struct jaVector4 v)
 {
-	return (struct Vector4){(-v.x), (-v.y), (-v.z), (-v.w)};
+	return (struct jaVector4){(-v.x), (-v.y), (-v.z), (-v.w)};
 }
 
-EXPORT inline struct Vector4 Vector4Scale(struct Vector4 v, float scale)
+
+inline struct jaVector4 jaVector4Scale(struct jaVector4 v, float scale)
 {
-	return (struct Vector4){(v.x * scale), (v.y * scale), (v.z * scale), (v.w * scale)};
+	return (struct jaVector4){(v.x * scale), (v.y * scale), (v.z * scale), (v.w * scale)};
 }
 
-EXPORT inline struct Vector4 Vector4Normalize(struct Vector4 v)
+
+inline struct jaVector4 jaVector4Normalize(struct jaVector4 v)
 {
-	float length = Vector4Length(v);
-	return (struct Vector4){(v.x / length), (v.y / length), (v.z / length), (v.w / length)};
+	float length = jaVector4Length(v);
+	return (struct jaVector4){(v.x / length), (v.y / length), (v.z / length), (v.w / length)};
 }
 
-EXPORT inline float Vector4Length(struct Vector4 v)
+
+inline float jaVector4Length(struct jaVector4 v)
 {
 	return sqrtf(powf(v.x, 2.0f) + powf(v.y, 2.0f) + powf(v.z, 2.0f) + powf(v.w, 2.0f));
 }
 
-EXPORT inline float Vector4Distance(struct Vector4 a, struct Vector4 b)
+
+inline float jaVector4Distance(struct jaVector4 a, struct jaVector4 b)
 {
 	return sqrtf(powf(b.x - a.x, 2.0f) + powf(b.y - a.y, 2.0f) + powf(b.z - a.z, 2.0f) + powf(b.w - a.w, 2.0f));
 }
 
-EXPORT inline float Vector4Dot(struct Vector4 a, struct Vector4 b)
+
+inline float jaVector4Dot(struct jaVector4 a, struct jaVector4 b)
 {
 	return (a.x * b.x) + (a.y * b.y) + (a.z * b.z) + (a.w * b.w);
 }
 
-EXPORT inline bool Vector4Equals(struct Vector4 a, struct Vector4 b)
+
+inline bool jaVector4Equals(struct jaVector4 a, struct jaVector4 b)
 {
 	if (a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w)
 		return false;

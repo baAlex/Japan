@@ -31,17 +31,16 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
-#include "common.h"
-#include "tree.h"
+#include "japan-tree.h"
 
 
 /*-----------------------------
 
- TreeIterate()
+ jaTreeIterate()
 -----------------------------*/
-EXPORT struct Tree* TreeIterate(struct TreeState* state, struct Buffer* buffer)
+struct jaTree* jaTreeIterate(struct jaTreeState* state, struct jaBuffer* buffer)
 {
-	struct Tree** future_parent_heap = NULL;
+	struct jaTree** future_parent_heap = NULL;
 
 	if (state->start != NULL)
 	{
@@ -64,14 +63,14 @@ EXPORT struct Tree* TreeIterate(struct TreeState* state, struct Buffer* buffer)
 		// Childrens
 		if (state->actual->children != NULL)
 		{
-			if (state->depth < TREE_STACK_DEPTH)
+			if (state->depth < JA_TREE_STACK_DEPTH)
 			{
 				state->future_parent[state->depth] = state->actual->next;
 				state->future_return = state->actual->children;
 			}
 			else if (buffer != NULL)
 			{
-				if (BufferResize(buffer, (state->depth + 1) * sizeof(void*)) == NULL)
+				if (jaBufferResize(buffer, (state->depth + 1) * sizeof(void*)) == NULL)
 					return NULL;
 
 				future_parent_heap = buffer->data;
@@ -97,7 +96,7 @@ EXPORT struct Tree* TreeIterate(struct TreeState* state, struct Buffer* buffer)
 
 			while ((state->future_depth -= 1) > 0)
 			{
-				if (state->future_depth < TREE_STACK_DEPTH)
+				if (state->future_depth < JA_TREE_STACK_DEPTH)
 				{
 					if (state->future_parent[state->future_depth] != NULL)
 					{
@@ -123,19 +122,19 @@ EXPORT struct Tree* TreeIterate(struct TreeState* state, struct Buffer* buffer)
 
 /*-----------------------------
 
- TreeCreate()
+ jaTreeCreate()
 -----------------------------*/
-EXPORT struct Tree* TreeCreate(struct Tree* parent, void* data, size_t data_size)
+struct jaTree* jaTreeCreate(struct jaTree* parent, void* data, size_t data_size)
 {
-	struct Tree* tree = NULL;
+	struct jaTree* tree = NULL;
 
-	if ((tree = malloc(sizeof(struct Tree) + data_size)) != NULL)
+	if ((tree = malloc(sizeof(struct jaTree) + data_size)) != NULL)
 	{
 		if (data_size == 0)
 			tree->data = data;
 		else
 		{
-			tree->data = (void*)((struct Tree*)tree + 1);
+			tree->data = (void*)((struct jaTree*)tree + 1);
 
 			if (data != NULL)
 				memcpy(tree->data, data, data_size);
@@ -148,7 +147,7 @@ EXPORT struct Tree* TreeCreate(struct Tree* parent, void* data, size_t data_size
 		tree->previous = NULL;
 		tree->next = NULL;
 
-		TreeAttach(tree, parent);
+		jaTreeAttach(tree, parent);
 	}
 
 	return tree;
@@ -157,19 +156,19 @@ EXPORT struct Tree* TreeCreate(struct Tree* parent, void* data, size_t data_size
 
 /*-----------------------------
 
- TreeDelete()
+ jaTreeDelete()
 -----------------------------*/
-EXPORT void TreeDelete(struct Tree* tree)
+void jaTreeDelete(struct jaTree* tree)
 {
-	struct TreeState state;
-	struct Buffer buffer = {0};
+	struct jaTreeState state;
+	struct jaBuffer buffer = {0};
 
 	if (tree != NULL)
 	{
 		state.start = tree;
-		TreeDetach(tree);
+		jaTreeDetach(tree);
 
-		while ((tree = TreeIterate(&state, &buffer)) != NULL)
+		while ((tree = jaTreeIterate(&state, &buffer)) != NULL)
 		{
 			if (tree->callback_delete != NULL)
 				tree->callback_delete(tree->data);
@@ -177,16 +176,16 @@ EXPORT void TreeDelete(struct Tree* tree)
 			free(tree);
 		}
 
-		BufferClean(&buffer);
+		jaBufferClean(&buffer);
 	}
 }
 
 
 /*-----------------------------
 
- TreeAttach()
+ jaTreeAttach()
 -----------------------------*/
-EXPORT inline int TreeAttach(struct Tree* tree, struct Tree* new_parent)
+inline int jaTreeAttach(struct jaTree* tree, struct jaTree* new_parent)
 {
 	if (tree->parent == NULL && new_parent != NULL)
 	{
@@ -224,9 +223,9 @@ EXPORT inline int TreeAttach(struct Tree* tree, struct Tree* new_parent)
 
 /*-----------------------------
 
- TreeDetach()
+ jaTreeDetach()
 -----------------------------*/
-EXPORT inline int TreeDetach(struct Tree* tree)
+inline int jaTreeDetach(struct jaTree* tree)
 {
 	if (tree->parent != NULL)
 	{

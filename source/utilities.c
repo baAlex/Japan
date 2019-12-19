@@ -31,54 +31,46 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
-#include "common.h"
-#include "utilities.h"
+#include "japan-utilities.h"
 
 
-EXPORT inline float DegToRad(float value)
+inline float jaDegToRad(float value)
 {
 	return value * M_PI / 180.0f;
 }
 
-EXPORT inline float RadToDeg(float value)
+
+inline float jaRadToDeg(float value)
 {
 	return value * 180.0f / M_PI;
 }
 
 
-EXPORT inline int MaxInt(int a, int b)
-{
-	return (a > b) ? a : b;
-}
-
-EXPORT inline size_t MaxSizeT(size_t a, size_t b)
-{
-	return (a > b) ? a : b;
-}
-
-EXPORT inline float MaxFloat(float a, float b)
+inline int jaMaxInt(int a, int b)
 {
 	return (a > b) ? a : b;
 }
 
 
-EXPORT inline int MinInt(int a, int b)
+inline size_t jaMaxSizeT(size_t a, size_t b)
+{
+	return (a > b) ? a : b;
+}
+
+
+inline int jaMinInt(int a, int b)
 {
 	return (a < b) ? a : b;
 }
 
-EXPORT inline size_t MinSizeT(size_t a, size_t b)
+
+inline size_t jaMinSizeT(size_t a, size_t b)
 {
 	return (a < b) ? a : b;
 }
 
-EXPORT inline float MinFloat(float a, float b)
-{
-	return (a < b) ? a : b;
-}
 
-
-EXPORT inline int ClampInt(int v, int min, int max)
+inline int jaClampInt(int v, int min, int max)
 {
 	if (v > max)
 		return max;
@@ -89,7 +81,8 @@ EXPORT inline int ClampInt(int v, int min, int max)
 	return v;
 }
 
-EXPORT inline size_t ClampSizeT(size_t v, size_t min, size_t max)
+
+inline size_t jaClampSizeT(size_t v, size_t min, size_t max)
 {
 	if (v > max)
 		return max;
@@ -100,7 +93,8 @@ EXPORT inline size_t ClampSizeT(size_t v, size_t min, size_t max)
 	return v;
 }
 
-EXPORT inline float ClampFloat(float v, float min, float max)
+
+inline float jaClampFloat(float v, float min, float max)
 {
 	if (v > max)
 		return max;

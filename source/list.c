@@ -31,26 +31,21 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
-#include "common.h"
-#include "list.h"
+#include "japan-list.h"
 
 
-/*-----------------------------
-
- sAllocItem()
------------------------------*/
-static struct ListItem* sAllocItem(struct List* list, void* data, size_t data_size)
+static struct jaListItem* sAllocItem(struct jaList* list, void* data, size_t data_size)
 {
-	struct ListItem* item = NULL;
+	struct jaListItem* item = NULL;
 
-	if ((item = malloc(sizeof(struct ListItem) + data_size)) == NULL)
+	if ((item = malloc(sizeof(struct jaListItem) + data_size)) == NULL)
 		return NULL;
 
 	if (data_size == 0)
 		item->data = data;
 	else
 	{
-		item->data = (void*)((struct ListItem*)item + 1);
+		item->data = (void*)((struct jaListItem*)item + 1);
 
 		if (data != NULL)
 			memcpy(item->data, data, data_size);
@@ -67,22 +62,22 @@ static struct ListItem* sAllocItem(struct List* list, void* data, size_t data_si
 
 /*-----------------------------
 
- ListClean()
+ jaListClean()
 -----------------------------*/
-EXPORT inline void ListClean(struct List* list)
+inline void jaListClean(struct jaList* list)
 {
 	while (list->last != NULL)
-		ListRemove(list->last); // NOLINT(clang-analyzer-unix.Malloc)
+		jaListRemove(list->last); // NOLINT(clang-analyzer-unix.Malloc)
 }
 
 
 /*-----------------------------
 
- ListAdd()
+ jaListAdd()
 -----------------------------*/
-EXPORT struct ListItem* ListAdd(struct List* list, void* data, size_t data_size)
+struct jaListItem* jaListAdd(struct jaList* list, void* data, size_t data_size)
 {
-	struct ListItem* new_item = NULL;
+	struct jaListItem* new_item = NULL;
 
 	if ((new_item = sAllocItem(list, data, data_size)) == NULL)
 		return NULL;
@@ -105,11 +100,11 @@ EXPORT struct ListItem* ListAdd(struct List* list, void* data, size_t data_size)
 
 /*-----------------------------
 
- ListAddAfter()
+ jaListAddAfter()
 -----------------------------*/
-EXPORT struct ListItem* ListAddAfter(struct ListItem* item, void* data, size_t data_size)
+struct jaListItem* jaListAddAfter(struct jaListItem* item, void* data, size_t data_size)
 {
-	struct ListItem* new_item = NULL;
+	struct jaListItem* new_item = NULL;
 
 	if ((new_item = sAllocItem(item->list, data, data_size)) == NULL)
 		return NULL;
@@ -137,11 +132,11 @@ EXPORT struct ListItem* ListAddAfter(struct ListItem* item, void* data, size_t d
 
 /*-----------------------------
 
- ListAddBefore()
+ jaListAddBefore()
 -----------------------------*/
-EXPORT struct ListItem* ListAddBefore(struct ListItem* item, void* data, size_t data_size)
+struct jaListItem* jaListAddBefore(struct jaListItem* item, void* data, size_t data_size)
 {
-	struct ListItem* new_item = NULL;
+	struct jaListItem* new_item = NULL;
 
 	if ((new_item = sAllocItem(item->list, data, data_size)) == NULL)
 		return NULL;
@@ -169,11 +164,11 @@ EXPORT struct ListItem* ListAddBefore(struct ListItem* item, void* data, size_t 
 
 /*-----------------------------
 
- ListRemove()
+ jaListRemove()
 -----------------------------*/
-EXPORT void ListRemove(struct ListItem* item)
+void jaListRemove(struct jaListItem* item)
 {
-	ListDetach(item);
+	jaListDetach(item);
 
 	if (item->callback_delete != NULL)
 		item->callback_delete(item->data);
@@ -184,9 +179,9 @@ EXPORT void ListRemove(struct ListItem* item)
 
 /*-----------------------------
 
- ListDetach()
+ jaListDetach()
 -----------------------------*/
-EXPORT inline int ListDetach(struct ListItem* item)
+inline int jaListDetach(struct jaListItem* item)
 {
 	if (item->list != NULL)
 	{
@@ -215,11 +210,11 @@ EXPORT inline int ListDetach(struct ListItem* item)
 
 /*-----------------------------
 
- ListIterate()
+ jaListIterate()
 -----------------------------*/
-EXPORT struct ListItem* ListIterate(struct ListState* state)
+struct jaListItem* jaListIterate(struct jaListState* state)
 {
-	struct ListItem* to_return = NULL;
+	struct jaListItem* to_return = NULL;
 
 	if (state->start != NULL)
 	{

@@ -30,58 +30,14 @@ SOFTWARE.
  https://www.ibm.com/developerworks/aix/library/au-endianc/index.html
 -----------------------------*/
 
-#include "endianness.h"
-#include "common.h"
-
-
-EXPORT inline int64_t EndianReverseI64(int64_t value)
-{
-	union { int64_t i; uint64_t u; } conv = {.i = value};
-	conv.u = EndianReverseU64(conv.u);
-	return conv.i;
-}
-
-EXPORT inline int32_t EndianReverseI32(int32_t value)
-{
-	union { int32_t i; uint32_t u; } conv = {.i = value};
-	conv.u = EndianReverseU32(conv.u);
-	return conv.i;
-}
-
-EXPORT inline int16_t EndianReverseI16(int16_t value)
-{
-	union { int16_t i; uint16_t u; } conv = {.i = value};
-	conv.u = EndianReverseU16(conv.u);
-	return conv.i;
-}
-
-EXPORT inline int64_t EndianToI64(int64_t value, enum Endianness from, enum Endianness to)
-{
-	union { int64_t i; uint64_t u; } conv = {.i = value};
-	conv.u = EndianToU64(conv.u, from, to);
-	return conv.i;
-}
-
-EXPORT inline int32_t EndianToI32(int32_t value, enum Endianness from, enum Endianness to)
-{
-	union { int32_t i; uint32_t u; } conv = {.i = value};
-	conv.u = EndianToU32(conv.u, from, to);
-	return conv.i;
-}
-
-EXPORT inline int16_t EndianToI16(int16_t value, enum Endianness from, enum Endianness to)
-{
-	union { int16_t i; uint16_t u; } conv = {.i = value};
-	conv.u = EndianToU16(conv.u, from, to);
-	return conv.i;
-}
+#include "japan-endianness.h"
 
 
 /*-----------------------------
 
- EndianSystem()
+ jaEndianSystem()
 -----------------------------*/
-EXPORT inline enum Endianness EndianSystem()
+inline enum jaEndianness jaEndianSystem()
 {
 	int16_t i = 1;
 	int8_t* p = (int8_t*)&i;
@@ -95,9 +51,9 @@ EXPORT inline enum Endianness EndianSystem()
 
 /*-----------------------------
 
- EndianReverse
+ jaEndianReverseU
 -----------------------------*/
-EXPORT inline uint64_t EndianReverseU64(uint64_t value)
+inline uint64_t jaEndianReverseU64(uint64_t value)
 {
 	uint8_t b1 = (uint8_t)((uint64_t)value & 0xFF);
 	uint8_t b2 = (uint8_t)((uint64_t)value >> 8) & 0xFF;
@@ -112,7 +68,8 @@ EXPORT inline uint64_t EndianReverseU64(uint64_t value)
 	       ((uint64_t)b5 << 24) | ((uint64_t)b6 << 16) | ((uint64_t)b7 << 8) | b8;
 }
 
-EXPORT inline uint32_t EndianReverseU32(uint32_t value)
+
+inline uint32_t jaEndianReverseU32(uint32_t value)
 {
 	uint8_t b1 = (uint8_t)((uint32_t)value & 0xFF);
 	uint8_t b2 = (uint8_t)((uint32_t)value >> 8) & 0xFF;
@@ -122,7 +79,8 @@ EXPORT inline uint32_t EndianReverseU32(uint32_t value)
 	return ((uint32_t)b1 << 24) | ((uint32_t)b2 << 16) | ((uint32_t)b3 << 8) | b4;
 }
 
-EXPORT inline uint16_t EndianReverseU16(uint16_t value)
+
+inline uint16_t jaEndianReverseU16(uint16_t value)
 {
 	uint8_t b1 = (uint8_t)((uint16_t)value & 0xFF);
 	uint8_t b2 = (uint8_t)((uint16_t)value >> 8);
@@ -133,37 +91,109 @@ EXPORT inline uint16_t EndianReverseU16(uint16_t value)
 
 /*-----------------------------
 
- EndianTo
+ jaEndianToU
 -----------------------------*/
-EXPORT uint64_t EndianToU64(uint64_t value, enum Endianness from, enum Endianness to)
+uint64_t jaEndianToU64(uint64_t value, enum jaEndianness from, enum jaEndianness to)
 {
-	to = (to == ENDIAN_SYSTEM) ? EndianSystem() : to;
-	from = (from == ENDIAN_SYSTEM) ? EndianSystem() : from;
+	to = (to == ENDIAN_SYSTEM) ? jaEndianSystem() : to;
+	from = (from == ENDIAN_SYSTEM) ? jaEndianSystem() : from;
 
 	if (from == to)
 		return value;
 
-	return EndianReverseU64(value);
+	return jaEndianReverseU64(value);
 }
 
-EXPORT uint32_t EndianToU32(uint32_t value, enum Endianness from, enum Endianness to)
+
+uint32_t jaEndianToU32(uint32_t value, enum jaEndianness from, enum jaEndianness to)
 {
-	to = (to == ENDIAN_SYSTEM) ? EndianSystem() : to;
-	from = (from == ENDIAN_SYSTEM) ? EndianSystem() : from;
+	to = (to == ENDIAN_SYSTEM) ? jaEndianSystem() : to;
+	from = (from == ENDIAN_SYSTEM) ? jaEndianSystem() : from;
 
 	if (from == to)
 		return value;
 
-	return EndianReverseU32(value);
+	return jaEndianReverseU32(value);
 }
 
-EXPORT uint16_t EndianToU16(uint16_t value, enum Endianness from, enum Endianness to)
+
+uint16_t jaEndianToU16(uint16_t value, enum jaEndianness from, enum jaEndianness to)
 {
-	to = (to == ENDIAN_SYSTEM) ? EndianSystem() : to;
-	from = (from == ENDIAN_SYSTEM) ? EndianSystem() : from;
+	to = (to == ENDIAN_SYSTEM) ? jaEndianSystem() : to;
+	from = (from == ENDIAN_SYSTEM) ? jaEndianSystem() : from;
 
 	if (from == to)
 		return value;
 
-	return EndianReverseU16(value);
+	return jaEndianReverseU16(value);
+}
+
+
+/*-----------------------------
+
+ Integer "generics"
+-----------------------------*/
+inline int64_t jaEndianReverseI64(int64_t value)
+{
+	union {
+		int64_t i;
+		uint64_t u;
+	} conv = {.i = value};
+	conv.u = jaEndianReverseU64(conv.u);
+	return conv.i;
+}
+
+
+inline int32_t jaEndianReverseI32(int32_t value)
+{
+	union {
+		int32_t i;
+		uint32_t u;
+	} conv = {.i = value};
+	conv.u = jaEndianReverseU32(conv.u);
+	return conv.i;
+}
+
+
+inline int16_t jaEndianReverseI16(int16_t value)
+{
+	union {
+		int16_t i;
+		uint16_t u;
+	} conv = {.i = value};
+	conv.u = jaEndianReverseU16(conv.u);
+	return conv.i;
+}
+
+
+inline int64_t jaEndianToI64(int64_t value, enum jaEndianness from, enum jaEndianness to)
+{
+	union {
+		int64_t i;
+		uint64_t u;
+	} conv = {.i = value};
+	conv.u = jaEndianToU64(conv.u, from, to);
+	return conv.i;
+}
+
+
+inline int32_t jaEndianToI32(int32_t value, enum jaEndianness from, enum jaEndianness to)
+{
+	union {
+		int32_t i;
+		uint32_t u;
+	} conv = {.i = value};
+	conv.u = jaEndianToU32(conv.u, from, to);
+	return conv.i;
+}
+
+
+inline int16_t jaEndianToI16(int16_t value, enum jaEndianness from, enum jaEndianness to)
+{
+	union {
+		int16_t i;
+		uint16_t u;
+	} conv = {.i = value};
+	conv.u = jaEndianToU16(conv.u, from, to);
+	return conv.i;
 }

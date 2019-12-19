@@ -34,30 +34,30 @@ SOFTWARE.
 #include <string.h>
 
 #include "../common.h"
-#include "image.h"
+#include "japan-image.h"
 
 
 extern bool CheckMagicSgi(uint16_t value);
-extern struct Image* ImageLoadSgi(FILE* file, const char* filename, struct Status* st);
-extern int ImageExLoadSgi(FILE* file, struct ImageEx* out, struct Status* st);
+extern struct jaImage* ImageLoadSgi(FILE* file, const char* filename, struct jaStatus* st);
+extern int ImageExLoadSgi(FILE* file, struct jaImageEx* out, struct jaStatus* st);
 
 
 /*-----------------------------
 
- ImageCreate()
+ jaImageCreate()
 -----------------------------*/
-EXPORT struct Image* ImageCreate(enum ImageFormat format, size_t width, size_t height)
+struct jaImage* jaImageCreate(enum jaImageFormat format, size_t width, size_t height)
 {
-	struct Image* image = NULL;
-	size_t size = (size_t)ImageBytesPerPixel(format) * width * height;
+	struct jaImage* image = NULL;
+	size_t size = (size_t)jaBytesPerPixel(format) * width * height;
 
-	if ((image = malloc(sizeof(struct Image) + size)) != NULL)
+	if ((image = malloc(sizeof(struct jaImage) + size)) != NULL)
 	{
 		image->width = width;
 		image->height = height;
 		image->size = size;
 		image->format = format;
-		image->data = ((struct Image*)image + 1);
+		image->data = ((struct jaImage*)image + 1);
 	}
 
 	return image;
@@ -66,9 +66,9 @@ EXPORT struct Image* ImageCreate(enum ImageFormat format, size_t width, size_t h
 
 /*-----------------------------
 
- ImageDelete()
+ jaImageDelete()
 -----------------------------*/
-EXPORT inline void ImageDelete(struct Image* image)
+inline void jaImageDelete(struct jaImage* image)
 {
 	free(image);
 }
@@ -76,25 +76,25 @@ EXPORT inline void ImageDelete(struct Image* image)
 
 /*-----------------------------
 
- ImageLoad()
+ jaImageLoad()
 -----------------------------*/
-EXPORT struct Image* ImageLoad(const char* filename, struct Status* st)
+struct jaImage* jaImageLoad(const char* filename, struct jaStatus* st)
 {
 	FILE* file = NULL;
-	struct Image* image = NULL;
+	struct jaImage* image = NULL;
 	uint16_t magic = 0;
 
-	StatusSet(st, "ImageLoad", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaImageLoad", STATUS_SUCCESS, NULL);
 
 	if ((file = fopen(filename, "rb")) == NULL)
 	{
-		StatusSet(st, "ImageLoad", STATUS_FS_ERROR, "'%s'", filename);
+		jaStatusSet(st, "jaImageLoad", STATUS_FS_ERROR, "'%s'", filename);
 		return NULL;
 	}
 
 	if (fread(&magic, sizeof(uint16_t), 1, file) != 1)
 	{
-		StatusSet(st, "ImageLoad", STATUS_UNEXPECTED_EOF, "near magic ('%s')", filename);
+		jaStatusSet(st, "jaImageLoad", STATUS_UNEXPECTED_EOF, "near magic ('%s')", filename);
 		goto return_failure;
 	}
 
@@ -106,7 +106,7 @@ EXPORT struct Image* ImageLoad(const char* filename, struct Status* st)
 	//	image = ImageLoadBmp(file, filename, st;
 	else
 	{
-		StatusSet(st, "ImageLoad", STATUS_UNKNOWN_FILE_FORMAT, "'%s'", filename);
+		jaStatusSet(st, "jaImageLoad", STATUS_UNKNOWN_FILE_FORMAT, "'%s'", filename);
 		goto return_failure;
 	}
 
@@ -122,23 +122,23 @@ return_failure:
 
 /*-----------------------------
 
- ImageSaveRaw()
+ jaImageSaveRaw()
 -----------------------------*/
-EXPORT int ImageSaveRaw(const struct Image* image, const char* filename, struct Status* st)
+int jaImageSaveRaw(const struct jaImage* image, const char* filename, struct jaStatus* st)
 {
 	FILE* file = NULL;
 
-	StatusSet(st, "ImageSaveRaw", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaImageSaveRaw", STATUS_SUCCESS, NULL);
 
 	if ((file = fopen(filename, "wb")) == NULL)
 	{
-		StatusSet(st, "ImageSaveRaw", STATUS_FS_ERROR, "'%s'", filename);
+		jaStatusSet(st, "jaImageSaveRaw", STATUS_FS_ERROR, "'%s'", filename);
 		return 1;
 	}
 
 	if (fwrite(image->data, image->size, 1, file) != 1)
 	{
-		StatusSet(st, "ImageSaveRaw", STATUS_IO_ERROR, "'%s'", filename);
+		jaStatusSet(st, "jaImageSaveRaw", STATUS_IO_ERROR, "'%s'", filename);
 		fclose(file);
 		return 1;
 	}
@@ -150,17 +150,17 @@ EXPORT int ImageSaveRaw(const struct Image* image, const char* filename, struct 
 
 /*-----------------------------
 
- ImageExLoad()
+ jaImageExLoad()
 -----------------------------*/
-EXPORT int ImageExLoad(FILE* file, struct ImageEx* out, struct Status* st)
+int jaImageExLoad(FILE* file, struct jaImageEx* out, struct jaStatus* st)
 {
 	uint16_t magic = 0;
 
-	StatusSet(st, "ImageExLoad", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaImageExLoad", STATUS_SUCCESS, NULL);
 
 	if (fread(&magic, sizeof(uint16_t), 1, file) != 1)
 	{
-		StatusSet(st, "ImageExLoad", STATUS_UNEXPECTED_EOF, "near magic");
+		jaStatusSet(st, "jaImageExLoad", STATUS_UNEXPECTED_EOF, "near magic");
 		return 1;
 	}
 
@@ -172,16 +172,16 @@ EXPORT int ImageExLoad(FILE* file, struct ImageEx* out, struct Status* st)
 	//	return ImageExLoadBmp(file, out, st);
 
 	// Unsuccessfully bye!
-	StatusSet(st, "ImageExLoad", STATUS_UNKNOWN_FILE_FORMAT, NULL);
+	jaStatusSet(st, "jaImageExLoad", STATUS_UNKNOWN_FILE_FORMAT, NULL);
 	return 1;
 }
 
 
 /*-----------------------------
 
- ImageBytesPerPixel()
+ jaBytesPerPixel()
 -----------------------------*/
-EXPORT inline int ImageBytesPerPixel(enum ImageFormat format)
+inline int jaBytesPerPixel(enum jaImageFormat format)
 {
 	switch (format)
 	{
@@ -201,9 +201,9 @@ EXPORT inline int ImageBytesPerPixel(enum ImageFormat format)
 
 /*-----------------------------
 
- ImageBitsPerComponent()
+ jaBitsPerComponent()
 -----------------------------*/
-EXPORT inline int ImageBitsPerComponent(enum ImageFormat format)
+inline int jaBitsPerComponent(enum jaImageFormat format)
 {
 	switch (format)
 	{
@@ -223,9 +223,9 @@ EXPORT inline int ImageBitsPerComponent(enum ImageFormat format)
 
 /*-----------------------------
 
- ImageChannels()
+ jaImageChannels()
 -----------------------------*/
-EXPORT inline int ImageChannels(enum ImageFormat format)
+inline int jaImageChannels(enum jaImageFormat format)
 {
 	switch (format)
 	{

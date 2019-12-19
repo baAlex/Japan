@@ -36,9 +36,9 @@ SOFTWARE.
 #include <string.h>
 
 #include "common.h"
-#include "dictionary.h"
-#include "options.h"
-#include "utilities.h"
+#include "japan-dictionary.h"
+#include "japan-options.h"
+#include "japan-utilities.h"
 
 enum SetBy
 {
@@ -70,11 +70,12 @@ struct Option
 
 	union Value min;
 	union Value max;
-	struct Dictionary* possible_values;
+	struct jaDictionary* possible_values;
 };
 
-#ifdef DEBUG
-static void sPrintCallback(struct DictionaryItem* item, void* data)
+
+#ifdef JA_DEBUG
+static void sPrintCallback(struct jaDictionaryItem* item, void* data)
 {
 	(void)data;
 	struct Option* option = (struct Option*)item->data;
@@ -82,18 +83,20 @@ static void sPrintCallback(struct DictionaryItem* item, void* data)
 	switch (option->type)
 	{
 	case TYPE_INT:
-		DEBUG_PRINT(" - %s = %i [i%s]\n", item->key, option->value.i, (option->set_by == SET_DEFAULT) ? "" : ", (*)");
+		JA_DEBUG_PRINT(" - %s = %i [i%s]\n", item->key, option->value.i,
+		               (option->set_by == SET_DEFAULT) ? "" : ", (*)");
 		break;
 	case TYPE_FLOAT:
-		DEBUG_PRINT(" - %s = %f [f%s]\n", item->key, option->value.f, (option->set_by == SET_DEFAULT) ? "" : ", (*)");
+		JA_DEBUG_PRINT(" - %s = %f [f%s]\n", item->key, option->value.f,
+		               (option->set_by == SET_DEFAULT) ? "" : ", (*)");
 		break;
 	case TYPE_BOOL:
-		DEBUG_PRINT(" - %s = %s [b%s]\n", item->key, (option->value.b == true) ? "true" : "false",
-		            (option->set_by == SET_DEFAULT) ? "" : ", (*)");
+		JA_DEBUG_PRINT(" - %s = %s [b%s]\n", item->key, (option->value.b == true) ? "true" : "false",
+		               (option->set_by == SET_DEFAULT) ? "" : ", (*)");
 		break;
 	case TYPE_STRING:
-		DEBUG_PRINT(" - %s = \"%s\" [s%s]\n", item->key, option->value.s,
-		            (option->set_by == SET_DEFAULT) ? "" : ", (*)");
+		JA_DEBUG_PRINT(" - %s = \"%s\" [s%s]\n", item->key, option->value.s,
+		               (option->set_by == SET_DEFAULT) ? "" : ", (*)");
 	}
 }
 #endif
@@ -101,33 +104,34 @@ static void sPrintCallback(struct DictionaryItem* item, void* data)
 
 /*-----------------------------
 
- OptionsCreate()
+ jaOptionsCreate()
 -----------------------------*/
-EXPORT inline struct Options* OptionsCreate()
+inline struct jaOptions* jaOptionsCreate()
 {
-	return (struct Options*)DictionaryCreate(NULL);
+	return (struct jaOptions*)jaDictionaryCreate(NULL);
 }
 
 
 /*-----------------------------
 
- OptionsDelete()
+ jaOptionsDelete()
 -----------------------------*/
-EXPORT inline void OptionsDelete(struct Options* options)
+inline void jaOptionsDelete(struct jaOptions* options)
 {
-	DictionaryDelete((struct Dictionary*)options);
+	jaDictionaryDelete((struct jaDictionary*)options);
 }
 
 
 /*-----------------------------
 
- OptionsReadArguments()
+ jaOptionsReadArguments()
 -----------------------------*/
 static inline void sStoreString(const char* org, const char** dest)
 {
 	// TODO
 	*dest = org;
 }
+
 
 static inline int sStoreBool(const char* org, bool* dest)
 {
@@ -164,6 +168,7 @@ static inline int sStoreBool(const char* org, bool* dest)
 	return 0;
 }
 
+
 static inline int sStoreFloat(const char* org, float* dest, float min, float max)
 {
 	char* end = NULL;
@@ -176,9 +181,10 @@ static inline int sStoreFloat(const char* org, float* dest, float min, float max
 				return 1;
 		}
 
-	*dest = ClampFloat(value, min, max);
+	*dest = jaClampFloat(value, min, max);
 	return 0;
 }
+
 
 static inline int sStoreInt(const char* org, int* dest, int min, int max)
 {
@@ -204,13 +210,14 @@ static inline int sStoreInt(const char* org, int* dest, int min, int max)
 	if (value > INT_MAX || value < INT_MIN)
 		return 1;
 
-	*dest = ClampInt((int)value, min, max);
+	*dest = jaClampInt((int)value, min, max);
 	return 0;
 }
 
-EXPORT void OptionsReadArguments(struct Options* options, int argc, const char* argv[])
+
+void jaOptionsReadArguments(struct jaOptions* options, int argc, const char* argv[])
 {
-	struct DictionaryItem* item = NULL;
+	struct jaDictionaryItem* item = NULL;
 	struct Option* option = NULL;
 	union Value old_value;
 
@@ -219,13 +226,13 @@ EXPORT void OptionsReadArguments(struct Options* options, int argc, const char* 
 		// Check key
 		if (argv[i][0] != '-')
 		{
-			DEBUG_PRINT("[Warning] Unexpected token '%s'\n", (argv[i]));
+			JA_DEBUG_PRINT("[Warning] Unexpected token '%s'\n", (argv[i]));
 			continue;
 		}
 
-		if ((item = DictionaryGet((struct Dictionary*)options, (argv[i] + 1))) == NULL)
+		if ((item = jaDictionaryGet((struct jaDictionary*)options, (argv[i] + 1))) == NULL)
 		{
-			DEBUG_PRINT("[Warning] Unknown option '%s'\n", (argv[i] + 1));
+			JA_DEBUG_PRINT("[Warning] Unknown option '%s'\n", (argv[i] + 1));
 			continue;
 		}
 
@@ -235,7 +242,7 @@ EXPORT void OptionsReadArguments(struct Options* options, int argc, const char* 
 
 		if ((i + 1) == argc)
 		{
-			DEBUG_PRINT("[Warning] No value for option '%s'\n", (argv[i] + 1));
+			JA_DEBUG_PRINT("[Warning] No value for option '%s'\n", (argv[i] + 1));
 
 			i++; // Important!
 			continue;
@@ -245,18 +252,18 @@ EXPORT void OptionsReadArguments(struct Options* options, int argc, const char* 
 		{
 		case TYPE_INT:
 			if (sStoreInt(argv[i + 1], &option->value.i, option->min.i, option->max.i) != 0)
-				DEBUG_PRINT("[Warning] Token '%s' can't be cast into a integer value as '%s' requires\n", argv[i + 1],
-				            (argv[i] + 1));
+				JA_DEBUG_PRINT("[Warning] Token '%s' can't be cast into a integer value as '%s' requires\n",
+				               argv[i + 1], (argv[i] + 1));
 			break;
 		case TYPE_FLOAT:
 			if (sStoreFloat(argv[i + 1], &option->value.f, option->min.f, option->max.f) != 0)
-				DEBUG_PRINT("[Warning] Token '%s' can't be cast into a decimal value as '%s' requires\n", argv[i + 1],
-				            (argv[i] + 1));
+				JA_DEBUG_PRINT("[Warning] Token '%s' can't be cast into a decimal value as '%s' requires\n",
+				               argv[i + 1], (argv[i] + 1));
 			break;
 		case TYPE_BOOL:
 			if (sStoreBool(argv[i + 1], &option->value.b) != 0)
-				DEBUG_PRINT("[Warning] Token '%s' can't be cast into a boolean value as '%s' requires\n", argv[i + 1],
-				            (argv[i] + 1));
+				JA_DEBUG_PRINT("[Warning] Token '%s' can't be cast into a boolean value as '%s' requires\n",
+				               argv[i + 1], (argv[i] + 1));
 			break;
 		case TYPE_STRING: sStoreString(argv[i + 1], &option->value.s);
 		}
@@ -267,24 +274,24 @@ EXPORT void OptionsReadArguments(struct Options* options, int argc, const char* 
 		i++; // Important!
 	}
 
-#ifdef DEBUG
-	DEBUG_PRINT("(OptionsReadArguments)\n");
-	DictionaryIterate((struct Dictionary*)options, sPrintCallback, NULL);
+#ifdef JA_DEBUG
+	JA_DEBUG_PRINT("(jaOptionsReadArguments)\n");
+	jaDictionaryIterate((struct jaDictionary*)options, sPrintCallback, NULL);
 #endif
 }
 
 
 /*-----------------------------
 
- OptionsReadFile()
+ jaOptionsReadFile()
 -----------------------------*/
-EXPORT int OptionsReadFile(struct Options* options, const char* filename, struct Status* st)
+int jaOptionsReadFile(struct jaOptions* options, const char* filename, struct jaStatus* st)
 {
 	(void)st;
 
-#ifdef DEBUG
-	DEBUG_PRINT("(OptionsReadFile, '%s')\n", filename);
-	DictionaryIterate((struct Dictionary*)options, sPrintCallback, NULL);
+#ifdef JA_DEBUG
+	JA_DEBUG_PRINT("(jaOptionsReadFile, '%s')\n", filename);
+	jaDictionaryIterate((struct jaDictionary*)options, sPrintCallback, NULL);
 #else
 	(void)options;
 	(void)filename;
@@ -297,28 +304,28 @@ EXPORT int OptionsReadFile(struct Options* options, const char* filename, struct
 
 /*-----------------------------
 
- sOptionsRegister()
+ sRegister()
 -----------------------------*/
-static struct Option* sOptionsRegister(struct Options* options, const char* key, enum Type type, struct Status* st)
+static struct Option* sRegister(struct jaOptions* options, const char* key, enum Type type, struct jaStatus* st)
 {
-	struct DictionaryItem* item = NULL;
+	struct jaDictionaryItem* item = NULL;
 	struct Option* option = NULL;
 
-	StatusSet(st, "sOptionsRegister", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "sRegister", STATUS_SUCCESS, NULL);
 
 	for (const char* c = key; *c != '\0'; c++)
 	{
 		if (isalnum((int)*c) == 0 // If not
 		    && *c != '_')
 		{
-			StatusSet(st, "sOptionsRegister", STATUS_INVALID_ARGUMENT, "Only alphanumeric options names allowed");
+			jaStatusSet(st, "sRegister", STATUS_INVALID_ARGUMENT, "Only alphanumeric options names allowed");
 			return NULL;
 		}
 	}
 
-	if ((item = DictionaryAdd((struct Dictionary*)options, key, NULL, sizeof(struct Option))) == NULL)
+	if ((item = jaDictionaryAdd((struct jaDictionary*)options, key, NULL, sizeof(struct Option))) == NULL)
 	{
-		StatusSet(st, "sOptionsRegister", STATUS_MEMORY_ERROR, NULL);
+		jaStatusSet(st, "sRegister", STATUS_MEMORY_ERROR, NULL);
 		return NULL;
 	}
 
@@ -333,7 +340,7 @@ static struct Option* sOptionsRegister(struct Options* options, const char* key,
 
 /*-----------------------------
 
- sOptionsRetrieve()
+ sRetrieve()
 -----------------------------*/
 static inline const char* sTypeName(enum Type type)
 {
@@ -348,17 +355,16 @@ static inline const char* sTypeName(enum Type type)
 	return NULL;
 }
 
-static struct Option* sOptionsRetrieve(const struct Options* options, const char* key, enum Type type,
-                                       struct Status* st)
+static struct Option* sRetrieve(const struct jaOptions* options, const char* key, enum Type type, struct jaStatus* st)
 {
-	struct DictionaryItem* item = NULL;
+	struct jaDictionaryItem* item = NULL;
 	struct Option* option = NULL;
 
-	StatusSet(st, "sOptionsRetrieve", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "sRetrieve", STATUS_SUCCESS, NULL);
 
-	if ((item = DictionaryGet((struct Dictionary*)options, key)) == NULL)
+	if ((item = jaDictionaryGet((struct jaDictionary*)options, key)) == NULL)
 	{
-		StatusSet(st, "sOptionsRetrieve", STATUS_ERROR, "Option '%s' not registered", key);
+		jaStatusSet(st, "sRetrieve", STATUS_ERROR, "Option '%s' not registered", key);
 		return NULL;
 	}
 
@@ -366,8 +372,8 @@ static struct Option* sOptionsRetrieve(const struct Options* options, const char
 
 	if (option->type != type)
 	{
-		StatusSet(st, "sOptionsRetrieve", STATUS_ERROR, "Option '%s' has an %s value (%s requested)", key,
-		          sTypeName(option->type), sTypeName(type));
+		jaStatusSet(st, "sRetrieve", STATUS_ERROR, "Option '%s' has an %s value (%s requested)", key,
+		            sTypeName(option->type), sTypeName(type));
 		return NULL;
 	}
 
@@ -377,15 +383,15 @@ static struct Option* sOptionsRetrieve(const struct Options* options, const char
 
 /*-----------------------------
 
- lol no generics
+ "Generics"
 -----------------------------*/
-EXPORT int OptionsRegisterInt(struct Options* options, const char* key, int default_value, int min, int max,
-                              struct Status* st)
+int jaOptionsRegisterInt(struct jaOptions* options, const char* key, int default_value, int min, int max,
+                         struct jaStatus* st)
 {
-	struct Option* option = sOptionsRegister(options, key, TYPE_INT, st);
+	struct Option* option = sRegister(options, key, TYPE_INT, st);
 	if (option != NULL)
 	{
-		option->value.i = ClampInt(default_value, min, max);
+		option->value.i = jaClampInt(default_value, min, max);
 		option->min.i = min;
 		option->max.i = max;
 		return 0;
@@ -394,9 +400,10 @@ EXPORT int OptionsRegisterInt(struct Options* options, const char* key, int defa
 	return 1;
 }
 
-EXPORT int OptionsRegisterBool(struct Options* options, const char* key, bool default_value, struct Status* st)
+
+int jaOptionsRegisterBool(struct jaOptions* options, const char* key, bool default_value, struct jaStatus* st)
 {
-	struct Option* option = sOptionsRegister(options, key, TYPE_BOOL, st);
+	struct Option* option = sRegister(options, key, TYPE_BOOL, st);
 	if (option != NULL)
 	{
 		option->value.b = default_value;
@@ -406,13 +413,14 @@ EXPORT int OptionsRegisterBool(struct Options* options, const char* key, bool de
 	return 1;
 }
 
-EXPORT int OptionsRegisterFloat(struct Options* options, const char* key, float default_value, float min, float max,
-                                struct Status* st)
+
+int jaOptionsRegisterFloat(struct jaOptions* options, const char* key, float default_value, float min, float max,
+                           struct jaStatus* st)
 {
-	struct Option* option = sOptionsRegister(options, key, TYPE_FLOAT, st);
+	struct Option* option = sRegister(options, key, TYPE_FLOAT, st);
 	if (option != NULL)
 	{
-		option->value.f = ClampFloat(default_value, min, max);
+		option->value.f = jaClampFloat(default_value, min, max);
 		option->min.f = min;
 		option->max.f = max;
 		return 0;
@@ -421,12 +429,13 @@ EXPORT int OptionsRegisterFloat(struct Options* options, const char* key, float 
 	return 1;
 }
 
-EXPORT int OptionsRegisterString(struct Options* options, const char* key, const char* default_value,
-                                 const char* possible_values, struct Status* st)
+
+int jaOptionsRegisterString(struct jaOptions* options, const char* key, const char* default_value,
+                            const char* possible_values, struct jaStatus* st)
 {
 	(void)possible_values;
 
-	struct Option* option = sOptionsRegister(options, key, TYPE_STRING, st);
+	struct Option* option = sRegister(options, key, TYPE_STRING, st);
 	if (option != NULL)
 	{
 		option->value.s = default_value;
@@ -436,9 +445,10 @@ EXPORT int OptionsRegisterString(struct Options* options, const char* key, const
 	return 1;
 }
 
-EXPORT int OptionsRetrieveInt(const struct Options* options, const char* key, int* dest, struct Status* st)
+
+int jaOptionsRetrieveInt(const struct jaOptions* options, const char* key, int* dest, struct jaStatus* st)
 {
-	struct Option* option = sOptionsRetrieve(options, key, TYPE_INT, st);
+	struct Option* option = sRetrieve(options, key, TYPE_INT, st);
 	if (option != NULL)
 	{
 		*dest = option->value.i;
@@ -448,9 +458,10 @@ EXPORT int OptionsRetrieveInt(const struct Options* options, const char* key, in
 	return 1;
 }
 
-EXPORT int OptionsRetrieveBool(const struct Options* options, const char* key, bool* dest, struct Status* st)
+
+int jaOptionsRetrieveBool(const struct jaOptions* options, const char* key, bool* dest, struct jaStatus* st)
 {
-	struct Option* option = sOptionsRetrieve(options, key, TYPE_BOOL, st);
+	struct Option* option = sRetrieve(options, key, TYPE_BOOL, st);
 	if (option != NULL)
 	{
 		*dest = option->value.b;
@@ -460,9 +471,10 @@ EXPORT int OptionsRetrieveBool(const struct Options* options, const char* key, b
 	return 1;
 }
 
-EXPORT int OptionsRetrieveFloat(const struct Options* options, const char* key, float* dest, struct Status* st)
+
+int jaOptionsRetrieveFloat(const struct jaOptions* options, const char* key, float* dest, struct jaStatus* st)
 {
-	struct Option* option = sOptionsRetrieve(options, key, TYPE_FLOAT, st);
+	struct Option* option = sRetrieve(options, key, TYPE_FLOAT, st);
 	if (option != NULL)
 	{
 		*dest = option->value.f;
@@ -472,9 +484,10 @@ EXPORT int OptionsRetrieveFloat(const struct Options* options, const char* key, 
 	return 1;
 }
 
-EXPORT int OptionsRetrieveString(const struct Options* options, const char* key, const char** dest, struct Status* st)
+
+int jaOptionsRetrieveString(const struct jaOptions* options, const char* key, const char** dest, struct jaStatus* st)
 {
-	struct Option* option = sOptionsRetrieve(options, key, TYPE_STRING, st);
+	struct Option* option = sRetrieve(options, key, TYPE_STRING, st);
 	if (option != NULL)
 	{
 		*dest = option->value.s;

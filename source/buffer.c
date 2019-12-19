@@ -32,11 +32,11 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffer.h"
 #include "common.h"
+#include "japan-buffer.h"
 
 
-EXPORT_INLINED void BufferClean(struct Buffer* buffer)
+inline void jaBufferClean(struct jaBuffer* buffer)
 {
 	if (buffer->data != NULL)
 		free(buffer->data);
@@ -46,7 +46,7 @@ EXPORT_INLINED void BufferClean(struct Buffer* buffer)
 }
 
 
-EXPORT void* BufferResize(struct Buffer* buffer, size_t new_size)
+void* jaBufferResize(struct jaBuffer* buffer, size_t new_size)
 {
 	void* old_data = buffer->data;
 	size_t old_size = buffer->size;
@@ -64,18 +64,18 @@ EXPORT void* BufferResize(struct Buffer* buffer, size_t new_size)
 	}
 
 	if (old_size != buffer->size)
-		DEBUG_PRINT("(BufferResize) required %zu bytes, buffer size: %zu -> %zu bytes\n", new_size, old_size,
-		            buffer->size);
+		JA_DEBUG_PRINT("(jaBufferResize) required %zu bytes, buffer size: %zu -> %zu bytes\n", new_size, old_size,
+		               buffer->size);
 
 	return buffer->data;
 }
 
 
-EXPORT void* BufferResizeZero(struct Buffer* buffer, size_t new_size)
+void* jaBufferResizeZero(struct jaBuffer* buffer, size_t new_size)
 {
 	size_t old_size = buffer->size;
 
-	BufferResize(buffer, new_size);
+	jaBufferResize(buffer, new_size);
 
 	if (buffer->size > old_size)
 		memset(((uint8_t*)buffer->data + old_size), 0, (buffer->size - old_size));

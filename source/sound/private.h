@@ -4,22 +4,22 @@
  - Alexander Brandt 2019
 -----------------------------*/
 
-#ifndef PRIVATE_H
-#define PRIVATE_H
+#ifndef JA_PRIVATE_H
+#define JA_PRIVATE_H
 
 	#include <stdlib.h>
 	#include <string.h>
 
-	#include "sound.h"
-	#include "endianness.h"
+	#include "japan-sound.h"
+	#include "japan-endianness.h"
 
 	bool CheckMagicAu(uint32_t value);
 	bool CheckMagicWav(uint32_t value);
 
-	int SoundExLoadAu(FILE* file, struct SoundEx* out, struct Status* st);
-	int SoundExLoadWav(FILE* file, struct SoundEx* out, struct Status* st);
+	int jaSoundExLoadAu(FILE* file, struct jaSoundEx* out, struct jaStatus* st);
+	int jaSoundExLoadWav(FILE* file, struct jaSoundEx* out, struct jaStatus* st);
 
-	int WritePcm(FILE* file, const struct Sound* sound, enum Endianness);
+	int WritePcm(FILE* file, const struct jaSound* sound, enum jaEndianness);
 
 	int16_t AlawToInt16(uint8_t compressed);
 	int16_t UlawToInt16(uint8_t compressed);

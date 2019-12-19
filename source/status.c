@@ -31,39 +31,38 @@ SOFTWARE.
 #include <stdio.h>
 #include <string.h>
 
-#include "common.h"
-#include "status.h"
+#include "japan-status.h"
 
 
-EXPORT void StatusSet(struct Status* st, const char* function_name, enum StatusCode code, const char* explanation_fmt, ...)
+void jaStatusSet(struct jaStatus* st, const char* function_name, enum jaStatusCode c, const char* explanation_fmt, ...)
 {
 	va_list args;
 
 	if (st == NULL)
 		return;
 
-	st->code = code;
+	st->code = c;
 
 	if (function_name != NULL)
-		strncpy(st->function_name, function_name, STATUS_FUNCTION_NAME_LENGTH);
+		strncpy(st->function_name, function_name, JA_STATUS_FNAME_LEN);
 
 	if (explanation_fmt != NULL)
 	{
 		va_start(args, explanation_fmt);
-		vsnprintf(st->explanation, STATUS_EXPLANATION_LENGTH, explanation_fmt, args); // NOLINT(clang-analyzer-valist.Uninitialized)
+		vsnprintf(st->explanation, JA_STATUS_EXPL_LEN, explanation_fmt, args);
 		va_end(args);
 	}
 }
 
 
-EXPORT inline void StatusCopy(const struct Status* org, struct Status* dest)
+inline void jaStatusCopy(const struct jaStatus* org, struct jaStatus* dest)
 {
-	if(org != NULL && dest != NULL)
-		memcpy(dest, org, sizeof(struct Status));
+	if (org != NULL && dest != NULL)
+		memcpy(dest, org, sizeof(struct jaStatus));
 }
 
 
-EXPORT int StatusPrint(const char* app_name, struct Status st)
+int jaStatusPrint(const char* app_name, struct jaStatus st)
 {
 	char* explanation = (st.explanation[0] != '\0') ? st.explanation : "";
 	char* code_message = NULL;

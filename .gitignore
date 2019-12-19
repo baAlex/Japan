@@ -2,9 +2,6 @@
 /*.so
 /*.dll
 /*.lib
-/.ninja_deps
-/.ninja_log
-/objects/
 /dev/
 /build/
 /build-debug/

@@ -39,10 +39,10 @@ SOFTWARE.
 
  WritePcm()
 -----------------------------*/
-int WritePcm(FILE* file, const struct Sound* sound, enum Endianness dest_endianness)
+int WritePcm(FILE* file, const struct jaSound* sound, enum jaEndianness dest_endianness)
 {
-	enum Endianness sys_endianness = EndianSystem();
-	size_t bps = (size_t)SoundBps(sound->format);
+	enum jaEndianness sys_endianness = jaEndianSystem();
+	size_t bps = (size_t)jaBytesPerSample(sound->format);
 
 	union {
 		uint64_t u64;
@@ -72,17 +72,17 @@ int WritePcm(FILE* file, const struct Sound* sound, enum Endianness dest_endiann
 		{
 			if (sound->format == SOUND_I16)
 			{
-				sample.u16 = EndianToU16(*src.u16, sys_endianness, dest_endianness);
+				sample.u16 = jaEndianToU16(*src.u16, sys_endianness, dest_endianness);
 				src.u16++;
 			}
 			else if (sound->format == SOUND_I32 || sound->format == SOUND_F32)
 			{
-				sample.u32 = EndianToU32(*src.u32, sys_endianness, dest_endianness);
+				sample.u32 = jaEndianToU32(*src.u32, sys_endianness, dest_endianness);
 				src.u32++;
 			}
 			else if (sound->format == SOUND_F64)
 			{
-				sample.u64 = EndianToU64(*src.u64, sys_endianness, dest_endianness);
+				sample.u64 = jaEndianToU64(*src.u64, sys_endianness, dest_endianness);
 				src.u64++;
 			}
 
@@ -97,21 +97,21 @@ int WritePcm(FILE* file, const struct Sound* sound, enum Endianness dest_endiann
 
 /*-----------------------------
 
- SoundCreate()
+ jaSoundCreate()
 -----------------------------*/
-EXPORT struct Sound* SoundCreate(enum SoundFormat format, size_t length, size_t channels, size_t frequency)
+struct jaSound* jaSoundCreate(enum jaSoundFormat format, size_t length, size_t channels, size_t frequency)
 {
-	struct Sound* sound = NULL;
-	size_t size = (size_t)SoundBps(format) * length * channels;
+	struct jaSound* sound = NULL;
+	size_t size = (size_t)jaBytesPerSample(format) * length * channels;
 
-	if ((sound = malloc(sizeof(struct Sound) + size)) != NULL)
+	if ((sound = malloc(sizeof(struct jaSound) + size)) != NULL)
 	{
 		sound->frequency = frequency;
 		sound->channels = channels;
 		sound->length = length;
 		sound->size = size;
 		sound->format = format;
-		sound->data = ((struct Sound*)sound + 1);
+		sound->data = ((struct jaSound*)sound + 1);
 	}
 
 	return sound;
@@ -120,9 +120,9 @@ EXPORT struct Sound* SoundCreate(enum SoundFormat format, size_t length, size_t 
 
 /*-----------------------------
 
- SoundDelete()
+ jaSoundDelete()
 -----------------------------*/
-EXPORT inline void SoundDelete(struct Sound* sound)
+inline void jaSoundDelete(struct jaSound* sound)
 {
 	free(sound);
 }
@@ -130,26 +130,26 @@ EXPORT inline void SoundDelete(struct Sound* sound)
 
 /*-----------------------------
 
- SoundLoad()
+ jaSoundLoad()
 -----------------------------*/
-EXPORT struct Sound* SoundLoad(const char* filename, struct Status* st)
+struct jaSound* jaSoundLoad(const char* filename, struct jaStatus* st)
 {
 	FILE* file = NULL;
-	struct SoundEx ex = {0};
-	struct Sound* sound = NULL;
+	struct jaSoundEx ex = {0};
+	struct jaSound* sound = NULL;
 	uint32_t magic = 0;
 
-	StatusSet(st, "SoundLoad", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaSoundLoad", STATUS_SUCCESS, NULL);
 
 	if ((file = fopen(filename, "rb")) == NULL)
 	{
-		StatusSet(st, "SoundLoad", STATUS_FS_ERROR, "'%s'", filename);
+		jaStatusSet(st, "jaSoundLoad", STATUS_FS_ERROR, "'%s'", filename);
 		return NULL;
 	}
 
 	if (fread(&magic, sizeof(uint32_t), 1, file) != 1)
 	{
-		StatusSet(st, "SoundLoad", STATUS_UNEXPECTED_EOF, "near magic ('%s')", filename);
+		jaStatusSet(st, "jaSoundLoad", STATUS_UNEXPECTED_EOF, "near magic ('%s')", filename);
 		goto return_failure;
 	}
 
@@ -158,45 +158,45 @@ EXPORT struct Sound* SoundLoad(const char* filename, struct Status* st)
 	// Header
 	if (CheckMagicAu(magic) == true)
 	{
-		if (SoundExLoadAu(file, &ex, st) != 0)
+		if (jaSoundExLoadAu(file, &ex, st) != 0)
 			goto return_failure;
 
-		DEBUG_PRINT("(Au) '%s':\n", filename);
+		JA_DEBUG_PRINT("(Au) '%s':\n", filename);
 	}
 	else if (CheckMagicWav(magic) == true)
 	{
-		if (SoundExLoadWav(file, &ex, st) != 0)
+		if (jaSoundExLoadWav(file, &ex, st) != 0)
 			goto return_failure;
 
-		DEBUG_PRINT("(Wav) '%s':\n", filename);
+		JA_DEBUG_PRINT("(Wav) '%s':\n", filename);
 	}
 	else
 	{
-		StatusSet(st, "SoundLoad", STATUS_UNKNOWN_FILE_FORMAT, "'%s'", filename);
+		jaStatusSet(st, "jaSoundLoad", STATUS_UNKNOWN_FILE_FORMAT, "'%s'", filename);
 		goto return_failure;
 	}
 
-	DEBUG_PRINT(" - Frequency: %zu hz\n", ex.frequency);
-	DEBUG_PRINT(" - Channels: %zu\n", ex.channels);
-	DEBUG_PRINT(" - Frames: %zu\n", ex.length);
-	DEBUG_PRINT(" - Uncompressed size: %zu bytes\n", ex.uncompressed_size);
-	DEBUG_PRINT(" - Minimum unit size: %zu bytes\n", ex.minimum_unit_size);
-	DEBUG_PRINT(" - Endianness: %s\n", (ex.endianness == ENDIAN_LITTLE) ? "little" : "big");
-	DEBUG_PRINT(" - Storage: %i\n", ex.storage);
-	DEBUG_PRINT(" - Format: %i\n", ex.format);
-	DEBUG_PRINT(" - Data offset: 0x%zX\n", ex.data_offset);
+	JA_DEBUG_PRINT(" - Frequency: %zu hz\n", ex.frequency);
+	JA_DEBUG_PRINT(" - Channels: %zu\n", ex.channels);
+	JA_DEBUG_PRINT(" - Frames: %zu\n", ex.length);
+	JA_DEBUG_PRINT(" - Uncompressed size: %zu bytes\n", ex.uncompressed_size);
+	JA_DEBUG_PRINT(" - Minimum unit size: %zu bytes\n", ex.minimum_unit_size);
+	JA_DEBUG_PRINT(" - jaEndianness: %s\n", (ex.endianness == ENDIAN_LITTLE) ? "little" : "big");
+	JA_DEBUG_PRINT(" - Storage: %i\n", ex.storage);
+	JA_DEBUG_PRINT(" - Format: %i\n", ex.format);
+	JA_DEBUG_PRINT(" - Data offset: 0x%zX\n", ex.data_offset);
 
 	// Data
 	if (fseek(file, (long)ex.data_offset, SEEK_SET) != 0)
 	{
-		StatusSet(st, "SoundLoad", STATUS_UNEXPECTED_EOF, "at data seek ('%s')", filename);
+		jaStatusSet(st, "jaSoundLoad", STATUS_UNEXPECTED_EOF, "at data seek ('%s')", filename);
 		goto return_failure;
 	}
 
-	if ((sound = SoundCreate(ex.format, ex.length, ex.channels, ex.frequency)) == NULL)
+	if ((sound = jaSoundCreate(ex.format, ex.length, ex.channels, ex.frequency)) == NULL)
 		goto return_failure;
 
-	if (SoundExRead(file, ex, sound->size, sound->data, st) != sound->size)
+	if (jaSoundExRead(file, ex, sound->size, sound->data, st) != sound->size)
 		goto return_failure;
 
 	// Bye!
@@ -207,7 +207,7 @@ return_failure:
 	fclose(file);
 
 	if (sound != NULL)
-		SoundDelete(sound);
+		jaSoundDelete(sound);
 
 	return NULL;
 }
@@ -215,23 +215,23 @@ return_failure:
 
 /*-----------------------------
 
- SoundSaveRaw()
+ jaSoundSaveRaw()
 -----------------------------*/
-EXPORT int SoundSaveRaw(const struct Sound* sound, const char* filename, struct Status* st)
+int jaSoundSaveRaw(const struct jaSound* sound, const char* filename, struct jaStatus* st)
 {
 	FILE* file = NULL;
 
-	StatusSet(st, "SoundSaveRaw", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaSoundSaveRaw", STATUS_SUCCESS, NULL);
 
 	if ((file = fopen(filename, "wb")) == NULL)
 	{
-		StatusSet(st, "SoundSaveRaw", STATUS_FS_ERROR, "'%s'", filename);
+		jaStatusSet(st, "jaSoundSaveRaw", STATUS_FS_ERROR, "'%s'", filename);
 		return 1;
 	}
 
 	if (fwrite(sound->data, sound->size, 1, file) != 1)
 	{
-		StatusSet(st, "SoundSaveRaw", STATUS_IO_ERROR, "'%s'", filename);
+		jaStatusSet(st, "jaSoundSaveRaw", STATUS_IO_ERROR, "'%s'", filename);
 		fclose(file);
 		return 1;
 	}
@@ -243,41 +243,41 @@ EXPORT int SoundSaveRaw(const struct Sound* sound, const char* filename, struct 
 
 /*-----------------------------
 
- SoundExLoad()
+ jaSoundExLoad()
 -----------------------------*/
-EXPORT int SoundExLoad(FILE* file, struct SoundEx* out, struct Status* st)
+int jaSoundExLoad(FILE* file, struct jaSoundEx* out, struct jaStatus* st)
 {
 	uint32_t magic = 0;
 
-	StatusSet(st, "SoundExLoad", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaSoundExLoad", STATUS_SUCCESS, NULL);
 
 	if (fread(&magic, sizeof(uint32_t), 1, file) != 1)
 	{
-		StatusSet(st, "SoundExLoad", STATUS_UNEXPECTED_EOF, "near magic");
+		jaStatusSet(st, "jaSoundExLoad", STATUS_UNEXPECTED_EOF, "near magic");
 		return 1;
 	}
 
 	fseek(file, 0, SEEK_SET);
 
 	if (CheckMagicAu(magic) == true)
-		return SoundExLoadAu(file, out, st);
+		return jaSoundExLoadAu(file, out, st);
 	else if (CheckMagicWav(magic) == true)
-		return SoundExLoadWav(file, out, st);
+		return jaSoundExLoadWav(file, out, st);
 
 	// Unsuccessfully bye!
-	StatusSet(st, "SoundExLoad", STATUS_UNKNOWN_FILE_FORMAT, NULL);
+	jaStatusSet(st, "jaSoundExLoad", STATUS_UNKNOWN_FILE_FORMAT, NULL);
 	return 1;
 }
 
 
 /*-----------------------------
 
- SoundExRead()
+ jaSoundExRead()
 -----------------------------*/
-EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, void* out, struct Status* st)
+size_t jaSoundExRead(FILE* file, struct jaSoundEx ex, size_t size_to_read, void* out, struct jaStatus* st)
 {
-	enum Endianness sys_endianness = EndianSystem();
-	size_t bps = (size_t)SoundBps(ex.format);
+	enum jaEndianness sys_endianness = jaEndianSystem();
+	size_t bps = (size_t)jaBytesPerSample(ex.format);
 	size_t bytes_write = 0;
 
 	union {
@@ -288,12 +288,12 @@ EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, vo
 		uint64_t* u64;
 	} dest;
 
-	StatusSet(st, "SoundExRead", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaSoundExRead", STATUS_SUCCESS, NULL);
 	dest.raw = out;
 
 	if ((size_to_read % ex.minimum_unit_size) != 0)
 	{
-		StatusSet(st, "SoundExRead", STATUS_INVALID_ARGUMENT, NULL);
+		jaStatusSet(st, "jaSoundExRead", STATUS_INVALID_ARGUMENT, NULL);
 		size_to_read -= (size_to_read % ex.minimum_unit_size);
 	}
 
@@ -301,7 +301,7 @@ EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, vo
 	{
 		if (fread(dest.raw, size_to_read, 1, file) != 1)
 		{
-			StatusSet(st, "SoundExRead", STATUS_UNEXPECTED_EOF, NULL);
+			jaStatusSet(st, "jaSoundExRead", STATUS_UNEXPECTED_EOF, NULL);
 			goto return_failure;
 		}
 
@@ -314,11 +314,7 @@ EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, vo
 				if (ex.unsigned_8bit == false)
 					break;
 
-				#pragma GCC diagnostic push
-				#pragma GCC diagnostic ignored "-Wconversion"
 				*dest.i8 = *dest.i8 + 0x80;
-				#pragma GCC diagnostic pop
-
 				dest.i8++;
 			}
 			else
@@ -328,17 +324,17 @@ EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, vo
 
 				if (ex.format == SOUND_I16)
 				{
-					*dest.i16 = EndianToI16(*dest.i16, ex.endianness, sys_endianness);
+					*dest.i16 = jaEndianToI16(*dest.i16, ex.endianness, sys_endianness);
 					dest.i16++;
 				}
 				else if (ex.format == SOUND_I32 || ex.format == SOUND_F32)
 				{
-					*dest.i32 = EndianToI32(*dest.i32, ex.endianness, sys_endianness);
+					*dest.i32 = jaEndianToI32(*dest.i32, ex.endianness, sys_endianness);
 					dest.i32++;
 				}
 				else if (ex.format == SOUND_F64)
 				{
-					*dest.u64 = EndianToU64(*dest.u64, ex.endianness, sys_endianness);
+					*dest.u64 = jaEndianToU64(*dest.u64, ex.endianness, sys_endianness);
 					dest.u64++;
 				}
 			}
@@ -352,7 +348,7 @@ EXPORT size_t SoundExRead(FILE* file, struct SoundEx ex, size_t size_to_read, vo
 		{
 			if (fread(&compressed, sizeof(int8_t), 1, file) != 1)
 			{
-				StatusSet(st, "SoundExRead", STATUS_UNEXPECTED_EOF, NULL);
+				jaStatusSet(st, "jaSoundExRead", STATUS_UNEXPECTED_EOF, NULL);
 				goto return_failure;
 			}
 
@@ -375,9 +371,9 @@ return_failure:
 
 /*-----------------------------
 
- SoundBps()
+ jaBytesPerSample()
 -----------------------------*/
-EXPORT inline int SoundBps(enum SoundFormat format)
+inline int jaBytesPerSample(enum jaSoundFormat format)
 {
 	switch (format)
 	{

@@ -28,13 +28,11 @@ SOFTWARE.
  - Alexander Brandt 2019
 -----------------------------*/
 
+#include "japan-aabounding.h"
 #include <math.h>
 
-#include "aabounding.h"
-#include "common.h"
 
-
-EXPORT inline bool AabCollisionRectRect(struct AabRectangle a, struct AabRectangle b)
+inline bool jaAABCollisionRectRect(struct jaAARectangle a, struct jaAARectangle b)
 {
 	if (a.max.x < b.min.x || a.min.x > b.max.x || a.max.y < b.min.y || a.min.y > b.max.y)
 		return false;
@@ -43,7 +41,7 @@ EXPORT inline bool AabCollisionRectRect(struct AabRectangle a, struct AabRectang
 }
 
 
-EXPORT inline bool AabCollisionRectCircle(struct AabRectangle rect, struct Circle c)
+inline bool jaAABCollisionRectCircle(struct jaAARectangle rect, struct jaCircle c)
 {
 
 	if (c.origin.x < (rect.min.x - c.radius) || c.origin.x > (rect.max.x + c.radius) ||
@@ -54,7 +52,7 @@ EXPORT inline bool AabCollisionRectCircle(struct AabRectangle rect, struct Circl
 }
 
 
-EXPORT inline bool AabCollisionBoxBox(struct AabBox a, struct AabBox b)
+inline bool jaAABCollisionBoxBox(struct jaAABBox a, struct jaAABBox b)
 {
 	if (a.max.x < b.min.x || a.min.x > b.max.x || a.max.y < b.min.y || a.min.y > b.max.y || a.max.z < b.min.z ||
 	    a.min.z > b.max.z)
@@ -64,7 +62,7 @@ EXPORT inline bool AabCollisionBoxBox(struct AabBox a, struct AabBox b)
 }
 
 
-EXPORT inline bool AabCollisionBoxSphere(struct AabBox box, struct Sphere s)
+inline bool jaAABCollisionBoxSphere(struct jaAABBox box, struct jaSphere s)
 {
 	if (s.origin.x < (box.min.x - s.radius) || s.origin.x > (box.max.x + s.radius) ||
 	    s.origin.y < (box.min.y - s.radius) || s.origin.y > (box.max.y + s.radius) ||
@@ -75,28 +73,28 @@ EXPORT inline bool AabCollisionBoxSphere(struct AabBox box, struct Sphere s)
 }
 
 
-EXPORT inline struct AabRectangle AabToRectangle(struct AabBox box)
+inline struct jaAARectangle jaAABToRectangle(struct jaAABBox box)
 {
-	return (struct AabRectangle){.min = {box.min.x, box.min.y}, .max = {box.max.x, box.max.y}};
+	return (struct jaAARectangle){.min = {box.min.x, box.min.y}, .max = {box.max.x, box.max.y}};
 }
 
 
-EXPORT inline struct AabBox AabToBox(struct AabRectangle rect, float min_z, float max_z)
+inline struct jaAABBox jaAABToBox(struct jaAARectangle rect, float min_z, float max_z)
 {
-	return (struct AabBox){.min = {rect.min.x, rect.min.y, min_z}, .max = {rect.max.x, rect.max.y, max_z}};
+	return (struct jaAABBox){.min = {rect.min.x, rect.min.y, min_z}, .max = {rect.max.x, rect.max.y, max_z}};
 }
 
 
-EXPORT inline struct Vector2 AabMiddleRect(struct AabRectangle rect)
+inline struct jaVector2 jaAABMiddleRect(struct jaAARectangle rect)
 {
-	return (struct Vector2){.x = (rect.min.x + (rect.max.x - rect.min.x) / 2.0f),
-	                        .y = (rect.min.y + (rect.max.y - rect.min.y) / 2.0f)};
+	return (struct jaVector2){.x = (rect.min.x + (rect.max.x - rect.min.x) / 2.0f),
+	                          .y = (rect.min.y + (rect.max.y - rect.min.y) / 2.0f)};
 }
 
 
-EXPORT inline struct Vector3 AabMiddleBox(struct AabBox box)
+inline struct jaVector3 jaAABMiddleBox(struct jaAABBox box)
 {
-	return (struct Vector3){.x = (box.min.x + (box.max.x - box.min.x) / 2.0f),
-	                        .y = (box.min.y + (box.max.y - box.min.y) / 2.0f),
-	                        .z = (box.min.z + (box.max.z - box.min.z) / 2.0f)};
+	return (struct jaVector3){.x = (box.min.x + (box.max.x - box.min.x) / 2.0f),
+	                          .y = (box.min.y + (box.max.y - box.min.y) / 2.0f),
+	                          .z = (box.min.z + (box.max.z - box.min.z) / 2.0f)};
 }

@@ -4,32 +4,14 @@
  - Alexander Brandt 2019
 -----------------------------*/
 
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef JA_COMMON_H
+#define JA_COMMON_H
 
-	#ifdef DEBUG
+	#ifdef JA_DEBUG
 		#include <stdio.h>
-		#define DEBUG_PRINT(...) printf(__VA_ARGS__)
+		#define JA_DEBUG_PRINT(...) printf(__VA_ARGS__)
 	#else
-		#define DEBUG_PRINT(...)
-	#endif
-
-	#ifdef EXPORT_SYMBOLS
-		#ifdef _WIN32
-		#define EXPORT         // Whitespace
-		#define EXPORT_INLINED // Whitespace
-		#else
-		#define EXPORT __attribute__((visibility("default")))
-		#define EXPORT_INLINED __attribute__((visibility("default"))) inline
-		#endif
-	#else
-		#ifdef _WIN32
-		#define EXPORT         // Whitespace
-		#define EXPORT_INLINED // Whitespace
-		#else
-		#define EXPORT // Whitespace
-		#define EXPORT_INLINED inline
-		#endif
+		#define JA_DEBUG_PRINT(...)
 	#endif
 
 #endif

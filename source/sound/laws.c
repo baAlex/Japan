@@ -43,11 +43,7 @@ int16_t AlawToInt16(uint8_t compressed)
 
 int16_t UlawToInt16(uint8_t compressed)
 {
-	#pragma GCC diagnostic push
-	#pragma GCC diagnostic ignored "-Wconversion"
 	compressed = ~compressed;
-	#pragma GCC diagnostic pop
-
 	int t = (((compressed & 0x0F) << 3) + ULAW_BIAS) << (((int)compressed & 0x70) >> 4);
 
 	return (int16_t)((compressed & 0x80) ? (ULAW_BIAS - t) : (t - ULAW_BIAS));

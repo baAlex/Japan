@@ -36,7 +36,7 @@ SOFTWARE.
 #include <string.h>
 
 #include "common.h"
-#include "dictionary.h"
+#include "japan-dictionary.h"
 
 
 #define INITIAL_BUCKETS 8
@@ -56,7 +56,7 @@ enum ResizeDirection
 
 struct Bucket
 {
-	struct DictionaryItem* item[BUCKET_DEPTH];
+	struct jaDictionaryItem* item[BUCKET_DEPTH];
 	struct Bucket* overflow_next;
 };
 
@@ -68,7 +68,7 @@ struct CycleBucketState
 	struct Bucket* previous_bucket;
 };
 
-struct Dictionary
+struct jaDictionary
 {
 	size_t level;
 	size_t pointer;
@@ -106,7 +106,7 @@ static inline uint64_t sPow(uint64_t base, uint64_t exp)
 
  sGetAddress()
 -----------------------------*/
-static inline size_t sGetAddress(const struct Dictionary* dictionary, const char* key, uint64_t* out_hash)
+static inline size_t sGetAddress(const struct jaDictionary* dictionary, const char* key, uint64_t* out_hash)
 {
 	uint64_t hash = FNV_OFFSET_BASIS;
 	size_t address = 0;
@@ -143,7 +143,7 @@ static inline size_t sGetAddress(const struct Dictionary* dictionary, const char
 
  sCycleBucket()
 -----------------------------*/
-static inline int sCycleBucket(struct CycleBucketState* state, struct DictionaryItem*** out)
+static inline int sCycleBucket(struct CycleBucketState* state, struct jaDictionaryItem*** out)
 {
 	if (state->bucket != NULL)
 	{
@@ -168,10 +168,10 @@ static inline int sCycleBucket(struct CycleBucketState* state, struct Dictionary
 
  sLocateInBucket()
 -----------------------------*/
-static int sLocateInBucket(struct Dictionary* dictionary, struct DictionaryItem* item, size_t address)
+static int sLocateInBucket(struct jaDictionary* dictionary, struct jaDictionaryItem* item, size_t address)
 {
 	struct CycleBucketState state = {0};
-	struct DictionaryItem** item_slot = NULL;
+	struct jaDictionaryItem** item_slot = NULL;
 
 	// Add item into a bucket
 	state.bucket = &dictionary->buckets[address];
@@ -210,12 +210,12 @@ static int sLocateInBucket(struct Dictionary* dictionary, struct DictionaryItem*
 
  sResize()
 -----------------------------*/
-static int sResize(struct Dictionary* dictionary, enum ResizeDirection direction)
+static int sResize(struct jaDictionary* dictionary, enum ResizeDirection direction)
 {
-	struct DictionaryItem** item_slot = NULL;
+	struct jaDictionaryItem** item_slot = NULL;
 	struct CycleBucketState state = {0};
 
-	struct DictionaryItem* item = NULL;
+	struct jaDictionaryItem* item = NULL;
 	size_t address = 0;
 
 	size_t to_rehash = dictionary->pointer;
@@ -279,7 +279,7 @@ static int sResize(struct Dictionary* dictionary, enum ResizeDirection direction
 			if (sLocateInBucket(dictionary, item, address) == 0)
 			{
 				*item_slot = NULL;
-				DEBUG_PRINT(" - Rehashing '%s', address: %03zu -> %03zu\n", item->key, to_rehash, address);
+				JA_DEBUG_PRINT(" - Rehashing '%s', address: %03zu -> %03zu\n", item->key, to_rehash, address);
 			}
 			else
 				return 1;
@@ -311,20 +311,20 @@ static int sResize(struct Dictionary* dictionary, enum ResizeDirection direction
 		}
 	}
 
-	DEBUG_PRINT(" - Buckets: %zu (p: %zu)\n", dictionary->buckets_no, dictionary->pointer);
+	JA_DEBUG_PRINT(" - Buckets: %zu (p: %zu)\n", dictionary->buckets_no, dictionary->pointer);
 	return 0;
 }
 
 
 /*-----------------------------
 
- DictionaryCreate()
+ jaDictionaryCreate()
 -----------------------------*/
-EXPORT struct Dictionary* DictionaryCreate(uint64_t (*hash_function)(const char*, size_t))
+struct jaDictionary* jaDictionaryCreate(uint64_t (*hash_function)(const char*, size_t))
 {
-	struct Dictionary* dictionary = NULL;
+	struct jaDictionary* dictionary = NULL;
 
-	if ((dictionary = malloc(sizeof(struct Dictionary))) != NULL)
+	if ((dictionary = malloc(sizeof(struct jaDictionary))) != NULL)
 	{
 		dictionary->level = 0;
 		dictionary->pointer = 0;
@@ -345,12 +345,12 @@ EXPORT struct Dictionary* DictionaryCreate(uint64_t (*hash_function)(const char*
 
 /*-----------------------------
 
- DictionaryDelete()
+ jaDictionaryDelete()
 -----------------------------*/
-EXPORT void DictionaryDelete(struct Dictionary* dictionary)
+void jaDictionaryDelete(struct jaDictionary* dictionary)
 {
 	struct CycleBucketState state = {0};
-	struct DictionaryItem** item_slot = NULL;
+	struct jaDictionaryItem** item_slot = NULL;
 
 	if (dictionary != NULL)
 	{
@@ -378,12 +378,11 @@ EXPORT void DictionaryDelete(struct Dictionary* dictionary)
 
 /*-----------------------------
 
- DictionaryAdd()
+ jaDictionaryAdd()
 -----------------------------*/
-EXPORT struct DictionaryItem* DictionaryAdd(struct Dictionary* dictionary, const char* key, void* data,
-                                            size_t data_size)
+struct jaDictionaryItem* jaDictionaryAdd(struct jaDictionary* dictionary, const char* key, void* data, size_t data_size)
 {
-	struct DictionaryItem* item = NULL;
+	struct jaDictionaryItem* item = NULL;
 	size_t key_size = 0;
 
 	if (dictionary == NULL || key == NULL)
@@ -391,7 +390,7 @@ EXPORT struct DictionaryItem* DictionaryAdd(struct Dictionary* dictionary, const
 
 	key_size = strlen(key) + 1;
 
-	if ((item = malloc(sizeof(struct DictionaryItem) + key_size + data_size)) != NULL)
+	if ((item = malloc(sizeof(struct jaDictionaryItem) + key_size + data_size)) != NULL)
 	{
 		item->dictionary = dictionary;
 		strncpy(item->key, key, key_size);
@@ -400,7 +399,7 @@ EXPORT struct DictionaryItem* DictionaryAdd(struct Dictionary* dictionary, const
 			item->data = data;
 		else
 		{
-			item->data = (void*)((struct DictionaryItem*)item + 1);
+			item->data = (void*)((struct jaDictionaryItem*)item + 1);
 			item->data = (void*)((uint8_t*)item->data + key_size);
 
 			if (data != NULL)
@@ -417,8 +416,8 @@ EXPORT struct DictionaryItem* DictionaryAdd(struct Dictionary* dictionary, const
 	if (sLocateInBucket(dictionary, item, address) != 0)
 		goto return_failure;
 
-	DEBUG_PRINT("(DictionaryAdd) key: '%s', address: %03zu, hash: 0x%016lX\n", key, address,
-	            (long)hash); // The long cast is a HACK!
+	JA_DEBUG_PRINT("(jaDictionaryAdd) key: '%s', address: %03zu, hash: 0x%016lX\n", key, address,
+	               (long)hash); // The long cast is a HACK!
 	dictionary->items_no++;
 
 	// Grown?
@@ -441,12 +440,12 @@ return_failure:
 
 /*-----------------------------
 
- DictionaryGet()
+ jaDictionaryGet()
 -----------------------------*/
-EXPORT struct DictionaryItem* DictionaryGet(const struct Dictionary* dictionary, const char* key)
+struct jaDictionaryItem* jaDictionaryGet(const struct jaDictionary* dictionary, const char* key)
 {
 	struct CycleBucketState state = {0};
-	struct DictionaryItem** item_slot = NULL;
+	struct jaDictionaryItem** item_slot = NULL;
 
 	if (dictionary != NULL && key != NULL)
 	{
@@ -467,32 +466,32 @@ EXPORT struct DictionaryItem* DictionaryGet(const struct Dictionary* dictionary,
 
 /*-----------------------------
 
- DictionaryRemove()
+ jaDictionaryRemove()
 -----------------------------*/
-EXPORT inline void DictionaryRemove(struct DictionaryItem* item)
+inline void jaDictionaryRemove(struct jaDictionaryItem* item)
 {
-	if (DictionaryDetach(item) == 0)
+	if (jaDictionaryDetach(item) == 0)
 		free(item);
 }
 
 
 /*-----------------------------
 
- DictionaryDetach()
+ jaDictionaryDetach()
 -----------------------------*/
-EXPORT int DictionaryDetach(struct DictionaryItem* item)
+int jaDictionaryDetach(struct jaDictionaryItem* item)
 {
 	struct CycleBucketState state = {0};
-	struct DictionaryItem** item_slot = NULL;
-	struct Dictionary* d = NULL;
+	struct jaDictionaryItem** item_slot = NULL;
+	struct jaDictionary* d = NULL;
 
 	if (item != NULL)
 	{
 		uint64_t hash = 0;
 		size_t address = sGetAddress(item->dictionary, item->key, &hash);
 
-		DEBUG_PRINT("(DictionaryDetach) key: '%s', address: %03zu, hash: 0x%016lX\n", item->key, address,
-		            (long)hash); // The long cast is a HACK!
+		JA_DEBUG_PRINT("(jaDictionaryDetach) key: '%s', address: %03zu, hash: 0x%016lX\n", item->key, address,
+		               (long)hash); // The long cast is a HACK!
 
 		state.bucket = &item->dictionary->buckets[address];
 		while (sCycleBucket(&state, &item_slot) != 1)
@@ -522,13 +521,13 @@ EXPORT int DictionaryDetach(struct DictionaryItem* item)
 
 /*-----------------------------
 
- DictionaryIterate()
+ jaDictionaryIterate()
 -----------------------------*/
-EXPORT void DictionaryIterate(struct Dictionary* dictionary, void (*callback)(struct DictionaryItem*, void*),
-                              void* extra_data)
+void jaDictionaryIterate(struct jaDictionary* dictionary, void (*callback)(struct jaDictionaryItem*, void*),
+                         void* extra_data)
 {
 	struct CycleBucketState state = {0};
-	struct DictionaryItem** item_slot = NULL;
+	struct jaDictionaryItem** item_slot = NULL;
 
 	if (dictionary != NULL && callback != NULL)
 	{
