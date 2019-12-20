@@ -22,11 +22,13 @@ set(SOURCES
 	"./source/endianness.c"
 	"./source/list.c"
 	"./source/matrix.c"
-	"./source/options.c"
 	"./source/status.c"
 	"./source/tree.c"
 	"./source/utilities.c"
 	"./source/vector.c"
+	"./source/config/arguments.c"
+	"./source/config/config.c"
+	"./source/config/file.c"
 	"./source/image/format-sgi.c"
 	"./source/image/image.c"
 	"./source/sound/format-au.c"
@@ -46,9 +48,10 @@ find_package("cmocka")
 if (cmocka_FOUND)
 
 	set(TEST_SUITE_SOURCES
-		"./test-suite/dictionaries.c"
-		"./test-suite/lists.c"
-		"./test-suite/test-suite.c")
+		"./tests/configurations.c"
+		"./tests/dictionaries.c"
+		"./tests/lists.c"
+		"./tests/test-suite.c")
 
 	add_executable("test-suite" ${TEST_SUITE_SOURCES})
 	target_link_libraries("test-suite" "japan-static")

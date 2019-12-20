@@ -1,11 +1,11 @@
 /*-----------------------------
 
- [private.h]
+ [sound/private.h]
  - Alexander Brandt 2019
 -----------------------------*/
 
-#ifndef JA_PRIVATE_H
-#define JA_PRIVATE_H
+#ifndef JA_SOUND_PRIVATE_H
+#define JA_SOUND_PRIVATE_H
 
 	#include <stdlib.h>
 	#include <string.h>

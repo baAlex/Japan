@@ -24,6 +24,9 @@ extern void ListTest3_BeforeAfterAddition(void** cmocka_state);
 extern void DictionaryTest1_FNV1Hash(void** cmocka_state);
 extern void DictionaryTest2_SimpleUsage(void** cmocka_state);
 
+extern void ConfigTest1(void** cmocka_state);
+extern void ConfigTest2(void** cmocka_state);
+
 
 int main()
 {
@@ -34,7 +37,10 @@ int main()
 		cmocka_unit_test(ListTest3_BeforeAfterAddition),
 
 		cmocka_unit_test(DictionaryTest1_FNV1Hash),
-		cmocka_unit_test(DictionaryTest2_SimpleUsage)
+		cmocka_unit_test(DictionaryTest2_SimpleUsage),
+
+		cmocka_unit_test(ConfigTest1),
+		cmocka_unit_test(ConfigTest2)
 	};
 
 	return cmocka_run_group_tests(tests, NULL, NULL);

@@ -18,6 +18,13 @@
 
 #include "japan-dictionary.h"
 
+#ifdef JA_DEBUG
+	#include <stdio.h>
+	#define JA_DEBUG_PRINT(...) printf(__VA_ARGS__)
+#else
+	#define JA_DEBUG_PRINT(...)
+#endif
+
 
 /*-----------------------------
 
@@ -149,7 +156,7 @@ extern void DictionaryTest2_SimpleUsage(void** cmocka_state)
 	assert_false(e);
 
 	// Remove some items in a random order
-	printf("\n####\n\n");
+	JA_DEBUG_PRINT("\n####\n\n");
 
 	jaDictionaryRemove(fe);
 	jaDictionaryRemove(pasos);
