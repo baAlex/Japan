@@ -86,7 +86,7 @@ struct jaImage* jaImageLoad(const char* filename, struct jaStatus* st)
 
 	jaStatusSet(st, "jaImageLoad", STATUS_SUCCESS, NULL);
 
-	if ((file = fopen(filename, "wb")) == NULL)
+	if ((file = fopen(filename, "rb")) == NULL)
 	{
 		jaStatusSet(st, "jaImageLoad", STATUS_FS_ERROR, "'%s'", filename);
 		return NULL;

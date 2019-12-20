@@ -141,7 +141,7 @@ struct jaSound* jaSoundLoad(const char* filename, struct jaStatus* st)
 
 	jaStatusSet(st, "jaSoundLoad", STATUS_SUCCESS, NULL);
 
-	if ((file = fopen(filename, "wb")) == NULL)
+	if ((file = fopen(filename, "rb")) == NULL)
 	{
 		jaStatusSet(st, "jaSoundLoad", STATUS_FS_ERROR, "'%s'", filename);
 		return NULL;
