@@ -10,7 +10,6 @@
 	#include <stdlib.h>
 	#include <string.h>
 
-	#include "../annex-k.h"
 	#include "../common.h"
 
 	#include "japan-sound.h"

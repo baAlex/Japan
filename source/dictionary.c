@@ -35,7 +35,6 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
-#include "annex-k.h"
 #include "common.h"
 #include "japan-dictionary.h"
 
@@ -113,28 +112,22 @@ static inline size_t sGetAddress(const struct jaDictionary* dictionary, const ch
 	size_t address = 0;
 	size_t size = 0;
 
-	size = strlen(key) + 1;
+	size = strlen(key);
 
 	// FNV-1 hash
 	if (dictionary->hash_function == NULL)
-	{
-		for (size_t i = 0; i < size; i++)
-		{
-			hash = hash ^ (uint64_t)key[i];
-			hash = hash * FNV_PRIME;
-		}
-	}
+		hash = jaFNV1Hash(key, size);
 	else
 		hash = dictionary->hash_function(key, size);
+
+	if (out_hash != NULL)
+		*out_hash = hash;
 
 	// Linear-hashing address
 	address = (size_t)((hash % (INITIAL_BUCKETS * sPow(2, (uint64_t)dictionary->level))) % SIZE_MAX);
 
 	if (address < dictionary->pointer)
 		address = (size_t)((hash % (INITIAL_BUCKETS * sPow(2, (uint64_t)dictionary->level + 1))) % SIZE_MAX);
-
-	if (out_hash != NULL)
-		*out_hash = hash;
 
 	return address;
 }
@@ -319,6 +312,24 @@ static int sResize(struct jaDictionary* dictionary, enum ResizeDirection directi
 
 /*-----------------------------
 
+ jaFNV1Hash()
+-----------------------------*/
+uint64_t jaFNV1Hash(const char* key, size_t size)
+{
+	uint64_t hash = FNV_OFFSET_BASIS;
+
+	for (size_t i = 0; i < size; i++)
+	{
+		hash = hash ^ (uint64_t)key[i];
+		hash = hash * FNV_PRIME;
+	}
+
+	return hash;
+}
+
+
+/*-----------------------------
+
  jaDictionaryCreate()
 -----------------------------*/
 struct jaDictionary* jaDictionaryCreate(uint64_t (*hash_function)(const char*, size_t))
@@ -389,9 +400,9 @@ struct jaDictionaryItem* jaDictionaryAdd(struct jaDictionary* dictionary, const 
 	if (dictionary == NULL || key == NULL)
 		return NULL;
 
-	key_size = strlen(key);
+	key_size = strlen(key) + 1;
 
-	if ((item = malloc(sizeof(struct jaDictionaryItem) + (key_size + 1) + data_size)) != NULL)
+	if ((item = malloc(sizeof(struct jaDictionaryItem) + key_size + data_size)) != NULL)
 	{
 		item->dictionary = dictionary;
 		strncpy(item->key, key, key_size);
@@ -417,8 +428,7 @@ struct jaDictionaryItem* jaDictionaryAdd(struct jaDictionary* dictionary, const 
 	if (sLocateInBucket(dictionary, item, address) != 0)
 		goto return_failure;
 
-	JA_DEBUG_PRINT("(jaDictionaryAdd) key: '%s', address: %03zu, hash: 0x%016lX\n", key, address,
-	               (long)hash); // The long cast is a HACK!
+	JA_DEBUG_PRINT("(jaDictionaryAdd) key: '%s', address: %03zu, hash: 0x%016lX\n", key, address, hash);
 	dictionary->items_no++;
 
 	// Grown?
@@ -491,8 +501,7 @@ int jaDictionaryDetach(struct jaDictionaryItem* item)
 		uint64_t hash = 0;
 		size_t address = sGetAddress(item->dictionary, item->key, &hash);
 
-		JA_DEBUG_PRINT("(jaDictionaryDetach) key: '%s', address: %03zu, hash: 0x%016lX\n", item->key, address,
-		               (long)hash); // The long cast is a HACK!
+		JA_DEBUG_PRINT("(jaDictionaryDetach) key: '%s', address: %03zu, hash: 0x%016lX\n", item->key, address, hash);
 
 		state.bucket = &item->dictionary->buckets[address];
 		while (sCycleBucket(&state, &item_slot) != 1)

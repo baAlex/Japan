@@ -31,7 +31,6 @@ SOFTWARE.
 #include <stdio.h>
 #include <string.h>
 
-#include "annex-k.h"
 #include "japan-status.h"
 
 void jaStatusSet(struct jaStatus* st, const char* function_name, enum jaStatusCode c, const char* explanation_fmt, ...)

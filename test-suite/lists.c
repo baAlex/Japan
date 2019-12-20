@@ -7,6 +7,7 @@
 #include <math.h>
 #include <setjmp.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,13 +21,13 @@
 
 /*-----------------------------
 
- ListTest1_007Best()
+ ListTest1_Iteration()
 -----------------------------*/
 #define BEST_TOP1 "1. On Her Majesty's Secret Service"
 #define BEST_TOP2 "2. You Only Live Twice"
 #define BEST_TOP3 "3. The Living Daylights"
 
-void ListTest1_007Best(void** cmocka_state)
+void ListTest1_Iteration(void** cmocka_state)
 {
 	(void)cmocka_state;
 
@@ -88,26 +89,22 @@ void ListTest1_007Best(void** cmocka_state)
 
 /*-----------------------------
 
- ListTest2_007Worst()
+ ListTest2_RemovalAtIteration()
 -----------------------------*/
 #define WORST_TOP1 "1. Die Another Day"
 #define WORST_TOP2 "2. Diamonds Are Forever"
 #define WORST_TOP3 "3. Those with Roger Moore"
 
-void ListTest2_007Worst(void** cmocka_state)
+void ListTest2_RemovalAtIteration(void** cmocka_state)
 {
 	(void)cmocka_state;
 	struct jaListItem* item = NULL;
 	struct jaList list = {0};
 
-	item = jaListAdd(&list, NULL, 0);
-	item->data = WORST_TOP1;
-
-	item = jaListAdd(&list, NULL, 0);
-	item->data = WORST_TOP2;
-
-	item = jaListAdd(&list, NULL, 0);
-	item->data = WORST_TOP3;
+	// If size == 0, data is assigned not copied
+	item = jaListAdd(&list, WORST_TOP1, 0);
+	item = jaListAdd(&list, WORST_TOP2, 0);
+	item = jaListAdd(&list, WORST_TOP3, 0);
 
 	// Iterate it
 	struct jaListState state = {0};
@@ -172,14 +169,14 @@ void ListTest2_007Worst(void** cmocka_state)
 
 /*-----------------------------
 
- ListTest3_007Quote()
+ ListTest3_BeforeAfterAddition()
 -----------------------------*/
 struct Quote
 {
 	char str[64];
 };
 
-void ListTest3_007Quote(void** cmocka_state)
+void ListTest3_BeforeAfterAddition(void** cmocka_state)
 {
 	(void)cmocka_state;
 	struct jaList list = {0};
@@ -220,7 +217,7 @@ void ListTest3_007Quote(void** cmocka_state)
 
 	printf("\n");
 
-	// Detaching
+	// Detach items
 	jaListDetach(no);
 	jaListDetach(you);
 

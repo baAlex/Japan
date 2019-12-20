@@ -31,7 +31,6 @@ SOFTWARE.
 #include <stdint.h>
 #include <string.h>
 
-#include "../annex-k.h"
 #include "../common.h"
 #include "private.h"
 

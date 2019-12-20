@@ -10,7 +10,7 @@ if ((CMAKE_C_COMPILER_ID MATCHES "Clang") OR (CMAKE_C_COMPILER_ID MATCHES "GNU")
 
 elseif (CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /DJA_EXPORT_SYMBOLS")
-	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Od /Zi /DJA_DEBUG")
+	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Od /Zi /DJA_DEBUG /D_CRT_SECURE_NO_WARNINGS")
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /O2")
 
 endif()
@@ -41,16 +41,17 @@ add_library("japan" SHARED ${SOURCES})
 # Test suite
 # ----------
 
-if (NOT WIN32)
+find_package("cmocka")
+
+if (cmocka_FOUND)
 
 	set(TEST_SUITE_SOURCES
-		"./test-suite/test-suite.c"
-		"./test-suite/lists.c")
-
-	find_package("cmocka")
+		"./test-suite/dictionaries.c"
+		"./test-suite/lists.c"
+		"./test-suite/test-suite.c")
 
 	add_executable("test-suite" ${TEST_SUITE_SOURCES})
 	target_link_libraries("test-suite" "japan-static")
 	target_link_libraries("test-suite" "cmocka")
 
-endif (NOT WIN32)
+endif (cmocka_FOUND)

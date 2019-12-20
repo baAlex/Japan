@@ -67,7 +67,7 @@ static struct jaListItem* sAllocItem(struct jaList* list, void* data, size_t dat
 inline void jaListClean(struct jaList* list)
 {
 	while (list->last != NULL)
-		jaListRemove(list->last); // NOLINT(clang-analyzer-unix.Malloc)
+		jaListRemove(list->last);
 }
 
 

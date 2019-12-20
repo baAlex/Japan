@@ -7,6 +7,7 @@
 #include <math.h>
 #include <setjmp.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,18 +16,25 @@
 
 #include <cmocka.h>
 
-extern void ListTest1_007Best(void** cmocka_state);
-extern void ListTest2_007Worst(void** cmocka_state);
-extern void ListTest3_007Quote(void** cmocka_state);
+
+extern void ListTest1_Iteration(void** cmocka_state);
+extern void ListTest2_RemovalAtIteration(void** cmocka_state);
+extern void ListTest3_BeforeAfterAddition(void** cmocka_state);
+
+extern void DictionaryTest1_FNV1Hash(void** cmocka_state);
+extern void DictionaryTest2_SimpleUsage(void** cmocka_state);
 
 
 int main()
 {
 	const struct CMUnitTest tests[] =
 	{
-		cmocka_unit_test(ListTest1_007Best),
-		cmocka_unit_test(ListTest2_007Worst),
-		cmocka_unit_test(ListTest3_007Quote)
+		cmocka_unit_test(ListTest1_Iteration),
+		cmocka_unit_test(ListTest2_RemovalAtIteration),
+		cmocka_unit_test(ListTest3_BeforeAfterAddition),
+
+		cmocka_unit_test(DictionaryTest1_FNV1Hash),
+		cmocka_unit_test(DictionaryTest2_SimpleUsage)
 	};
 
 	return cmocka_run_group_tests(tests, NULL, NULL);
