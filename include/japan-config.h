@@ -25,14 +25,22 @@
 #ifndef JA_OPTIONS_H
 #define JA_OPTIONS_H
 
+#include <limits.h>
 #include "japan-status.h"
+
+enum jaConfigArgumentsFlags
+{
+	CONFIG_DEFAULT = 0,
+	CONFIG_IGNORE_FIRST = 0,
+	CONFIG_READ_ALL
+};
 
 struct jaConfig;
 
 JA_EXPORT struct jaConfig* jaConfigCreate();
 JA_EXPORT void jaConfigDelete(struct jaConfig*);
 
-JA_EXPORT void jaConfigReadArguments(struct jaConfig*, int argc, const char* argv[]);
+JA_EXPORT void jaConfigReadArguments(struct jaConfig*, int argc, const char* argv[], enum jaConfigArgumentsFlags);
 JA_EXPORT int jaConfigReadFile(struct jaConfig*, const char* filename, struct jaStatus*);
 
 JA_EXPORT int jaConfigRegisterInt(struct jaConfig*, const char* name, int default_value, int min, int max,
@@ -46,11 +54,12 @@ JA_EXPORT int jaConfigRetrieveInt(const struct jaConfig*, const char* name, int*
 JA_EXPORT int jaConfigRetrieveFloat(const struct jaConfig*, const char* name, float* dest, struct jaStatus*);
 JA_EXPORT int jaConfigRetrieveString(const struct jaConfig*, const char* name, const char** dest, struct jaStatus*);
 
-#define jaConfigRegister(config, default_value, a, b, st)\
+#define jaConfigRegister(config, name, default_value, a, b, st)\
 	_Generic((default_value),\
 		int : jaConfigRegisterInt,\
 		float : jaConfigRegisterFloat,\
 		char* : jaConfigRegisterString,\
+		const char* : jaConfigRegisterString,\
 		default : jaConfigRegisterInt\
 	)(config, name, default_value, a, b, st)
 
@@ -58,7 +67,8 @@ JA_EXPORT int jaConfigRetrieveString(const struct jaConfig*, const char* name, c
 	_Generic((dest),\
 		int* : jaConfigRetrieveInt,\
 		float* : jaConfigRetrieveFloat,\
-		char* : jaConfigRetrieveString,\
+		char** : jaConfigRetrieveString,\
+		const char** : jaConfigRetrieveString,\
 		default : jaConfigRetrieveInt\
 	)(config, name, dest, st)
 

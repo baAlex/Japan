@@ -56,7 +56,7 @@ void PrintCallback(struct jaDictionaryItem* item, void* data)
 
  StoreFloat()
 -----------------------------*/
-inline int StoreFloat(float* dest, const char* org, float min, float max)
+int StoreFloat(float* dest, const char* org, float min, float max)
 {
 	char* end = NULL;
 	float value = strtof(org, &end); // "Past the last character interpreted"
@@ -77,7 +77,7 @@ inline int StoreFloat(float* dest, const char* org, float min, float max)
 
  StoreInt()
 -----------------------------*/
-inline int StoreInt(int* dest, const char* org, int min, int max)
+int StoreInt(int* dest, const char* org, int min, int max)
 {
 	char* end = NULL;
 	long value = strtol(org, &end, 0);
@@ -110,7 +110,7 @@ inline int StoreInt(int* dest, const char* org, int min, int max)
 
  StoreString()
 -----------------------------*/
-inline void StoreString(const char** dest, const char* org)
+void StoreString(const char** dest, const char* org)
 {
 	// TODO
 	*dest = org;

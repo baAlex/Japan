@@ -11,7 +11,7 @@ if ((CMAKE_C_COMPILER_ID MATCHES "Clang") OR (CMAKE_C_COMPILER_ID MATCHES "GNU")
 elseif (CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /DJA_EXPORT_SYMBOLS")
 	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Od /Zi /DJA_DEBUG /D_CRT_SECURE_NO_WARNINGS")
-	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /O2")
+	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /O2 /D_CRT_SECURE_NO_WARNINGS")
 
 endif()
 
@@ -56,5 +56,6 @@ if (cmocka_FOUND)
 	add_executable("test-suite" ${TEST_SUITE_SOURCES})
 	target_link_libraries("test-suite" "japan-static")
 	target_link_libraries("test-suite" "cmocka")
+	target_link_libraries("test-suite" "m")
 
 endif (cmocka_FOUND)

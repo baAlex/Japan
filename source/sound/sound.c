@@ -158,14 +158,14 @@ struct jaSound* jaSoundLoad(const char* filename, struct jaStatus* st)
 	// Header
 	if (CheckMagicAu(magic) == true)
 	{
-		if (jaSoundExLoadAu(file, &ex, st) != 0)
+		if (SoundExLoadAu(file, &ex, st) != 0)
 			goto return_failure;
 
 		JA_DEBUG_PRINT("(Au) '%s':\n", filename);
 	}
 	else if (CheckMagicWav(magic) == true)
 	{
-		if (jaSoundExLoadWav(file, &ex, st) != 0)
+		if (SoundExLoadWav(file, &ex, st) != 0)
 			goto return_failure;
 
 		JA_DEBUG_PRINT("(Wav) '%s':\n", filename);
@@ -260,9 +260,9 @@ int jaSoundExLoad(FILE* file, struct jaSoundEx* out, struct jaStatus* st)
 	fseek(file, 0, SEEK_SET);
 
 	if (CheckMagicAu(magic) == true)
-		return jaSoundExLoadAu(file, out, st);
+		return SoundExLoadAu(file, out, st);
 	else if (CheckMagicWav(magic) == true)
-		return jaSoundExLoadWav(file, out, st);
+		return SoundExLoadWav(file, out, st);
 
 	// Unsuccessfully bye!
 	jaStatusSet(st, "jaSoundExLoad", STATUS_UNKNOWN_FILE_FORMAT, NULL);

@@ -18,8 +18,8 @@
 	bool CheckMagicAu(uint32_t value);
 	bool CheckMagicWav(uint32_t value);
 
-	int jaSoundExLoadAu(FILE* file, struct jaSoundEx* out, struct jaStatus* st);
-	int jaSoundExLoadWav(FILE* file, struct jaSoundEx* out, struct jaStatus* st);
+	int SoundExLoadAu(FILE* file, struct jaSoundEx* out, struct jaStatus* st);
+	int SoundExLoadWav(FILE* file, struct jaSoundEx* out, struct jaStatus* st);
 
 	int WritePcm(FILE* file, const struct jaSound* sound, enum jaEndianness);
 

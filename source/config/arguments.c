@@ -35,13 +35,13 @@ SOFTWARE.
 
  jaConfigReadArguments()
 -----------------------------*/
-void jaConfigReadArguments(struct jaConfig* config, int argc, const char* argv[])
+void jaConfigReadArguments(struct jaConfig* config, int argc, const char* argv[], enum jaConfigArgumentsFlags flags)
 {
 	struct jaDictionaryItem* item = NULL;
 	struct Cvar* cvar = NULL;
 	union Value old_value;
 
-	for (int i = 1; i < argc; i++)
+	for (int i = (flags == CONFIG_IGNORE_FIRST) ? 1 : 0; i < argc; i++)
 	{
 		// Check key
 		if (argv[i][0] != '-')

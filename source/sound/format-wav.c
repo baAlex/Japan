@@ -130,19 +130,19 @@ static int sReadRiffBlock(size_t block_size, FILE* file, struct jaStatus* st)
 
 	if (block_size < sizeof(struct RiffBlock)) // (*a)
 	{
-		jaStatusSet(st, "jaSoundExLoadWav", STATUS_UNKNOWN_DATA_FORMAT, "riff block");
+		jaStatusSet(st, "SoundExLoadWav", STATUS_UNKNOWN_DATA_FORMAT, "riff block");
 		return 1;
 	}
 
 	if (fread(&riff, sizeof(struct RiffBlock), 1, file) != 1)
 	{
-		jaStatusSet(st, "jaSoundExLoadWav", STATUS_UNEXPECTED_EOF, "at riff block");
+		jaStatusSet(st, "SoundExLoadWav", STATUS_UNEXPECTED_EOF, "at riff block");
 		return 1;
 	}
 
 	if (strncmp(riff.wave_signature, WAVE_SIGNATURE, ID_LEN) != 0)
 	{
-		jaStatusSet(st, "jaSoundExLoadWav", STATUS_UNKNOWN_FILE_FORMAT, "invalid wave signature");
+		jaStatusSet(st, "SoundExLoadWav", STATUS_UNKNOWN_FILE_FORMAT, "invalid wave signature");
 		return 1;
 	}
 
@@ -164,13 +164,13 @@ static int sReadFmtBlock(size_t block_size, FILE* file, struct jaSoundEx* out, s
 
 	if (block_size != 16 && block_size != 18 && block_size != 40)
 	{
-		jaStatusSet(st, "jaSoundExLoadWav", STATUS_UNKNOWN_DATA_FORMAT, "fmt block");
+		jaStatusSet(st, "SoundExLoadWav", STATUS_UNKNOWN_DATA_FORMAT, "fmt block");
 		return 1;
 	}
 
 	if (fread(&fmt, block_size, 1, file) != 1)
 	{
-		jaStatusSet(st, "jaSoundExLoadWav", STATUS_UNEXPECTED_EOF, "at fmt block");
+		jaStatusSet(st, "SoundExLoadWav", STATUS_UNEXPECTED_EOF, "at fmt block");
 		return 1;
 	}
 
@@ -208,7 +208,7 @@ static int sReadFmtBlock(size_t block_size, FILE* file, struct jaSoundEx* out, s
 			out->format = SOUND_I32;
 		else
 		{
-			jaStatusSet(st, "jaSoundExLoadWav", STATUS_UNSUPPORTED_FEATURE, "pcm bits per sample");
+			jaStatusSet(st, "SoundExLoadWav", STATUS_UNSUPPORTED_FEATURE, "pcm bits per sample");
 			return 1;
 		}
 	}
@@ -223,18 +223,18 @@ static int sReadFmtBlock(size_t block_size, FILE* file, struct jaSoundEx* out, s
 			out->format = SOUND_F64;
 		else
 		{
-			jaStatusSet(st, "jaSoundExLoadWav", STATUS_UNSUPPORTED_FEATURE, "float bits per sample");
+			jaStatusSet(st, "SoundExLoadWav", STATUS_UNSUPPORTED_FEATURE, "float bits per sample");
 			return 1;
 		}
 	}
 	else if (fmt.format == WAVE_FORMAT_EXTENSIBLE)
 	{
-		jaStatusSet(st, "jaSoundExLoadWav", STATUS_UNSUPPORTED_FEATURE, "extensible format");
+		jaStatusSet(st, "SoundExLoadWav", STATUS_UNSUPPORTED_FEATURE, "extensible format");
 		return 1;
 	}
 	else
 	{
-		jaStatusSet(st, "jaSoundExLoadWav", STATUS_UNKNOWN_DATA_FORMAT, NULL);
+		jaStatusSet(st, "SoundExLoadWav", STATUS_UNKNOWN_DATA_FORMAT, NULL);
 		return 1;
 	}
 
@@ -257,7 +257,7 @@ static int sReadDataBlock(size_t block_size, FILE* file, struct jaSoundEx* out, 
 
 	if (fseek(file, (long)block_size, SEEK_CUR) != 0)
 	{
-		jaStatusSet(st, "jaSoundExLoadWav", STATUS_UNEXPECTED_EOF, "at generic seek");
+		jaStatusSet(st, "SoundExLoadWav", STATUS_UNEXPECTED_EOF, "at generic seek");
 		return 1;
 	}
 
@@ -280,9 +280,9 @@ bool CheckMagicWav(uint32_t value)
 
 /*-----------------------------
 
- jaSoundExLoadWav()
+ SoundExLoadWav()
 -----------------------------*/
-int jaSoundExLoadWav(FILE* file, struct jaSoundEx* out, struct jaStatus* st)
+int SoundExLoadWav(FILE* file, struct jaSoundEx* out, struct jaStatus* st)
 {
 	bool riff_read = false;
 	bool fmt_read = false;
@@ -290,7 +290,7 @@ int jaSoundExLoadWav(FILE* file, struct jaSoundEx* out, struct jaStatus* st)
 
 	struct GenericHead head;
 
-	jaStatusSet(st, "jaSoundExLoadWav", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "SoundExLoadWav", STATUS_SUCCESS, NULL);
 
 	while (1)
 	{
@@ -299,7 +299,7 @@ int jaSoundExLoadWav(FILE* file, struct jaSoundEx* out, struct jaStatus* st)
 		{
 			if (riff_read == false || fmt_read == false || data_read == false)
 			{
-				jaStatusSet(st, "jaSoundExLoadWav", STATUS_UNEXPECTED_EOF, "at generic head");
+				jaStatusSet(st, "SoundExLoadWav", STATUS_UNEXPECTED_EOF, "at generic head");
 				return 1;
 			}
 			else
@@ -322,7 +322,7 @@ int jaSoundExLoadWav(FILE* file, struct jaSoundEx* out, struct jaStatus* st)
 		{
 			if (riff_read == false)
 			{
-				jaStatusSet(st, "jaSoundExLoadWav", STATUS_UNEXPECTED_DATA, "expected riff block");
+				jaStatusSet(st, "SoundExLoadWav", STATUS_UNEXPECTED_DATA, "expected riff block");
 				return 1;
 			}
 
@@ -337,7 +337,7 @@ int jaSoundExLoadWav(FILE* file, struct jaSoundEx* out, struct jaStatus* st)
 		{
 			if (fmt_read == false)
 			{
-				jaStatusSet(st, "jaSoundExLoadWav", STATUS_UNEXPECTED_DATA, "expected fmt block");
+				jaStatusSet(st, "SoundExLoadWav", STATUS_UNEXPECTED_DATA, "expected fmt block");
 				return 1;
 			}
 
@@ -352,7 +352,7 @@ int jaSoundExLoadWav(FILE* file, struct jaSoundEx* out, struct jaStatus* st)
 
 			if (fseek(file, (long)head.size, SEEK_CUR) != 0)
 			{
-				jaStatusSet(st, "jaSoundExLoadWav", STATUS_UNEXPECTED_EOF, "at generic seek");
+				jaStatusSet(st, "SoundExLoadWav", STATUS_UNEXPECTED_EOF, "at generic seek");
 				return 1;
 			}
 		}

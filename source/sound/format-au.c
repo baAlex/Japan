@@ -75,18 +75,18 @@ bool CheckMagicAu(uint32_t value)
 
 /*-----------------------------
 
- jaSoundExLoadAu()
+ SoundExLoadAu()
 -----------------------------*/
-int jaSoundExLoadAu(FILE* file, struct jaSoundEx* out, struct jaStatus* st)
+int SoundExLoadAu(FILE* file, struct jaSoundEx* out, struct jaStatus* st)
 {
 	struct AuHead head;
 	enum jaEndianness sys_endianness = jaEndianSystem();
 
-	jaStatusSet(st, "jaSoundExLoadAu", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "SoundExLoadAu", STATUS_SUCCESS, NULL);
 
 	if (fread(&head, sizeof(struct AuHead), 1, file) != 1)
 	{
-		jaStatusSet(st, "jaSoundExLoadAu", STATUS_UNEXPECTED_EOF, "head");
+		jaStatusSet(st, "SoundExLoadAu", STATUS_UNEXPECTED_EOF, "head");
 		return 1;
 	}
 
@@ -163,7 +163,7 @@ int jaSoundExLoadAu(FILE* file, struct jaSoundEx* out, struct jaStatus* st)
 		out->uncompressed_size = out->uncompressed_size * 2;
 		break;
 
-	default: jaStatusSet(st, "jaSoundExLoadAu", STATUS_UNKNOWN_DATA_FORMAT, NULL); return 1;
+	default: jaStatusSet(st, "SoundExLoadAu", STATUS_UNKNOWN_DATA_FORMAT, NULL); return 1;
 	}
 
 	return 0;
