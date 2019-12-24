@@ -13,7 +13,9 @@
 	#include <limits.h>
 	#include <ctype.h>
 	#include <math.h>
+	#include <stdbool.h>
 
+	#include "japan-buffer.h"
 	#include "japan-dictionary.h"
 	#include "japan-utilities.h"
 	#include "japan-config.h"
