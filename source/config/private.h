@@ -14,6 +14,7 @@
 	#include <ctype.h>
 	#include <math.h>
 	#include <stdbool.h>
+	#include <stdio.h>
 
 	#include "japan-buffer.h"
 	#include "japan-dictionary.h"
