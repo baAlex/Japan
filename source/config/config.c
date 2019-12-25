@@ -54,6 +54,38 @@ void PrintCallback(struct jaDictionaryItem* item, void* data)
 
 /*-----------------------------
 
+ ValidateKey()
+-----------------------------*/
+int ValidateKey(const uint8_t* string, size_t len)
+{
+	// Only ASCII letters, underscores, dots, and
+	// numbers are valid characters. The first
+	// character should be a letter. No consecutive
+	// dots.
+
+	if ((string[0] < 0x41 && string[0] > 0x5A) && // A-Z
+	    (string[0] < 0x61 && string[0] > 0x7A))   // a-z
+		return 1;
+
+	for (size_t i = 1; i < len; i++)
+	{
+		if ((string[i] < 0x41 && string[i] > 0x5A) && // A-Z
+		    (string[i] < 0x61 && string[i] > 0x7A) && // a-z
+		    (string[i] < 0x30 && string[i] > 0x39) && // 0-9
+		    (string[i] != 0x5F) &&                    // Underscore
+		    (string[i] != 0x2E))                      // Full stop (dot)
+			return 1;
+
+		if (string[i] == 0x2E && string[i - 1] == 0x2E) // Consecutive dots
+			return 1;
+	}
+
+	return 0;
+}
+
+
+/*-----------------------------
+
  StoreFloat()
 -----------------------------*/
 int StoreFloat(float* dest, const char* org, float min, float max)
@@ -148,14 +180,10 @@ static struct Cvar* sRegister(struct jaConfig* config, const char* key, enum Typ
 
 	jaStatusSet(st, "sRegister", STATUS_SUCCESS, NULL);
 
-	for (const char* c = key; *c != '\0'; c++)
+	if (ValidateKey((uint8_t*)key, strlen(key)) != 0)
 	{
-		if (isalnum((int)*c) == 0 // If not
-		    && *c != '_')
-		{
-			jaStatusSet(st, "sRegister", STATUS_INVALID_ARGUMENT, "Only alphanumeric keys allowed");
-			return NULL;
-		}
+		jaStatusSet(st, "sRegister", STATUS_INVALID_ARGUMENT, "Invalid key");
+		return NULL;
 	}
 
 	if ((item = jaDictionaryAdd((struct jaDictionary*)config, key, NULL, sizeof(struct Cvar))) == NULL)

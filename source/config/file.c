@@ -35,12 +35,22 @@ struct TokenizerState
 {
 	char* token;
 	int line_number;
+
 	bool eof;
+
+	bool break_ws;
+	bool break_nl;
+	bool break_sc;
+
+	bool initial_ws;
+	bool initial_nl;
+	bool initial_sc;
 
 	// Private:
 	bool comment;
 	bool literal;
-	bool advance_a_line;
+	bool advance_line;
+	bool ret_fake_equal;
 };
 
 
@@ -53,10 +63,33 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 	size_t cursor = 0;
 	char ch = '\0';
 
-	if (state->advance_a_line == true)
-		state->line_number += 1;
+	state->break_ws = false;
+	state->break_nl = false;
+	state->break_sc = false;
 
-	state->advance_a_line = false;
+	state->initial_ws = false;
+	state->initial_nl = false;
+	state->initial_sc = false;
+
+	if (state->advance_line == true)
+	{
+		state->line_number += 1;
+		state->advance_line = false;
+	}
+
+	if (state->ret_fake_equal == true)
+	{
+		// The previous token contain an equal symbol, but it didn't
+		// get returned as other characters where already there, and
+		// the equal symbol is supposed to act as an separator... long
+		// story short: in this call we need to return an fake "=" and
+		// return immediately, lying about being break by a white space
+		state->ret_fake_equal = false;
+		state->break_ws = true;
+		state->token = "=";
+		return 0;
+	}
+
 	state->token = buffer->data;
 
 	while (1)
@@ -100,50 +133,77 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 			if (ch == ' ')
 			{
 				if (cursor == 0) // Initial whitespace
+				{
+					state->initial_ws = true;
 					continue;
-				else
-					break;
-			}
+				}
 
-			if (ch != '\n' && (ch == '#' || state->comment == true))
+				state->break_ws = true;
+				break;
+			}
+			else if (ch == ';')
+			{
+				if (cursor == 0) // Initial semicolons
+				{
+					state->initial_sc = true;
+					continue;
+				}
+
+				state->break_sc = true;
+				break;
+			}
+			else if (ch != '\n' && (ch == '#' || state->comment == true))
 			{
 				state->comment = true;
 				continue;
 			}
+			else if (ch == '=')
+			{
+				// Always break with the equal symbol, separating the current token
+				// if is the case. The caller is notified as an white space happened.
+				// While reciving an fake (or artificial) equal symbol the next call.
+				state->break_ws = true;
+
+				if (cursor == 0)
+				{
+					state->token[cursor] = ch;
+					cursor++;
+					break; // The 'bye' procedure appends the '\0'
+				}
+
+				state->ret_fake_equal = true;
+				break;
+			}
 		}
 
-		// Add character to the token
 		if (ch == '\n')
 		{
 			state->comment = false;
 
-			if (state->literal == true) // TODO
+			if (state->literal == true)
 			{
+				// TODO
 				jaStatusSet(st, "jaConfigReadFile", STATUS_UNSUPPORTED_FEATURE,
 				            "(Line %i) Multi-line literals unsupported", state->line_number + 1);
 				return 1;
 			}
 
-			// New line characters are the exception to the norm, they
-			// are considered tokens on themself when alone. This to
-			// allow the correct count of line numbers by the caller if
-			// want to do it (also, makes the tokenization more easy)
-			if (cursor == 0)
+			if (cursor == 0) // An empty line, just with '\n'
 			{
-				// In the 'bye' procedure this end being an {'\0', '\0'}
-				state->token[cursor] = '\0';
-				cursor++;
+				state->line_number += 1;
+				state->initial_nl = true;
+				continue;
 			}
 
-			state->advance_a_line = true;
+			state->advance_line = true;
+			state->break_nl = true;
 			break;
 		}
-		else
-		{
-			// Note than a normal character didn't do a break
-			state->token[cursor] = ch;
-			cursor++;
-		}
+
+		// Add character to the token
+		// Note than a normal character didn't do a break
+		state->token[cursor] = ch;
+		cursor++;
 	}
 
 	// Bye!
@@ -183,8 +243,9 @@ int jaConfigReadFile(struct jaConfig* config, const char* filename, struct jaSta
 		if (s.eof == true)
 			break;
 
-		if (s.token[0] != '\0') // Tokenizer traits new lines as empty strings
-			printf("%s%04i: \"%s\"\n", (s.comment) ? "#" : "", s.line_number + 1, s.token);
+		printf("(b:%s%s%s, i:%s%s%s) %04i: \"%s\"\n", (s.break_ws) ? "ws" : "", (s.break_nl) ? "nl" : "",
+		       (s.break_sc) ? "sc" : "", (s.initial_ws) ? "ws" : "--", (s.initial_nl) ? "nl" : "--",
+		       (s.initial_sc) ? "sc" : "--", s.line_number + 1, s.token);
 	}
 
 	// Bye!

@@ -59,4 +59,6 @@
 	int StoreInt(int* dest, const char* org, int min, int max);
 	void StoreString(const char** dest, const char* org);
 
+	int ValidateKey(const uint8_t* string, size_t len);
+
 #endif
