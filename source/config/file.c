@@ -36,65 +36,92 @@ struct TokenizerState
 	char* token;
 	int line_number;
 
-	bool eof;
+	struct
+	{
+		bool eof : 1;
 
-	bool break_ws;
-	bool break_nl;
-	bool break_sc;
-
-	bool initial_ws;
-	bool initial_nl;
-	bool initial_sc;
+		bool break_ws : 1;
+		bool break_nl : 1;
+		bool break_sc : 1;
+		bool initial_ws : 1;
+		bool initial_nl : 1;
+		bool initial_sc : 1;
+	};
 
 	// Private:
-	bool comment;
-	bool literal;
 	bool advance_line;
-	bool ret_fake_equal;
+	char return_artificial;
+	char append_artificial;
 };
 
 
+/*-----------------------------
+
+ sTokenize()
+-----------------------------*/
 static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* state, struct jaStatus* st)
 {
-	// TODO: multi-line:
-	// https://gcc.gnu.org/onlinedocs/gcc-3.2/cpp/Initial-processing.html
-	// https://stackoverflow.com/questions/27792508/ruby-backslash-to-continue-string-on-a-new-line
+	// Unnecessary over-commented because string manipulation in C is hard...
+	// and I know that I going to forgot how all this works.
 
 	size_t cursor = 0;
 	char ch = '\0';
 
+	bool in_literal = false;
+	bool in_comment = false;
+
 	state->break_ws = false;
 	state->break_nl = false;
 	state->break_sc = false;
-
 	state->initial_ws = false;
 	state->initial_nl = false;
 	state->initial_sc = false;
 
+	state->token = buffer->data;
+
+	// The previous token was the last one in the previous line?
 	if (state->advance_line == true)
 	{
 		state->line_number += 1;
 		state->advance_line = false;
 	}
 
-	if (state->ret_fake_equal == true)
+	// The previous token was broken by a character that now
+	// we need to return as a token itself
+	if (state->return_artificial != '\0')
 	{
-		// The previous token contain an equal symbol, but it didn't
-		// get returned as other characters where already there, and
-		// the equal symbol is supposed to act as an separator... long
-		// story short: in this call we need to return an fake "=" and
-		// return immediately, lying about being break by a white space
-		state->ret_fake_equal = false;
+		state->token[0] = state->return_artificial;
+		state->token[1] = '\0';
+
+		state->return_artificial = '\0';
+
+		// We lie to the caller about this artificial token
+		// being broken by a white space
 		state->break_ws = true;
-		state->token = "=";
 		return 0;
 	}
 
-	state->token = buffer->data;
+	// Similar to the above case. The previous token was
+	// broken by a character, but that now we need to
+	// append in the future token to return
+	if (state->append_artificial != '\0')
+	{
+		state->token[0] = state->append_artificial;
+		cursor += 1;
 
+		// If was a quote character, lets set the variable
+		// that indicate being inside a literal
+		if (state->append_artificial == '\"')
+			in_literal = true;
+
+		state->append_artificial = '\0';
+	}
+
+	// Build the future token to return, iterating one
+	// character at time
 	while (1)
 	{
-		// Check memory
+		// Check for memory, and read
 		if (buffer->size < (cursor + 1))
 		{
 			if (jaBufferResize(buffer, (cursor + 1)) == NULL)
@@ -106,8 +133,6 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 			state->token = buffer->data;
 		}
 
-		// Read a character and determine if is suitable
-		// to add into the token (check whitespaces, comments, literals...)
 		if (fread(&ch, sizeof(char), 1, fp) != 1)
 		{
 			if (feof(fp) != 0)
@@ -120,27 +145,58 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 			return 1;
 		}
 
-		if (ch == '\"' && state->comment == false)
+		// Is a quote character?
+		if (ch == '\"' && in_comment == false)
 		{
-			if (state->literal == false)
-				state->literal = true;
+			if (in_literal == false)
+			{
+				if (cursor == 0)
+					in_literal = true;
+				else
+				{
+					// We can't open the literal on a token that
+					// already has content (cursor != 0). It is
+					// necessary to break here
+
+					// Lets indicate the next call to append
+					// a quote character
+					state->append_artificial = '\"';
+					state->break_ws = true; // The above lie
+					break;
+				}
+			}
 			else
-				state->literal = false;
+			{
+				// Add quote character to the token
+				state->token[cursor] = ch;
+				cursor++;
+
+				state->break_ws = true; // The above lie
+				break;
+			}
 		}
 
-		if (state->literal == false)
+		if (in_literal == false)
 		{
-			if (ch == ' ')
+			// White space character
+			if (ch == ' ' || ch == '\t')
 			{
-				if (cursor == 0) // Initial whitespace
+				if (cursor == 0)
 				{
+					// Initial whitespace (cursor == 0), we
+					// ignore it by continuing with the loop
+					// but indicating his existence by setting
+					// the 'initial whitespace' variable
 					state->initial_ws = true;
 					continue;
 				}
 
-				state->break_ws = true;
+				state->break_ws = true; // Is not a lie here!
 				break;
 			}
+
+			// A semicolon, the same procedure that the white
+			// space character above
 			else if (ch == ';')
 			{
 				if (cursor == 0) // Initial semicolons
@@ -152,37 +208,42 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 				state->break_sc = true;
 				break;
 			}
-			else if (ch != '\n' && (ch == '#' || state->comment == true))
+
+			// Comment characer procedure, we set the variable indicating
+			// the state, and then ignoring everything (in_comment == true)
+			// except for the '\n' character that we can't continue over
+			else if (ch != '\n' && (ch == '#' || in_comment == true))
 			{
-				state->comment = true;
+				in_comment = true;
 				continue;
 			}
+
+			// Equal symbol procedure, similar to the quote character, we
+			// break here but indicating to return a character the next
+			// call rather to append one
 			else if (ch == '=')
 			{
-				// Always break with the equal symbol, separating the current token
-				// if is the case. The caller is notified as an white space happened.
-				// While reciving an fake (or artificial) equal symbol the next call.
-				state->break_ws = true;
+				state->break_ws = true; // Lie!
 
 				if (cursor == 0)
 				{
 					state->token[cursor] = ch;
 					cursor++;
-					break; // The 'bye' procedure appends the '\0'
+					break;
 				}
 
-				state->ret_fake_equal = true;
+				state->return_artificial = '=';
 				break;
 			}
 		}
 
+		// End of line procedure
 		if (ch == '\n')
 		{
-			state->comment = false;
+			in_comment = false;
 
-			if (state->literal == true)
+			if (in_literal == true) // TODO
 			{
-				// TODO
 				jaStatusSet(st, "jaConfigReadFile", STATUS_UNSUPPORTED_FEATURE,
 				            "(Line %i) Multi-line literals unsupported", state->line_number + 1);
 				return 1;
@@ -196,12 +257,13 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 			}
 
 			state->advance_line = true;
-			state->break_nl = true;
+			state->break_nl = true; // Not a lie
 			break;
 		}
 
-		// Add character to the token
-		// Note than a normal character didn't do a break
+		// And finally, the most important character, basically all
+		// those that didn't fall under previous conditions. We add
+		// it to the token and anything more
 		state->token[cursor] = ch;
 		cursor++;
 	}
