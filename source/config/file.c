@@ -54,6 +54,17 @@ struct TokenizerState
 	char append_artificial;
 };
 
+struct ParserState
+{
+	struct jaDictionaryItem* item_found;
+	bool equal_found;
+
+	int line_number;
+	int statement_number;
+	bool statement_ends;
+	bool buguous_statement; // "Buguous" is even a word?
+};
+
 
 /*-----------------------------
 
@@ -242,7 +253,7 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 		{
 			in_comment = false;
 
-			if (in_literal == true) // TODO
+			if (in_literal == true) // TODO?
 			{
 				jaStatusSet(st, "jaConfigReadFile", STATUS_UNSUPPORTED_FEATURE,
 				            "(Line %i) Multi-line literals unsupported", state->line_number + 1);
@@ -280,13 +291,125 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 
 /*-----------------------------
 
+ sParse()
+-----------------------------*/
+static void sParse(const struct TokenizerState* tknzr, struct jaConfig* config, struct ParserState* state)
+{
+	struct Cvar* cvar = NULL;
+	int previous_statement_no = state->statement_number;
+
+	// A new statement begins with this token, a time for a fresh start
+	if (state->statement_ends == true || tknzr->initial_nl == true || tknzr->initial_sc == true)
+	{
+		// The third step was never reached, warn about that
+		if (state->buguous_statement == false && state->item_found != NULL)
+		{
+			JA_DEBUG_PRINT("[Warning] Configuration '%s' in line %i did't have a value assigned\n",
+			               state->item_found->key, state->line_number + 1);
+		}
+
+		// Set
+		state->statement_number += 1;
+		state->line_number = tknzr->line_number;
+		state->statement_ends = false;
+		state->buguous_statement = false;
+
+		state->item_found = NULL;
+		state->equal_found = false;
+	}
+
+	if (state->buguous_statement == false)
+	{
+		// First step, find an valid configuration variable
+		// In case of failure the statement is set as buguous
+		if (state->item_found == NULL)
+		{
+			if (previous_statement_no == state->statement_number)
+			{
+				// TODO, see 'test.cfg'
+				JA_DEBUG_PRINT("[Warning] Statement in line %i remains open, token '%s' and further ones ignored\n",
+				               tknzr->line_number + 1, tknzr->token);
+
+				state->buguous_statement = true;
+			}
+			else if ((state->item_found = jaDictionaryGet((struct jaDictionary*)config, tknzr->token)) == NULL)
+			{
+				JA_DEBUG_PRINT(
+				    "[Warning] Expected an configuration key at line %i, found the unknown token '%s' instead\n",
+				    tknzr->line_number + 1, tknzr->token);
+
+				state->buguous_statement = true;
+			}
+		}
+		else
+		{
+			// Second step, check existence of an equal symbol
+			if (state->equal_found == false)
+			{
+				if (tknzr->token[0] == '=')
+					state->equal_found = true;
+				else
+				{
+					JA_DEBUG_PRINT(
+					    "[Warning] Expected an equal sign for key '%s' in line %i, found token '%s' instead\n",
+					    state->item_found->key, tknzr->line_number + 1, tknzr->token);
+
+					state->buguous_statement = true; // As above
+				}
+			}
+
+			// Third step, validate value and assign it
+			else
+			{
+				// JA_DEBUG_PRINT(" ~~~~~ '%s' = '%s' ~~~~~ \n", state->item_found->key, tknzr->token);
+
+				// Copy-pasted from arguments file
+				cvar = state->item_found->data;
+				union Value old_value = cvar->value;
+
+				switch (cvar->type)
+				{
+				case TYPE_INT:
+					if (StoreInt(&cvar->value.i, tknzr->token, cvar->min.i, cvar->max.i) != 0)
+						JA_DEBUG_PRINT("[Warning] Token '%s' can't be cast into a integer value as '%s' requires\n",
+						               tknzr->token, state->item_found->key);
+					break;
+				case TYPE_FLOAT:
+					if (StoreFloat(&cvar->value.f, tknzr->token, cvar->min.f, cvar->max.f) != 0)
+						JA_DEBUG_PRINT("[Warning] Token '%s' can't be cast into a decimal value as '%s' requires\n",
+						               tknzr->token, state->item_found->key);
+					break;
+				case TYPE_STRING: StoreString(&cvar->value.s, tknzr->token);
+				}
+
+				if (memcmp(&old_value, &cvar->value, sizeof(union Value)) != 0) // Some change?
+					cvar->set_by = SET_BY_FILE;
+
+				// And back to step one!
+				state->item_found = NULL;
+				state->equal_found = false;
+			}
+		}
+	}
+
+	// There is a semicolon or a new line after this token,
+	// lets indicate this so the next step do a fresh start
+	if (tknzr->break_sc == true || tknzr->break_nl == true)
+		state->statement_ends = true;
+}
+
+
+/*-----------------------------
+
  jaConfigReadFile()
 -----------------------------*/
 int jaConfigReadFile(struct jaConfig* config, const char* filename, struct jaStatus* st)
 {
 	FILE* fp = NULL;
 	struct jaBuffer buffer = {0};
-	struct TokenizerState s = {0};
+
+	struct TokenizerState tknzr = {0};
+	struct ParserState prsr = {0};
 
 	jaStatusSet(st, "jaConfigReadFile", STATUS_SUCCESS, NULL);
 
@@ -298,16 +421,17 @@ int jaConfigReadFile(struct jaConfig* config, const char* filename, struct jaSta
 
 	while (1)
 	{
-		// Get a token
-		if (sTokenize(fp, &buffer, &s, st) != 0)
+		if (sTokenize(fp, &buffer, &tknzr, st) != 0)
 			goto return_failure;
 
-		if (s.eof == true)
+		if (tknzr.eof == true)
 			break;
 
-		printf("(b:%s%s%s, i:%s%s%s) %04i: \"%s\"\n", (s.break_ws) ? "ws" : "", (s.break_nl) ? "nl" : "",
-		       (s.break_sc) ? "sc" : "", (s.initial_ws) ? "ws" : "--", (s.initial_nl) ? "nl" : "--",
-		       (s.initial_sc) ? "sc" : "--", s.line_number + 1, s.token);
+		sParse(&tknzr, config, &prsr);
+
+		// printf("(b:%s%s%s, i:%s%s%s) %04i: \"%s\"\n", (s.break_ws) ? "ws" : "", (s.break_nl) ? "nl" : "",
+		//        (s.break_sc) ? "sc" : "", (s.initial_ws) ? "ws" : "--", (s.initial_nl) ? "nl" : "--",
+		//        (s.initial_sc) ? "sc" : "--", s.line_number + 1, s.token);
 	}
 
 	// Bye!

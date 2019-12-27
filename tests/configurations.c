@@ -88,6 +88,7 @@ void ConfigTest2(void** cmocka_state)
 
 	jaConfigRegister(cfg, "r_width", 640, 0, INT_MAX, NULL);
 	jaConfigRegister(cfg, "s_volume", 0.8f, 0.0f, 1.0f, NULL);
+	jaConfigRegister(cfg, "s_attack", 0.2f, 0.0f, 999.0f, NULL);
 	jaConfigRegister(cfg, "r_height", 320, 0, INT_MAX, NULL);
 	jaConfigRegister(cfg, "name", "Ranger", NULL, NULL, NULL);
 	jaConfigRegister(cfg, "r_fullscreen", 0, 0, 1, NULL);
