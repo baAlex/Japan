@@ -28,7 +28,7 @@ set(SOURCES
 	"./source/vector.c"
 	"./source/config/arguments.c"
 	"./source/config/config.c"
-	"./source/config/file.c"
+	"./source/config/files.c"
 	"./source/image/format-sgi.c"
 	"./source/image/image.c"
 	"./source/sound/format-au.c"
