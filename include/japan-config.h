@@ -35,13 +35,19 @@ enum jaConfigArgumentsFlags
 	CONFIG_READ_ALL
 };
 
+enum jaConfigFileFlags
+{
+	FILE_DEFAULT = 0,
+	FILE_TOKENIZE_ONLY = 1
+};
+
 struct jaConfig;
 
 JA_EXPORT struct jaConfig* jaConfigCreate();
 JA_EXPORT void jaConfigDelete(struct jaConfig*);
 
 JA_EXPORT void jaConfigReadArguments(struct jaConfig*, int argc, const char* argv[], enum jaConfigArgumentsFlags);
-JA_EXPORT int jaConfigReadFile(struct jaConfig*, const char* filename, struct jaStatus*);
+JA_EXPORT int jaConfigReadFile(struct jaConfig*, const char* filename, enum jaConfigFileFlags, struct jaStatus*);
 
 JA_EXPORT int jaConfigRegisterInt(struct jaConfig*, const char* name, int default_value, int min, int max,
                                   struct jaStatus*);

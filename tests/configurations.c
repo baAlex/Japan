@@ -76,25 +76,45 @@ void ConfigTest1(void** cmocka_state)
 
 /*-----------------------------
 
- ConfigTest2()
+ ConfigTest2_TokenizeFile()
 -----------------------------*/
-void ConfigTest2(void** cmocka_state)
+void ConfigTest2_TokenizeFile(void** cmocka_state)
 {
 	(void)cmocka_state;
 	struct jaStatus st = {0};
 
-	// Create a configuration
 	struct jaConfig* cfg = jaConfigCreate();
 
-	jaConfigRegister(cfg, "r_width", 640, 0, INT_MAX, NULL);
-	jaConfigRegister(cfg, "s_volume", 0.8f, 0.0f, 1.0f, NULL);
-	jaConfigRegister(cfg, "s_attack", 0.2f, 0.0f, 999.0f, NULL);
-	jaConfigRegister(cfg, "r_height", 320, 0, INT_MAX, NULL);
-	jaConfigRegister(cfg, "name", "Ranger", NULL, NULL, NULL);
-	jaConfigRegister(cfg, "r_fullscreen", 0, 0, 1, NULL);
+	if(jaConfigReadFile(cfg, "./tests/tokenize-test.jcfg", FILE_TOKENIZE_ONLY, &st) != 0)
+		jaStatusPrint("", st);
 
-	// Read a file
-	if(jaConfigReadFile(cfg, "./tests/test.cfg", &st) != 0)
+	// Bye!
+	jaConfigDelete(cfg);
+}
+
+
+/*-----------------------------
+
+ ConfigTest3_ParseFile()
+-----------------------------*/
+void ConfigTest3_ParseFile(void** cmocka_state)
+{
+	(void)cmocka_state;
+	struct jaStatus st = {0};
+
+	struct jaConfig* cfg = jaConfigCreate();
+
+	jaConfigRegister(cfg, "osc.shape", "square", NULL, NULL, NULL);
+	jaConfigRegister(cfg, "osc.frequency", 220, INT_MIN, INT_MAX, NULL);
+	jaConfigRegister(cfg, "osc.sub_volume", 0.5f, 0.0f, 1.0f, NULL);
+
+	jaConfigRegister(cfg, "env.attack", 50.0f, 0.0f, 1000.0f, NULL);
+	jaConfigRegister(cfg, "env.decay", 0.0f, 0.0f, 1000.0f, NULL);
+	jaConfigRegister(cfg, "env.sustain", 1.0f, 0.0f, 1.0f, NULL);
+	jaConfigRegister(cfg, "env.hold", 0.0f, 0.0f, 1000.0f, NULL);
+	jaConfigRegister(cfg, "env.release", 200.0f, 0.0f, 1000.0f, NULL);
+
+	if(jaConfigReadFile(cfg, "./tests/parse-test.jcfg", FILE_DEFAULT, &st) != 0)
 		jaStatusPrint("", st);
 
 	// Bye!
