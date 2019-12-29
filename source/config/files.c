@@ -337,28 +337,7 @@ static void sParse(const struct TokenizerState* tknzr, struct jaConfig* config, 
 				else
 				{
 					// JA_DEBUG_PRINT(" ~~~~~ '%s' = '%s' ~~~~~ \n", state->item_found->key, tknzr->token);
-
-					// Copy-pasted from arguments file
-					struct Cvar* cvar = state->item_found->data;
-					union Value old_value = cvar->value;
-
-					switch (cvar->type)
-					{
-					case TYPE_INT:
-						if (StoreInt(&cvar->value.i, tknzr->token, cvar->min.i, cvar->max.i) != 0)
-							JA_DEBUG_PRINT("[Warning] Token '%s' can't be cast into a integer value as '%s' requires\n",
-							               tknzr->token, state->item_found->key);
-						break;
-					case TYPE_FLOAT:
-						if (StoreFloat(&cvar->value.f, tknzr->token, cvar->min.f, cvar->max.f) != 0)
-							JA_DEBUG_PRINT("[Warning] Token '%s' can't be cast into a decimal value as '%s' requires\n",
-							               tknzr->token, state->item_found->key);
-						break;
-					case TYPE_STRING: StoreString(&cvar->value.s, tknzr->token);
-					}
-
-					if (memcmp(&old_value, &cvar->value, sizeof(union Value)) != 0) // Some change?
-						cvar->set_by = SET_BY_FILE;
+					Store(state->item_found->data, tknzr->token, SET_BY_FILE); // TODO
 				}
 
 				// And back to step one!
@@ -389,21 +368,30 @@ static void sParse(const struct TokenizerState* tknzr, struct jaConfig* config, 
 
  jaConfigReadFile()
 -----------------------------*/
-int jaConfigReadFile(struct jaConfig* config, const char* filename, enum jaConfigFileFlags flags, struct jaStatus* st)
+int jaConfigReadFile(struct jaConfig* config, const char* filename, struct jaStatus* st)
 {
 	FILE* fp = NULL;
-	struct jaBuffer buffer = {0};
-
-	struct TokenizerState tknzr = {0};
-	struct ParserState prsr = {0};
-
-	jaStatusSet(st, "jaConfigReadFile", STATUS_SUCCESS, NULL);
+	int ret_value = 0;
 
 	if ((fp = fopen(filename, "rb")) == NULL)
 	{
 		jaStatusSet(st, "jaConfigReadFile", STATUS_IO_ERROR, NULL);
-		goto return_failure;
+		return 1;
 	}
+
+	ret_value = jaConfigReadFileEx(config, fp, FILE_DEFAULT, st);
+
+	fclose(fp);
+	return ret_value;
+}
+
+int jaConfigReadFileEx(struct jaConfig* config, FILE* fp, enum jaConfigFileFlags flags, struct jaStatus* st)
+{
+	struct jaBuffer buffer = {0};
+	struct TokenizerState tknzr = {0};
+	struct ParserState prsr = {0};
+
+	jaStatusSet(st, "jaConfigReadFile", STATUS_SUCCESS, NULL);
 
 	while (1)
 	{
@@ -424,17 +412,13 @@ int jaConfigReadFile(struct jaConfig* config, const char* filename, enum jaConfi
 
 	// Bye!
 #ifdef JA_DEBUG
-	JA_DEBUG_PRINT("(jaConfigReadFile, '%s')\n", filename);
 	jaDictionaryIterate((struct jaDictionary*)config, PrintCallback, NULL);
 #endif
 
-	fclose(fp);
 	jaBufferClean(&buffer);
 	return 0;
 
 return_failure:
-	if (fp != NULL)
-		fclose(fp);
 	jaBufferClean(&buffer);
 	return 1;
 }

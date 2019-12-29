@@ -86,9 +86,9 @@ int ValidateKey(const uint8_t* string, size_t len)
 
 /*-----------------------------
 
- StoreFloat()
+ Store()
 -----------------------------*/
-int StoreFloat(float* dest, const char* org, float min, float max)
+static int sStoreFloat(float* dest, const char* org, float min, float max)
 {
 	char* end = NULL;
 	float value = strtof(org, &end); // "Past the last character interpreted"
@@ -104,12 +104,7 @@ int StoreFloat(float* dest, const char* org, float min, float max)
 	return 0;
 }
 
-
-/*-----------------------------
-
- StoreInt()
------------------------------*/
-int StoreInt(int* dest, const char* org, int min, int max)
+static int sStoreInt(int* dest, const char* org, int min, int max)
 {
 	char* end = NULL;
 	long value = strtol(org, &end, 0);
@@ -122,7 +117,7 @@ int StoreInt(int* dest, const char* org, int min, int max)
 				// Try with float
 				float temp = 0.0f;
 
-				if (StoreFloat(&temp, org, (float)min, (float)max) != 0)
+				if (sStoreFloat(&temp, org, (float)min, (float)max) != 0)
 					return 1;
 
 				value = lroundf(temp);
@@ -137,15 +132,42 @@ int StoreInt(int* dest, const char* org, int min, int max)
 	return 0;
 }
 
-
-/*-----------------------------
-
- StoreString()
------------------------------*/
-void StoreString(const char** dest, const char* org)
+static void sStoreString(const char** dest, const char* org)
 {
 	// TODO
 	*dest = org;
+}
+
+int Store(struct Cvar* cvar, const char* token, enum SetBy by)
+{
+	union Value old_value = cvar->value;
+
+	switch (cvar->type)
+	{
+	case TYPE_INT:
+		if (sStoreInt(&cvar->value.i, token, cvar->min.i, cvar->max.i) != 0)
+		{
+			JA_DEBUG_PRINT("[Warning] Token '%s' can't be cast into a integer value as '%s' requires\n", token,
+			               cvar->item->key);
+			return 1;
+		}
+		break;
+	case TYPE_FLOAT:
+		if (sStoreFloat(&cvar->value.f, token, cvar->min.f, cvar->max.f) != 0)
+		{
+			JA_DEBUG_PRINT("[Warning] Token '%s' can't be cast into a decimal value as '%s' requires\n", token,
+			               cvar->item->key);
+
+			return 1;
+		}
+		break;
+	case TYPE_STRING: sStoreString(&cvar->value.s, token);
+	}
+
+	if (memcmp(&old_value, &cvar->value, sizeof(union Value)) != 0) // Some change?
+		cvar->set_by = by;
+
+	return 0;
 }
 
 
@@ -196,6 +218,7 @@ static struct Cvar* sRegister(struct jaConfig* config, const char* key, enum Typ
 
 	memset(cvar, 0, sizeof(struct Cvar));
 	cvar->type = type;
+	cvar->item = item;
 
 	return item->data;
 }

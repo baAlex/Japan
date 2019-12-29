@@ -25,20 +25,23 @@
 #ifndef JA_OPTIONS_H
 #define JA_OPTIONS_H
 
+#include <stdio.h>
 #include <limits.h>
 #include "japan-status.h"
 
 enum jaConfigArgumentsFlags
 {
-	CONFIG_DEFAULT = 0,
-	CONFIG_IGNORE_FIRST = 0,
-	CONFIG_READ_ALL
+	ARGUMENTS_DEFAULT = 0,
+	ARGUMENTS_INCLUDE_FIRST_ONE = 1,
+	ARGUMENTS_TOKENIZE_ONLY = 2,
+	ARGUMENTS_NO_ASSIGNMENT = 4
 };
 
 enum jaConfigFileFlags
 {
 	FILE_DEFAULT = 0,
-	FILE_TOKENIZE_ONLY = 1
+	FILE_TOKENIZE_ONLY = 1,
+	FILE_NO_ASSIGNMENT = 2,
 };
 
 struct jaConfig;
@@ -46,8 +49,11 @@ struct jaConfig;
 JA_EXPORT struct jaConfig* jaConfigCreate();
 JA_EXPORT void jaConfigDelete(struct jaConfig*);
 
-JA_EXPORT void jaConfigReadArguments(struct jaConfig*, int argc, const char* argv[], enum jaConfigArgumentsFlags);
-JA_EXPORT int jaConfigReadFile(struct jaConfig*, const char* filename, enum jaConfigFileFlags, struct jaStatus*);
+JA_EXPORT int jaConfigReadArguments(struct jaConfig*, int argc, const char* argv[], struct jaStatus*);
+JA_EXPORT int jaConfigReadArgumentsEx(struct jaConfig*, int argc, const char* argv[], enum jaConfigArgumentsFlags, struct jaStatus*);
+
+JA_EXPORT int jaConfigReadFile(struct jaConfig*, const char* filename, struct jaStatus*);
+JA_EXPORT int jaConfigReadFileEx(struct jaConfig*, FILE* fp, enum jaConfigFileFlags, struct jaStatus*);
 
 JA_EXPORT int jaConfigRegisterInt(struct jaConfig*, const char* name, int default_value, int min, int max,
                                   struct jaStatus*);

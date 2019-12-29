@@ -45,7 +45,7 @@ void ConfigTest1(void** cmocka_state)
 	const char* v[] = {"", "-render.height", " X3  ", "-render.width", "   200.2  ", "-sound.volume",
 	                   "  +0.4 6", "-render.fullscreen", "2  ", "-name", "OwO", "UwU"};
 
-	jaConfigReadArguments(cfg, 12, v, CONFIG_DEFAULT);
+	jaConfigReadArguments(cfg, 12, v, NULL);
 
 	// And check
 	union {
@@ -84,11 +84,13 @@ void ConfigTest2_TokenizeFile(void** cmocka_state)
 	struct jaStatus st = {0};
 
 	struct jaConfig* cfg = jaConfigCreate();
+	FILE* fp = fopen("./tests/tokenize-test.jcfg", "rb");
 
-	if(jaConfigReadFile(cfg, "./tests/tokenize-test.jcfg", FILE_TOKENIZE_ONLY, &st) != 0)
+	if (jaConfigReadFileEx(cfg, fp, FILE_TOKENIZE_ONLY, &st) != 0)
 		jaStatusPrint("", st);
 
 	// Bye!
+	fclose(fp);
 	jaConfigDelete(cfg);
 }
 
@@ -103,6 +105,7 @@ void ConfigTest3_ParseFile(void** cmocka_state)
 	struct jaStatus st = {0};
 
 	struct jaConfig* cfg = jaConfigCreate();
+	FILE* fp = fopen("./tests/parse-test.jcfg", "rb");
 
 	jaConfigRegister(cfg, "osc.shape", "square", NULL, NULL, NULL);
 	jaConfigRegister(cfg, "osc.frequency", 220, INT_MIN, INT_MAX, NULL);
@@ -114,9 +117,10 @@ void ConfigTest3_ParseFile(void** cmocka_state)
 	jaConfigRegister(cfg, "env.hold", 0.0f, 0.0f, 1000.0f, NULL);
 	jaConfigRegister(cfg, "env.release", 200.0f, 0.0f, 1000.0f, NULL);
 
-	if(jaConfigReadFile(cfg, "./tests/parse-test.jcfg", FILE_DEFAULT, &st) != 0)
+	if (jaConfigReadFileEx(cfg, fp, FILE_DEFAULT, &st) != 0)
 		jaStatusPrint("", st);
 
 	// Bye!
+	fclose(fp);
 	jaConfigDelete(cfg);
 }

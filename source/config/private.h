@@ -14,7 +14,6 @@
 	#include <ctype.h>
 	#include <math.h>
 	#include <stdbool.h>
-	#include <stdio.h>
 
 	#include "japan-buffer.h"
 	#include "japan-dictionary.h"
@@ -46,6 +45,8 @@
 
 	struct Cvar
 	{
+		struct jaDictionaryItem* item;
+
 		enum Type type;
 		enum SetBy set_by;
 
@@ -55,11 +56,7 @@
 	};
 
 	void PrintCallback(struct jaDictionaryItem* item, void* data);
-
-	int StoreFloat(float* dest, const char* org, float min, float max);
-	int StoreInt(int* dest, const char* org, int min, int max);
-	void StoreString(const char** dest, const char* org);
-
+	int Store(struct Cvar* cvar, const char* token, enum SetBy);
 	int ValidateKey(const uint8_t* string, size_t len);
 
 #endif

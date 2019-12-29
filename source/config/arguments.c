@@ -35,13 +35,17 @@ SOFTWARE.
 
  jaConfigReadArguments()
 -----------------------------*/
-void jaConfigReadArguments(struct jaConfig* config, int argc, const char* argv[], enum jaConfigArgumentsFlags flags)
+int jaConfigReadArguments(struct jaConfig* config, int argc, const char* argv[], struct jaStatus* st)
+{
+	return jaConfigReadArgumentsEx(config, argc, argv, ARGUMENTS_DEFAULT, st);
+}
+
+int jaConfigReadArgumentsEx(struct jaConfig* config, int argc, const char* argv[], enum jaConfigArgumentsFlags flags,
+                            struct jaStatus* st)
 {
 	struct jaDictionaryItem* item = NULL;
-	struct Cvar* cvar = NULL;
-	union Value old_value;
 
-	for (int i = (flags == CONFIG_IGNORE_FIRST) ? 1 : 0; i < argc; i++)
+	for (int i = (flags == ARGUMENTS_INCLUDE_FIRST_ONE) ? 0 : 1; i < argc; i++)
 	{
 		// Check key
 		if (argv[i][0] != '-')
@@ -57,38 +61,21 @@ void jaConfigReadArguments(struct jaConfig* config, int argc, const char* argv[]
 		}
 
 		// Check value
-		cvar = item->data;
-		old_value = cvar->value;
-
 		if ((i + 1) == argc)
 		{
 			JA_DEBUG_PRINT("[Warning] No value for configuration '%s'\n", (argv[i] + 1));
 			break;
 		}
 
-		switch (cvar->type)
-		{
-		case TYPE_INT:
-			if (StoreInt(&cvar->value.i, argv[i + 1], cvar->min.i, cvar->max.i) != 0)
-				JA_DEBUG_PRINT("[Warning] Token '%s' can't be cast into a integer value as '%s' requires\n",
-				               argv[i + 1], (argv[i] + 1));
-			break;
-		case TYPE_FLOAT:
-			if (StoreFloat(&cvar->value.f, argv[i + 1], cvar->min.f, cvar->max.f) != 0)
-				JA_DEBUG_PRINT("[Warning] Token '%s' can't be cast into a decimal value as '%s' requires\n",
-				               argv[i + 1], (argv[i] + 1));
-			break;
-		case TYPE_STRING: StoreString(&cvar->value.s, argv[i + 1]);
-		}
-
-		if (memcmp(&old_value, &cvar->value, sizeof(union Value)) != 0) // Some change?
-			cvar->set_by = SET_BY_ARGUMENTS;
+		// Set!
+		Store(item->data, argv[i+1], SET_BY_FILE); // TODO
 
 		i++; // Important!
 	}
 
 #ifdef JA_DEBUG
-	JA_DEBUG_PRINT("(jaConfigReadArguments)\n");
 	jaDictionaryIterate((struct jaDictionary*)config, PrintCallback, NULL);
 #endif
+
+	return 0; // Todo?
 }
