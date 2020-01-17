@@ -30,5 +30,4 @@ jobs:
 
     - name: Run test suite
       run: |
-        cd build-debug
-        ./test-suite
+        ./build/test-suite
