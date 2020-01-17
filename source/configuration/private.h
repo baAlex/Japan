@@ -1,7 +1,7 @@
 /*-----------------------------
 
  [config/private.h]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 -----------------------------*/
 
 #ifndef JA_CONFIG_PRIVATE_H
@@ -18,7 +18,7 @@
 	#include "japan-buffer.h"
 	#include "japan-dictionary.h"
 	#include "japan-utilities.h"
-	#include "japan-config.h"
+	#include "japan-configuration.h"
 
 	#include "../common.h"
 

@@ -25,7 +25,7 @@ SOFTWARE.
 -------------------------------
 
  [arguments.c]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 -----------------------------*/
 
 #include "private.h"

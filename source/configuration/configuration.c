@@ -24,8 +24,8 @@ SOFTWARE.
 
 -------------------------------
 
- [config.c]
- - Alexander Brandt 2019
+ [configuration.c]
+ - Alexander Brandt 2019-2020
 -----------------------------*/
 
 #include "private.h"

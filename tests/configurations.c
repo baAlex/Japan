@@ -1,7 +1,7 @@
 /*-----------------------------
 
  [configurations.c]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 -----------------------------*/
 
 #include <math.h>
@@ -16,7 +16,7 @@
 
 #include <cmocka.h>
 
-#include "japan-config.h"
+#include "japan-configuration.h"
 
 // TODO, check errors
 // TODO, check errors status

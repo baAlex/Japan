@@ -1,7 +1,7 @@
 /*-----------------------------
 
  [japan-configuration.h]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 -----------------------------*/
 
 #ifndef JAPAN_VERSION
