@@ -48,6 +48,7 @@ struct TokenizerState
 	int sum_line_number;
 	char return_artificial;
 	char append_artificial;
+	bool in_literal;
 };
 
 struct ParserState
@@ -71,7 +72,6 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 	size_t cursor = 0;
 	char ch = '\0';
 
-	bool in_literal = false;
 	bool in_comment = false;
 
 	state->break_ws = false;
@@ -111,11 +111,6 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 		state->token[0] = state->append_artificial;
 		cursor += 1; // TODO, memory error?
 
-		// If was a quote character, lets set the variable
-		// that indicate being inside a literal
-		if (state->append_artificial == '\"')
-			in_literal = true;
-
 		state->append_artificial = '\0';
 	}
 
@@ -147,39 +142,33 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 			return 1;
 		}
 
-		// Is a quote character?
+		// Is a quote mark?
 		if (ch == '\"' && in_comment == false)
 		{
-			if (in_literal == false)
+			if (state->in_literal == false)
 			{
-				if (cursor == 0)
-					in_literal = true;
-				else
+				state->in_literal = true;
+
+				if (cursor != 0)
 				{
 					// We can't open the literal on a token that
 					// already has content (cursor != 0). It is
 					// necessary to break here
 
-					// Lets indicate the next call to append
-					// a quote character
-					state->append_artificial = '\"';
 					state->break_ws = true; // The above lie
 					break;
 				}
 			}
 			else
 			{
-				// Add quote character to the token
-				state->token[cursor] = ch;
-				cursor++;
+				state->in_literal = false;
 
 				state->break_ws = true; // The above lie
-				in_literal = false;
 				continue;
 			}
 		}
 
-		if (in_literal == false)
+		if (state->in_literal == false)
 		{
 			// White space character
 			if (ch == ' ' || ch == '\t')
@@ -213,7 +202,7 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 				continue;
 			}
 
-			// Equal symbol procedure, similar to the quote character, we
+			// Equal symbol procedure, similar to the quote mark, we
 			// break here but indicating to return a character the next
 			// call rather to append one
 			else if (ch == '=')
@@ -237,7 +226,7 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 		{
 			in_comment = false;
 
-			if (in_literal == true) // TODO?
+			if (state->in_literal == true) // TODO?
 			{
 				jaStatusSet(st, "jaConfigurationFile", STATUS_UNSUPPORTED_FEATURE,
 				            "(Line %i) Multi-line literals unsupported", state->line_number + 1);

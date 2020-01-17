@@ -40,23 +40,26 @@
 	{
 		int i;
 		float f;
-		const char* s;
+		struct jaBuffer s; // FIXME, never free-ed!
 	};
 
-	struct Cvar
+	struct jaCvar
 	{
 		struct jaDictionaryItem* item;
 
 		enum Type type;
 		enum SetBy set_by;
 
-		union Value value;
 		union Value min;
 		union Value max;
+		union Value value;
 	};
 
+#ifdef JA_DEBUG
 	void PrintCallback(struct jaDictionaryItem* item, void* data);
-	int Store(struct Cvar* cvar, const char* token, enum SetBy);
+#endif
+
+	int Store(struct jaCvar* cvar, const char* token, enum SetBy);
 	int ValidateKey(const uint8_t* string, size_t len);
 
 #endif

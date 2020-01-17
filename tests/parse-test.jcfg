@@ -1,5 +1,5 @@
 
-osc.shape = "triangle"; osc.shape "square"; osc_shope "sin" ;osc.shape="saw"; osc.shape =
+osc.shape = "triangle"; osc.shape "square"; osc_shope "sin" ;osc.shape=saw; osc.shape =
 
 osc.frequency = 1 osc.frequency = 2;osc.frequency=440.0
 
