@@ -128,7 +128,7 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 		{
 			if (jaBufferResize(buffer, (cursor + 1)) == NULL)
 			{
-				jaStatusSet(st, "jaConfigReadFile", STATUS_MEMORY_ERROR, NULL);
+				jaStatusSet(st, "jaConfigurationFile", STATUS_MEMORY_ERROR, NULL);
 				return 1;
 			}
 
@@ -143,7 +143,7 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 				break;
 			}
 
-			jaStatusSet(st, "jaConfigReadFile", STATUS_UNEXPECTED_EOF, NULL);
+			jaStatusSet(st, "jaConfigurationFile", STATUS_UNEXPECTED_EOF, NULL);
 			return 1;
 		}
 
@@ -239,7 +239,7 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 
 			if (in_literal == true) // TODO?
 			{
-				jaStatusSet(st, "jaConfigReadFile", STATUS_UNSUPPORTED_FEATURE,
+				jaStatusSet(st, "jaConfigurationFile", STATUS_UNSUPPORTED_FEATURE,
 				            "(Line %i) Multi-line literals unsupported", state->line_number + 1);
 				return 1;
 			}
@@ -290,7 +290,7 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 
  sParse()
 -----------------------------*/
-static void sParse(const struct TokenizerState* tknzr, struct jaConfig* config, struct ParserState* state)
+static void sParse(const struct TokenizerState* tknzr, struct jaConfiguration* config, struct ParserState* state)
 {
 	if (state->buguous_statement == false)
 	{
@@ -366,32 +366,32 @@ static void sParse(const struct TokenizerState* tknzr, struct jaConfig* config, 
 
 /*-----------------------------
 
- jaConfigReadFile()
+ jaConfigurationFile()
 -----------------------------*/
-int jaConfigReadFile(struct jaConfig* config, const char* filename, struct jaStatus* st)
+int jaConfigurationFile(struct jaConfiguration* config, const char* filename, struct jaStatus* st)
 {
 	FILE* fp = NULL;
 	int ret_value = 0;
 
 	if ((fp = fopen(filename, "rb")) == NULL)
 	{
-		jaStatusSet(st, "jaConfigReadFile", STATUS_IO_ERROR, NULL);
+		jaStatusSet(st, "jaConfigurationFile", STATUS_IO_ERROR, NULL);
 		return 1;
 	}
 
-	ret_value = jaConfigReadFileEx(config, fp, FILE_DEFAULT, st);
+	ret_value = jaConfigurationFileEx(config, fp, FILE_DEFAULT, st);
 
 	fclose(fp);
 	return ret_value;
 }
 
-int jaConfigReadFileEx(struct jaConfig* config, FILE* fp, enum jaConfigFileFlags flags, struct jaStatus* st)
+int jaConfigurationFileEx(struct jaConfiguration* config, FILE* fp, enum jaFileFlags flags, struct jaStatus* st)
 {
 	struct jaBuffer buffer = {0};
 	struct TokenizerState tknzr = {0};
 	struct ParserState prsr = {0};
 
-	jaStatusSet(st, "jaConfigReadFile", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaConfigurationFile", STATUS_SUCCESS, NULL);
 
 	while (1)
 	{

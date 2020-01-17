@@ -173,19 +173,19 @@ int Store(struct Cvar* cvar, const char* token, enum SetBy by)
 
 /*-----------------------------
 
- jaConfigCreate()
+ jaConfigurationCreate()
 -----------------------------*/
-inline struct jaConfig* jaConfigCreate()
+inline struct jaConfiguration* jaConfigurationCreate()
 {
-	return (struct jaConfig*)jaDictionaryCreate(NULL);
+	return (struct jaConfiguration*)jaDictionaryCreate(NULL);
 }
 
 
 /*-----------------------------
 
- jaConfigDelete()
+ jaConfigurationDelete()
 -----------------------------*/
-inline void jaConfigDelete(struct jaConfig* config)
+inline void jaConfigurationDelete(struct jaConfiguration* config)
 {
 	jaDictionaryDelete((struct jaDictionary*)config);
 }
@@ -195,7 +195,7 @@ inline void jaConfigDelete(struct jaConfig* config)
 
  sRegister()
 -----------------------------*/
-static struct Cvar* sRegister(struct jaConfig* config, const char* key, enum Type type, struct jaStatus* st)
+static struct Cvar* sRegister(struct jaConfiguration* config, const char* key, enum Type type, struct jaStatus* st)
 {
 	struct jaDictionaryItem* item = NULL;
 	struct Cvar* cvar = NULL;
@@ -240,7 +240,8 @@ static inline const char* sTypeName(enum Type type)
 	return NULL;
 }
 
-static struct Cvar* sRetrieve(const struct jaConfig* config, const char* key, enum Type type, struct jaStatus* st)
+static struct Cvar* sRetrieve(const struct jaConfiguration* config, const char* key, enum Type type,
+                              struct jaStatus* st)
 {
 	struct jaDictionaryItem* item = NULL;
 	struct Cvar* cvar = NULL;
@@ -270,8 +271,8 @@ static struct Cvar* sRetrieve(const struct jaConfig* config, const char* key, en
 
  "Generics"
 -----------------------------*/
-int jaConfigRegisterInt(struct jaConfig* config, const char* key, int default_value, int min, int max,
-                        struct jaStatus* st)
+struct jaCvar* jaCvarCreateInt(struct jaConfiguration* config, const char* key, int default_value, int min, int max,
+                               struct jaStatus* st)
 {
 	struct Cvar* cvar = sRegister(config, key, TYPE_INT, st);
 	if (cvar != NULL)
@@ -282,11 +283,11 @@ int jaConfigRegisterInt(struct jaConfig* config, const char* key, int default_va
 		return 0;
 	}
 
-	return 1;
+	return (struct jaCvar*)cvar;
 }
 
-int jaConfigRegisterFloat(struct jaConfig* config, const char* key, float default_value, float min, float max,
-                          struct jaStatus* st)
+struct jaCvar* jaCvarCreateFloat(struct jaConfiguration* config, const char* key, float default_value, float min,
+                                 float max, struct jaStatus* st)
 {
 	struct Cvar* cvar = sRegister(config, key, TYPE_FLOAT, st);
 	if (cvar != NULL)
@@ -297,11 +298,11 @@ int jaConfigRegisterFloat(struct jaConfig* config, const char* key, float defaul
 		return 0;
 	}
 
-	return 1;
+	return (struct jaCvar*)cvar;
 }
 
-int jaConfigRegisterString(struct jaConfig* config, const char* key, const char* default_value,
-                           const char* allowed_values, const char* prohibited_values, struct jaStatus* st)
+struct jaCvar* jaCvarCreateString(struct jaConfiguration* config, const char* key, const char* default_value,
+                                  const char* allowed_values, const char* prohibited_values, struct jaStatus* st)
 {
 	(void)allowed_values;
 	(void)prohibited_values;
@@ -313,10 +314,10 @@ int jaConfigRegisterString(struct jaConfig* config, const char* key, const char*
 		return 0;
 	}
 
-	return 1;
+	return (struct jaCvar*)cvar;
 }
 
-int jaConfigRetrieveInt(const struct jaConfig* config, const char* key, int* dest, struct jaStatus* st)
+int jaCvarRetrieveInt(const struct jaConfiguration* config, const char* key, int* dest, struct jaStatus* st)
 {
 	struct Cvar* cvar = sRetrieve(config, key, TYPE_INT, st);
 	if (cvar != NULL)
@@ -328,7 +329,7 @@ int jaConfigRetrieveInt(const struct jaConfig* config, const char* key, int* des
 	return 1;
 }
 
-int jaConfigRetrieveFloat(const struct jaConfig* config, const char* key, float* dest, struct jaStatus* st)
+int jaCvarRetrieveFloat(const struct jaConfiguration* config, const char* key, float* dest, struct jaStatus* st)
 {
 	struct Cvar* cvar = sRetrieve(config, key, TYPE_FLOAT, st);
 	if (cvar != NULL)
@@ -340,7 +341,7 @@ int jaConfigRetrieveFloat(const struct jaConfig* config, const char* key, float*
 	return 1;
 }
 
-int jaConfigRetrieveString(const struct jaConfig* config, const char* key, const char** dest, struct jaStatus* st)
+int jaCvarRetrieveString(const struct jaConfiguration* config, const char* key, const char** dest, struct jaStatus* st)
 {
 	struct Cvar* cvar = sRetrieve(config, key, TYPE_STRING, st);
 	if (cvar != NULL)

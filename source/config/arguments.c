@@ -33,15 +33,15 @@ SOFTWARE.
 
 /*-----------------------------
 
- jaConfigReadArguments()
+ jaConfigurationArguments()
 -----------------------------*/
-int jaConfigReadArguments(struct jaConfig* config, int argc, const char* argv[], struct jaStatus* st)
+int jaConfigurationArguments(struct jaConfiguration* config, int argc, const char* argv[], struct jaStatus* st)
 {
-	return jaConfigReadArgumentsEx(config, argc, argv, ARGUMENTS_DEFAULT, st);
+	return jaConfigurationArgumentsEx(config, argc, argv, ARGUMENTS_DEFAULT, st);
 }
 
-int jaConfigReadArgumentsEx(struct jaConfig* config, int argc, const char* argv[], enum jaConfigArgumentsFlags flags,
-                            struct jaStatus* st)
+int jaConfigurationArgumentsEx(struct jaConfiguration* config, int argc, const char* argv[],
+                               enum jaArgumentsFlags flags, struct jaStatus* st)
 {
 	struct jaDictionaryItem* item = NULL;
 
@@ -68,7 +68,7 @@ int jaConfigReadArgumentsEx(struct jaConfig* config, int argc, const char* argv[
 		}
 
 		// Set!
-		Store(item->data, argv[i+1], SET_BY_FILE); // TODO
+		Store(item->data, argv[i + 1], SET_BY_FILE); // TODO
 
 		i++; // Important!
 	}
@@ -77,5 +77,5 @@ int jaConfigReadArgumentsEx(struct jaConfig* config, int argc, const char* argv[
 	jaDictionaryIterate((struct jaDictionary*)config, PrintCallback, NULL);
 #endif
 
-	return 0; // Todo?
+	return 0; // TODO?
 }
