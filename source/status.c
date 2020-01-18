@@ -25,7 +25,7 @@ SOFTWARE.
 -------------------------------
 
  [status.c]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 -----------------------------*/
 
 #include <stdio.h>
@@ -80,6 +80,10 @@ int jaStatusPrint(const char* app_name, struct jaStatus st)
 	case STATUS_UNKNOWN_DATA_FORMAT: code_message = "Unknown data format"; break;
 	case STATUS_INVALID_ARGUMENT: code_message = "Invalid argument"; break;
 	case STATUS_MEMORY_ERROR: code_message = "Memory error"; break;
+	case STATUS_EXPECTED_KEY_TOKEN: code_message = "Unknown token, expected a key name"; break;
+	case STATUS_EXPECTED_EQUAL_TOKEN: code_message = "Unknown token, expected an equal sign"; break;
+	case STATUS_STATEMENT_OPEN: code_message = "Statement remains open"; break;
+	case STATUS_NO_ASSIGNMENT: code_message = "Statement didn't have an assignment"; break;
 	default: code_message = "Unknown status";
 	}
 

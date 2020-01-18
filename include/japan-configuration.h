@@ -27,21 +27,28 @@
 
 #include "japan-status.h"
 #include <limits.h>
+#include <stdbool.h>
 #include <stdio.h>
 
 enum jaArgumentsFlags
 {
 	ARGUMENTS_DEFAULT = 0,
 	ARGUMENTS_INCLUDE_FIRST_ONE = 1,
-	ARGUMENTS_TOKENIZE_ONLY = 2,
-	ARGUMENTS_NO_ASSIGNMENT = 4
+	ARGUMENTS_TOKENIZE_ONLY = 2
 };
 
 enum jaFileFlags
 {
 	FILE_DEFAULT = 0,
-	FILE_TOKENIZE_ONLY = 1,
-	FILE_NO_ASSIGNMENT = 2,
+	FILE_TOKENIZE_ONLY = 1
+};
+
+struct jaTokenDelimiter
+{
+	bool eof : 1;
+	bool ws : 1;
+	bool nl : 1;
+	bool sc : 1;
 };
 
 struct jaConfiguration;
@@ -53,11 +60,14 @@ JA_EXPORT void jaConfigurationDelete(struct jaConfiguration*);
 
 JA_EXPORT int jaConfigurationArguments(struct jaConfiguration*, int argc, const char* argv[], struct jaStatus*);
 JA_EXPORT int jaConfigurationArgumentsEx(struct jaConfiguration*, int argc, const char* argv[], enum jaArgumentsFlags,
+                                         void (*warnings_callback)(enum jaStatusCode, int, const char*, const char*),
                                          struct jaStatus*);
 
 JA_EXPORT int jaConfigurationFile(struct jaConfiguration*, const char* filename, struct jaStatus*);
-JA_EXPORT int jaConfigurationFileEx(struct jaConfiguration*, FILE* fp, enum jaFileFlags, struct jaStatus*);
-
+JA_EXPORT int jaConfigurationFileEx(struct jaConfiguration*, FILE* fp, enum jaFileFlags,
+                                    void (*tokenizer_callback)(int, struct jaTokenDelimiter, const char*),
+                                    void (*warnings_callback)(enum jaStatusCode, int, const char*, const char*),
+                                    struct jaStatus*);
 
 JA_EXPORT struct jaCvar* jaCvarCreateInt(struct jaConfiguration*, const char* name, int default_value, int min, int max,
                                          struct jaStatus*);
@@ -67,8 +77,8 @@ JA_EXPORT struct jaCvar* jaCvarCreateString(struct jaConfiguration*, const char*
                                             const char* allowed_values, const char* prohibited_values,
                                             struct jaStatus*);
 
-JA_EXPORT struct jaCvar* jaCvarGet(const struct jaConfiguration*, const char* name);
-JA_EXPORT void jaCvarDelete(struct jaCvar* cvar);
+JA_EXPORT struct jaCvar* jaCvarGet(const struct jaConfiguration*, const char* name); // TODO
+JA_EXPORT void jaCvarDelete(struct jaCvar* cvar);                                    // TODO
 
 JA_EXPORT int jaCvarRetrieveInt(const struct jaConfiguration*, const char* name, int* dest, struct jaStatus*);
 JA_EXPORT int jaCvarRetrieveFloat(const struct jaConfiguration*, const char* name, float* dest, struct jaStatus*);

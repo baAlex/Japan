@@ -25,7 +25,7 @@ SOFTWARE.
 -------------------------------
 
  [dictionary.c]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 
  https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
  https://stackoverflow.com/a/30874878
@@ -374,7 +374,12 @@ void jaDictionaryDelete(struct jaDictionary* dictionary)
 			while (sCycleBucket(&state, &item_slot) != 1)
 			{
 				if (*item_slot != NULL)
+				{
+					if ((*item_slot)->callback_delete != NULL)
+						(*item_slot)->callback_delete(*item_slot);
+
 					free(*item_slot);
+				}
 
 				// Overflow buckets
 				if (state.depth == 0 && state.previous_bucket != &dictionary->buckets[i])
@@ -405,6 +410,8 @@ struct jaDictionaryItem* jaDictionaryAdd(struct jaDictionary* dictionary, const 
 	if ((item = malloc(sizeof(struct jaDictionaryItem) + key_size + data_size)) != NULL)
 	{
 		item->dictionary = dictionary;
+		item->callback_delete = NULL;
+
 		strncpy(item->key, key, key_size);
 
 		if (data_size == 0)
@@ -482,7 +489,12 @@ struct jaDictionaryItem* jaDictionaryGet(const struct jaDictionary* dictionary, 
 inline void jaDictionaryRemove(struct jaDictionaryItem* item)
 {
 	if (jaDictionaryDetach(item) == 0)
+	{
+		if (item->callback_delete != NULL)
+			item->callback_delete(item);
+
 		free(item);
+	}
 }
 
 

@@ -1,7 +1,7 @@
 /*-----------------------------
 
  [japan-dictionary.h]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 -----------------------------*/
 
 #ifndef JAPAN_VERSION
@@ -33,6 +33,8 @@ struct jaDictionary;
 struct jaDictionaryItem
 {
 	struct jaDictionary* dictionary;
+
+	void (*callback_delete)(struct jaDictionaryItem*);
 
 	void* data;
 	char key[];

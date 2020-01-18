@@ -31,11 +31,7 @@ SOFTWARE.
 #include "private.h"
 
 
-/*-----------------------------
-
- BufferString
------------------------------*/
-int BufferSaveString(struct jaBuffer* b, const char* string)
+static inline int sBufferSaveString(struct jaBuffer* b, const char* string)
 {
 	if (jaBufferResize(b, strlen(string) + 1) != NULL)
 	{
@@ -46,7 +42,7 @@ int BufferSaveString(struct jaBuffer* b, const char* string)
 	return 1;
 }
 
-static const char* BufferGetString(const struct jaBuffer* b)
+static inline const char* sBufferGetString(const struct jaBuffer* b)
 {
 	if (b->size != 0)
 		return b->data;
@@ -54,11 +50,6 @@ static const char* BufferGetString(const struct jaBuffer* b)
 	return NULL;
 }
 
-
-/*-----------------------------
-
- PrintCallback()
------------------------------*/
 #ifdef JA_DEBUG
 void PrintCallback(struct jaDictionaryItem* item, void* data)
 {
@@ -74,7 +65,7 @@ void PrintCallback(struct jaDictionaryItem* item, void* data)
 		JA_DEBUG_PRINT(" - %s = %f [f%s]\n", item->key, cvar->value.f, (cvar->set_by == SET_DEFAULT) ? "" : ", (*)");
 		break;
 	case TYPE_STRING:
-		JA_DEBUG_PRINT(" - %s = '%s' [s%s]\n", item->key, BufferGetString(&cvar->value.s),
+		JA_DEBUG_PRINT(" - %s = '%s' [s%s]\n", item->key, sBufferGetString(&cvar->value.s),
 		               (cvar->set_by == SET_DEFAULT) ? "" : ", (*)");
 	}
 }
@@ -85,7 +76,7 @@ void PrintCallback(struct jaDictionaryItem* item, void* data)
 
  ValidateKey()
 -----------------------------*/
-int ValidateKey(const uint8_t* string, size_t len)
+int ValidateKey(const char* string, size_t len)
 {
 	// Only ASCII letters, underscores, dots, and
 	// numbers are valid characters. The first
@@ -167,8 +158,8 @@ static int sStoreInt(int* dest, const char* org, int min, int max, bool* changes
 
 static int sStoreString(struct jaBuffer* b, const char* str, bool* changes)
 {
-	*changes = (strcmp(BufferGetString(b), str) == 0) ? false : true;
-	return BufferSaveString(b, str);
+	*changes = (strcmp(sBufferGetString(b), str) == 0) ? false : true;
+	return sBufferSaveString(b, str);
 }
 
 int Store(struct jaCvar* cvar, const char* token, enum SetBy by)
@@ -225,6 +216,14 @@ inline struct jaConfiguration* jaConfigurationCreate()
 
  jaConfigurationDelete()
 -----------------------------*/
+static void sDeleteCallback(struct jaDictionaryItem* item)
+{
+	struct jaCvar* cvar = item->data;
+
+	if (cvar->type == TYPE_STRING)
+		jaBufferClean(&cvar->value.s);
+}
+
 inline void jaConfigurationDelete(struct jaConfiguration* config)
 {
 	jaDictionaryDelete((struct jaDictionary*)config);
@@ -242,7 +241,7 @@ static struct jaCvar* sRegister(struct jaConfiguration* config, const char* key,
 
 	jaStatusSet(st, "sRegister", STATUS_SUCCESS, NULL);
 
-	if (ValidateKey((uint8_t*)key, strlen(key)) != 0)
+	if (ValidateKey(key, strlen(key)) != 0)
 	{
 		jaStatusSet(st, "sRegister", STATUS_INVALID_ARGUMENT, "Invalid key");
 		return NULL;
@@ -254,13 +253,14 @@ static struct jaCvar* sRegister(struct jaConfiguration* config, const char* key,
 		return NULL;
 	}
 
+	item->callback_delete = sDeleteCallback;
 	cvar = item->data;
 
 	memset(cvar, 0, sizeof(struct jaCvar));
 	cvar->type = type;
 	cvar->item = item;
 
-	return item->data;
+	return cvar;
 }
 
 
@@ -353,7 +353,7 @@ struct jaCvar* jaCvarCreateString(struct jaConfiguration* config, const char* ke
 
 	if (cvar != NULL)
 	{
-		BufferSaveString(&cvar->value.s, default_value);
+		sBufferSaveString(&cvar->value.s, default_value);
 		return 0;
 	}
 
@@ -392,7 +392,7 @@ int jaCvarRetrieveString(const struct jaConfiguration* config, const char* key, 
 
 	if (cvar != NULL)
 	{
-		*dest = BufferGetString(&cvar->value.s);
+		*dest = sBufferGetString(&cvar->value.s);
 		return 0;
 	}
 

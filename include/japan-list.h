@@ -1,7 +1,7 @@
 /*-----------------------------
 
  [japan-list.h]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 -----------------------------*/
 
 #ifndef JAPAN_VERSION
@@ -43,7 +43,7 @@ struct jaListItem
 	struct jaListItem* next;
 	struct jaListItem* previous;
 
-	void (*callback_delete)(void*);
+	void (*callback_delete)(struct jaListItem*);
 
 	void* data;
 };

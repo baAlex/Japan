@@ -1,6 +1,6 @@
 /*-----------------------------
 
- [config/private.h]
+ [configuration/private.h]
  - Alexander Brandt 2019-2020
 -----------------------------*/
 
@@ -40,7 +40,7 @@
 	{
 		int i;
 		float f;
-		struct jaBuffer s; // FIXME, never free-ed!
+		struct jaBuffer s;
 	};
 
 	struct jaCvar
@@ -60,6 +60,6 @@
 #endif
 
 	int Store(struct jaCvar* cvar, const char* token, enum SetBy);
-	int ValidateKey(const uint8_t* string, size_t len);
+	int ValidateKey(const char* string, size_t len);
 
 #endif

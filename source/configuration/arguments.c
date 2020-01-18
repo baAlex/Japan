@@ -37,11 +37,13 @@ SOFTWARE.
 -----------------------------*/
 int jaConfigurationArguments(struct jaConfiguration* config, int argc, const char* argv[], struct jaStatus* st)
 {
-	return jaConfigurationArgumentsEx(config, argc, argv, ARGUMENTS_DEFAULT, st);
+	return jaConfigurationArgumentsEx(config, argc, argv, ARGUMENTS_DEFAULT, NULL, st);
 }
 
 int jaConfigurationArgumentsEx(struct jaConfiguration* config, int argc, const char* argv[],
-                               enum jaArgumentsFlags flags, struct jaStatus* st)
+                               enum jaArgumentsFlags flags,
+                               void (*warnings_callback)(enum jaStatusCode, int, const char*, const char*),
+                               struct jaStatus* st)
 {
 	struct jaDictionaryItem* item = NULL;
 
@@ -50,20 +52,26 @@ int jaConfigurationArgumentsEx(struct jaConfiguration* config, int argc, const c
 		// Check key
 		if (argv[i][0] != '-')
 		{
-			JA_DEBUG_PRINT("[Warning] Unexpected token '%s'\n", (argv[i]));
+			if (warnings_callback != NULL)
+				warnings_callback(STATUS_EXPECTED_KEY_TOKEN, i, argv[i], NULL);
+
 			continue;
 		}
 
 		if ((item = jaDictionaryGet((struct jaDictionary*)config, (argv[i] + 1))) == NULL)
 		{
-			JA_DEBUG_PRINT("[Warning] Unknown configuration '%s'\n", (argv[i] + 1));
+			if (warnings_callback != NULL)
+				warnings_callback(STATUS_EXPECTED_KEY_TOKEN, i, argv[i], NULL); // TODO?
+
 			continue;
 		}
 
 		// Check value
 		if ((i + 1) == argc)
 		{
-			JA_DEBUG_PRINT("[Warning] No value for configuration '%s'\n", (argv[i] + 1));
+			if (warnings_callback != NULL)
+				warnings_callback(STATUS_NO_ASSIGNMENT, i, NULL, argv[i]);
+
 			break;
 		}
 

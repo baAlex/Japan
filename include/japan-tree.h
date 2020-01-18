@@ -1,7 +1,7 @@
 /*-----------------------------
 
  [japan-tree.h]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 -----------------------------*/
 
 #ifndef JAPAN_VERSION
@@ -38,7 +38,7 @@ struct jaTree
 	struct jaTree* children;
 	struct jaTree* last_children;
 
-	void (*callback_delete)(void*);
+	void (*callback_delete)(struct jaTree*);
 
 	void* data;
 };

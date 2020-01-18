@@ -25,7 +25,7 @@ SOFTWARE.
 -------------------------------
 
  [list.c]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 -----------------------------*/
 
 #include <stdlib.h>
@@ -171,7 +171,7 @@ void jaListRemove(struct jaListItem* item)
 	jaListDetach(item);
 
 	if (item->callback_delete != NULL)
-		item->callback_delete(item->data);
+		item->callback_delete(item);
 
 	free(item);
 }

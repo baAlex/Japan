@@ -36,19 +36,13 @@ struct TokenizerState
 	char* token;
 	int line_number;
 
-	struct
-	{
-		bool eof : 1;
-		bool break_ws : 1;
-		bool break_nl : 1;
-		bool break_sc : 1;
-	};
+	struct jaTokenDelimiter break_by;
 
 	// Private:
 	int sum_line_number;
+	bool in_literal;
 	char return_artificial;
 	char append_artificial;
-	bool in_literal;
 };
 
 struct ParserState
@@ -74,9 +68,9 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 
 	bool in_comment = false;
 
-	state->break_ws = false;
-	state->break_nl = false;
-	state->break_sc = false;
+	state->break_by.ws = false;
+	state->break_by.nl = false;
+	state->break_by.sc = false;
 
 	state->token = buffer->data;
 
@@ -100,7 +94,7 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 		// being broken by a white space. As soon the following
 		// big loop finds the first character of the next token
 		// the artificial symbol is returned first
-		state->break_ws = true;
+		state->break_by.ws = true;
 	}
 
 	// Similar to the above case. The previous token was
@@ -134,7 +128,7 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 		{
 			if (feof(fp) != 0)
 			{
-				state->eof = true;
+				state->break_by.eof = true;
 				break;
 			}
 
@@ -155,7 +149,7 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 					// already has content (cursor != 0). It is
 					// necessary to break here
 
-					state->break_ws = true; // The above lie
+					state->break_by.ws = true; // The above lie
 					break;
 				}
 			}
@@ -163,7 +157,7 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 			{
 				state->in_literal = false;
 
-				state->break_ws = true; // The above lie
+				state->break_by.ws = true; // The above lie
 				continue;
 			}
 		}
@@ -178,7 +172,7 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 				// break the token
 
 				if (cursor != 0)
-					state->break_ws = true; // Is not a lie here!
+					state->break_by.ws = true; // Is not a lie here!
 
 				continue;
 			}
@@ -188,7 +182,7 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 			else if (ch == ';')
 			{
 				if (cursor != 0)
-					state->break_sc = true;
+					state->break_by.sc = true;
 
 				continue;
 			}
@@ -207,7 +201,7 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 			// call rather to append one
 			else if (ch == '=')
 			{
-				state->break_ws = true; // Lie!
+				state->break_by.ws = true; // Lie!
 
 				if (cursor == 0)
 				{
@@ -238,7 +232,7 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 			else
 			{
 				state->sum_line_number += 1;
-				state->break_nl = true; // Not a lie
+				state->break_by.nl = true; // Not a lie
 			}
 
 			continue;
@@ -246,7 +240,7 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 
 		// And finally, the most important character, basically all
 		// those that didn't fall under previous conditions
-		if (state->break_nl == false && state->break_sc == false && state->break_ws == false)
+		if (state->break_by.nl == false && state->break_by.sc == false && state->break_by.ws == false)
 		{
 			state->token[cursor] = ch;
 			cursor++;
@@ -255,9 +249,9 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 		{
 			// This one is hacky, most procedures above didn't do
 			// a break (except for those that return artificial
-			// characters) rather, they set some "break_" variable
+			// characters) rather, they set some "break_by" variable
 
-			// So, here a new token start but following "break_"
+			// So, here a new token start but following "break_by"
 			// variables we need to return the current token content
 			// and postpone the actual character to be appended next call
 			state->append_artificial = ch;
@@ -279,7 +273,8 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 
  sParse()
 -----------------------------*/
-static void sParse(const struct TokenizerState* tknzr, struct jaConfiguration* config, struct ParserState* state)
+static void sParse(const struct TokenizerState* tknzr, struct jaConfiguration* config, struct ParserState* state,
+                   void (*warnings_callback)(enum jaStatusCode, int, const char*, const char*))
 {
 	if (state->buguous_statement == false)
 	{
@@ -289,9 +284,8 @@ static void sParse(const struct TokenizerState* tknzr, struct jaConfiguration* c
 		{
 			if ((state->item_found = jaDictionaryGet((struct jaDictionary*)config, tknzr->token)) == NULL)
 			{
-				JA_DEBUG_PRINT(
-				    "[Warning] Expected an configuration key at line %i, found the unknown token '%s' instead\n",
-				    tknzr->line_number + 1, tknzr->token);
+				if (warnings_callback != NULL)
+					warnings_callback(STATUS_EXPECTED_KEY_TOKEN, tknzr->line_number + 1, tknzr->token, NULL);
 
 				state->buguous_statement = true;
 			}
@@ -305,9 +299,9 @@ static void sParse(const struct TokenizerState* tknzr, struct jaConfiguration* c
 					state->equal_found = true;
 				else
 				{
-					JA_DEBUG_PRINT(
-					    "[Warning] Expected an equal sign for key '%s' in line %i, found token '%s' instead\n",
-					    state->item_found->key, tknzr->line_number + 1, tknzr->token);
+					if (warnings_callback != NULL)
+						warnings_callback(STATUS_EXPECTED_EQUAL_TOKEN, tknzr->line_number + 1, tknzr->token,
+						                  state->item_found->key);
 
 					state->buguous_statement = true; // As above
 				}
@@ -317,10 +311,12 @@ static void sParse(const struct TokenizerState* tknzr, struct jaConfiguration* c
 			else
 			{
 				// Value isn't the last token in the statement!
-				if (tknzr->break_sc != true && tknzr->break_nl != true)
+				if (tknzr->break_by.sc != true && tknzr->break_by.nl != true)
 				{
-					JA_DEBUG_PRINT("[Warning] Statement in line %i isn't properly closed, '%s' assignament ignored\n",
-					               tknzr->line_number + 1, state->item_found->key);
+					if (warnings_callback != NULL)
+						warnings_callback(STATUS_STATEMENT_OPEN, tknzr->line_number + 1, tknzr->token,
+						                  state->item_found->key);
+
 					state->buguous_statement = true;
 				}
 				else
@@ -338,12 +334,14 @@ static void sParse(const struct TokenizerState* tknzr, struct jaConfiguration* c
 
 	// There is a semicolon or a new line after this token,
 	// lets indicate this so the next step do a fresh start
-	if (tknzr->break_sc == true || tknzr->break_nl == true)
+	if (tknzr->break_by.sc == true || tknzr->break_by.nl == true)
 	{
 		// The third step was never reached, warn about that
 		if (state->buguous_statement == false && (state->item_found != NULL))
-			JA_DEBUG_PRINT("[Warning] Configuration '%s' in line %i did't have a value assigned\n",
-			               state->item_found->key, tknzr->line_number + 1);
+		{
+			if (warnings_callback != NULL)
+				warnings_callback(STATUS_NO_ASSIGNMENT, tknzr->line_number + 1, tknzr->token, state->item_found->key);
+		}
 
 		// Set
 		state->buguous_statement = false;
@@ -368,13 +366,16 @@ int jaConfigurationFile(struct jaConfiguration* config, const char* filename, st
 		return 1;
 	}
 
-	ret_value = jaConfigurationFileEx(config, fp, FILE_DEFAULT, st);
-
+	ret_value = jaConfigurationFileEx(config, fp, FILE_DEFAULT, NULL, NULL, st);
 	fclose(fp);
+
 	return ret_value;
 }
 
-int jaConfigurationFileEx(struct jaConfiguration* config, FILE* fp, enum jaFileFlags flags, struct jaStatus* st)
+int jaConfigurationFileEx(struct jaConfiguration* config, FILE* fp, enum jaFileFlags flags,
+                          void (*tokenizer_callback)(int, struct jaTokenDelimiter, const char*),
+                          void (*warnings_callback)(enum jaStatusCode, int, const char*, const char*),
+                          struct jaStatus* st)
 {
 	struct jaBuffer buffer = {0};
 	struct TokenizerState tknzr = {0};
@@ -387,15 +388,14 @@ int jaConfigurationFileEx(struct jaConfiguration* config, FILE* fp, enum jaFileF
 		if (sTokenize(fp, &buffer, &tknzr, st) != 0)
 			goto return_failure;
 
-		if (flags == FILE_TOKENIZE_ONLY) {}
-		else
-			sParse(&tknzr, config, &prsr);
+		if (tokenizer_callback != NULL)
+			tokenizer_callback(tknzr.line_number + 1, tknzr.break_by, tknzr.token);
 
-		// printf("(b:%s%s%s) %04i: \"%s\"\n", (tknzr.break_ws) ? "ws" : "--", (tknzr.break_nl) ? "nl" : "--",
-		//       (tknzr.break_sc) ? "sc" : "--", tknzr.line_number + 1, tknzr.token);
+		if (flags != FILE_TOKENIZE_ONLY)
+			sParse(&tknzr, config, &prsr, warnings_callback);
 
 		// Token is the last one
-		if (tknzr.eof == true)
+		if (tknzr.break_by.eof == true)
 			break;
 	}
 

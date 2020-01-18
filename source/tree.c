@@ -25,7 +25,7 @@ SOFTWARE.
 -------------------------------
 
  [tree.c]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 -----------------------------*/
 
 #include <stdlib.h>
@@ -171,7 +171,7 @@ void jaTreeDelete(struct jaTree* tree)
 		while ((tree = jaTreeIterate(&state, &buffer)) != NULL)
 		{
 			if (tree->callback_delete != NULL)
-				tree->callback_delete(tree->data);
+				tree->callback_delete(tree);
 
 			free(tree);
 		}

@@ -1,7 +1,7 @@
 /*-----------------------------
 
  [japan-status.h]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 -----------------------------*/
 
 #ifndef JAPAN_VERSION
@@ -47,7 +47,12 @@ enum jaStatusCode
 	STATUS_UNKNOWN_DATA_FORMAT,
 	STATUS_INVALID_ARGUMENT,
 
-	STATUS_MEMORY_ERROR
+	STATUS_MEMORY_ERROR,
+
+	STATUS_EXPECTED_KEY_TOKEN,
+	STATUS_EXPECTED_EQUAL_TOKEN,
+	STATUS_STATEMENT_OPEN,
+	STATUS_NO_ASSIGNMENT
 };
 
 struct jaStatus
