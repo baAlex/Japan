@@ -77,13 +77,12 @@ JA_EXPORT struct jaCvar* jaCvarCreateString(struct jaConfiguration*, const char*
                                             const char* allowed_values, const char* prohibited_values,
                                             struct jaStatus*);
 
-JA_EXPORT struct jaCvar* jaCvarGet(const struct jaConfiguration*, const char* name); // TODO
-JA_EXPORT void jaCvarDelete(struct jaCvar* cvar);                                    // TODO
+JA_EXPORT struct jaCvar* jaCvarFind(const struct jaConfiguration*, const char* name);
+JA_EXPORT void jaCvarDelete(struct jaCvar* cvar); // TODO
 
-JA_EXPORT int jaCvarRetrieveInt(const struct jaConfiguration*, const char* name, int* dest, struct jaStatus*);
-JA_EXPORT int jaCvarRetrieveFloat(const struct jaConfiguration*, const char* name, float* dest, struct jaStatus*);
-JA_EXPORT int jaCvarRetrieveString(const struct jaConfiguration*, const char* name, const char** dest,
-                                   struct jaStatus*);
+JA_EXPORT int jaCvarValueInt(const struct jaCvar*, int* dest, struct jaStatus*);
+JA_EXPORT int jaCvarValueFloat(const struct jaCvar*, float* dest, struct jaStatus*);
+JA_EXPORT int jaCvarValueString(const struct jaCvar*, const char** dest, struct jaStatus*);
 
 #define jaCvarCreate(config, name, default_value, a, b, st)\
 	_Generic((default_value),\
@@ -94,13 +93,13 @@ JA_EXPORT int jaCvarRetrieveString(const struct jaConfiguration*, const char* na
 		default : jaCvarCreateInt\
 	)(config, name, default_value, a, b, st)
 
-#define jaCvarRetrieve(config, name, dest, st)\
+#define jaCvarValue(cvar, dest, st)\
 	_Generic((dest),\
-		int* : jaCvarRetrieveInt,\
-		float* : jaCvarRetrieveFloat,\
-		char** : jaCvarRetrieveString,\
-		const char** : jaCvarRetrieveString,\
-		default : jaCvarRetrieveInt\
-	)(config, name, dest, st)
+		int* : jaCvarValueInt,\
+		float* : jaCvarValueFloat,\
+		char** : jaCvarValueString,\
+		const char** : jaCvarValueString,\
+		default : jaCvarValueInt\
+	)(cvar, dest, st)
 
 #endif

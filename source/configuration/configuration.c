@@ -266,7 +266,7 @@ static struct jaCvar* sRegister(struct jaConfiguration* config, const char* key,
 
 /*-----------------------------
 
- sRetrieve()
+ jaCvarFind()
 -----------------------------*/
 static inline const char* sTypeName(enum Type type)
 {
@@ -280,30 +280,19 @@ static inline const char* sTypeName(enum Type type)
 	return NULL;
 }
 
-static struct jaCvar* sRetrieve(const struct jaConfiguration* config, const char* key, enum Type type,
-                                struct jaStatus* st)
+struct jaCvar* jaCvarFind(const struct jaConfiguration* config, const char* key)
 {
 	struct jaDictionaryItem* item = NULL;
-	struct jaCvar* cvar = NULL;
 
-	jaStatusSet(st, "sRetrieve", STATUS_SUCCESS, NULL);
+	// jaStatusSet(st, "jaCvarFind", STATUS_SUCCESS, NULL);
 
 	if ((item = jaDictionaryGet((struct jaDictionary*)config, key)) == NULL)
 	{
-		jaStatusSet(st, "sRetrieve", STATUS_ERROR, "Configuration '%s' not registered", key);
+		// jaStatusSet(st, "sRetrieve", STATUS_ERROR, "Configuration '%s' not registered", key);
 		return NULL;
 	}
 
-	cvar = item->data;
-
-	if (cvar->type != type)
-	{
-		jaStatusSet(st, "sRetrieve", STATUS_ERROR, "Configuration '%s' has an %s value (%s requested)", key,
-		            sTypeName(cvar->type), sTypeName(type));
-		return NULL;
-	}
-
-	return cvar;
+	return item->data;
 }
 
 
@@ -321,7 +310,6 @@ struct jaCvar* jaCvarCreateInt(struct jaConfiguration* config, const char* key, 
 		cvar->value.i = jaClampInt(default_value, min, max);
 		cvar->min.i = min;
 		cvar->max.i = max;
-		return 0;
 	}
 
 	return cvar;
@@ -337,7 +325,6 @@ struct jaCvar* jaCvarCreateFloat(struct jaConfiguration* config, const char* key
 		cvar->value.f = jaClampFloat(default_value, min, max);
 		cvar->min.f = min;
 		cvar->max.f = max;
-		return 0;
 	}
 
 	return cvar;
@@ -352,49 +339,55 @@ struct jaCvar* jaCvarCreateString(struct jaConfiguration* config, const char* ke
 	struct jaCvar* cvar = sRegister(config, key, TYPE_STRING, st);
 
 	if (cvar != NULL)
-	{
 		sBufferSaveString(&cvar->value.s, default_value);
-		return 0;
-	}
 
 	return cvar;
 }
 
-int jaCvarRetrieveInt(const struct jaConfiguration* config, const char* key, int* dest, struct jaStatus* st)
+int jaCvarValueInt(const struct jaCvar* cvar, int* dest, struct jaStatus* st)
 {
-	struct jaCvar* cvar = sRetrieve(config, key, TYPE_INT, st);
+	if (cvar == NULL)
+		return 1;
 
-	if (cvar != NULL)
+	if (cvar->type != TYPE_INT)
 	{
-		*dest = cvar->value.i;
-		return 0;
+		jaStatusSet(st, "jaCvarValueInt", STATUS_ERROR, "Configuration '%s' has an %s value (%s requested)",
+		            cvar->item->key, sTypeName(cvar->type), sTypeName(TYPE_INT));
+		return 1;
 	}
 
-	return 1;
+	*dest = cvar->value.i;
+	return 0;
 }
 
-int jaCvarRetrieveFloat(const struct jaConfiguration* config, const char* key, float* dest, struct jaStatus* st)
+int jaCvarValueFloat(const struct jaCvar* cvar, float* dest, struct jaStatus* st)
 {
-	struct jaCvar* cvar = sRetrieve(config, key, TYPE_FLOAT, st);
+	if (cvar == NULL)
+		return 1;
 
-	if (cvar != NULL)
+	if (cvar->type != TYPE_FLOAT)
 	{
-		*dest = cvar->value.f;
-		return 0;
+		jaStatusSet(st, "jaCvarValueInt", STATUS_ERROR, "Configuration '%s' has an %s value (%s requested)",
+		            cvar->item->key, sTypeName(cvar->type), sTypeName(TYPE_FLOAT));
+		return 1;
 	}
 
-	return 1;
+	*dest = cvar->value.f;
+	return 0;
 }
 
-int jaCvarRetrieveString(const struct jaConfiguration* config, const char* key, const char** dest, struct jaStatus* st)
+int jaCvarValueString(const struct jaCvar* cvar, const char** dest, struct jaStatus* st)
 {
-	struct jaCvar* cvar = sRetrieve(config, key, TYPE_STRING, st);
+	if (cvar == NULL)
+		return 1;
 
-	if (cvar != NULL)
+	if (cvar->type != TYPE_STRING)
 	{
-		*dest = sBufferGetString(&cvar->value.s);
-		return 0;
+		jaStatusSet(st, "jaCvarValueInt", STATUS_ERROR, "Configuration '%s' has an %s value (%s requested)",
+		            cvar->item->key, sTypeName(cvar->type), sTypeName(TYPE_STRING));
+		return 1;
 	}
 
-	return 1;
+	*dest = sBufferGetString(&cvar->value.s);
+	return 0;
 }
