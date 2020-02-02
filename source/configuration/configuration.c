@@ -266,7 +266,7 @@ static struct jaCvar* sRegister(struct jaConfiguration* config, const char* key,
 
 /*-----------------------------
 
- jaCvarFind()
+ jaCvarGet()
 -----------------------------*/
 static inline const char* sTypeName(enum Type type)
 {
@@ -280,11 +280,11 @@ static inline const char* sTypeName(enum Type type)
 	return NULL;
 }
 
-struct jaCvar* jaCvarFind(const struct jaConfiguration* config, const char* key)
+struct jaCvar* jaCvarGet(const struct jaConfiguration* config, const char* key)
 {
 	struct jaDictionaryItem* item = NULL;
 
-	// jaStatusSet(st, "jaCvarFind", STATUS_SUCCESS, NULL);
+	// jaStatusSet(st, "jaCvarGet", STATUS_SUCCESS, NULL);
 
 	if ((item = jaDictionaryGet((struct jaDictionary*)config, key)) == NULL)
 	{

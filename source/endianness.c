@@ -25,7 +25,7 @@ SOFTWARE.
 -------------------------------
 
  [endianness.c]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 
  https://www.ibm.com/developerworks/aix/library/au-endianc/index.html
 -----------------------------*/
@@ -33,10 +33,6 @@ SOFTWARE.
 #include "japan-endianness.h"
 
 
-/*-----------------------------
-
- jaEndianSystem()
------------------------------*/
 inline enum jaEndianness jaEndianSystem()
 {
 	int16_t i = 1;
@@ -49,10 +45,6 @@ inline enum jaEndianness jaEndianSystem()
 }
 
 
-/*-----------------------------
-
- jaEndianReverseU
------------------------------*/
 inline uint64_t jaEndianReverseU64(uint64_t value)
 {
 	uint8_t b1 = (uint8_t)((uint64_t)value & 0xFF);
@@ -89,10 +81,6 @@ inline uint16_t jaEndianReverseU16(uint16_t value)
 }
 
 
-/*-----------------------------
-
- jaEndianToU
------------------------------*/
 uint64_t jaEndianToU64(uint64_t value, enum jaEndianness from, enum jaEndianness to)
 {
 	to = (to == ENDIAN_SYSTEM) ? jaEndianSystem() : to;
@@ -131,7 +119,7 @@ uint16_t jaEndianToU16(uint16_t value, enum jaEndianness from, enum jaEndianness
 
 /*-----------------------------
 
- Integer "generics"
+ "Generics"
 -----------------------------*/
 inline int64_t jaEndianReverseI64(int64_t value)
 {

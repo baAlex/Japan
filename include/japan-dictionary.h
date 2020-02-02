@@ -40,7 +40,6 @@ struct jaDictionaryItem
 	char key[];
 };
 
-
 JA_EXPORT uint64_t jaFNV1Hash(const char* key, size_t size);
 
 JA_EXPORT struct jaDictionary* jaDictionaryCreate(uint64_t (*hash_function)(const char*, size_t));

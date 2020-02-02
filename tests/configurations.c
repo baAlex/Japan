@@ -54,19 +54,19 @@ void ConfigTest1(void** cmocka_state)
 		const char* s;
 	} value;
 
-	jaCvarRetrieve(cfg, "sound.volume", &value.f, NULL);
+	jaCvarValue(jaCvarGet(cfg, "sound.volume"), &value.f, NULL);
 	assert_true((value.f == 0.8f)); // Value of "  +0.4 6" can't be cast into a float
 
-	jaCvarRetrieve(cfg, "name", &value.s, NULL);
+	jaCvarValue(jaCvarGet(cfg, "name"), &value.s, NULL);
 	assert_string_equal(value.s, "OwO");
 
-	jaCvarRetrieve(cfg, "render.width", &value.i, NULL);
+	jaCvarValue(jaCvarGet(cfg, "render.width"), &value.i, NULL);
 	assert_int_equal(value.i, 200); // Round of value "   200.2  "
 
-	jaCvarRetrieve(cfg, "render.height", &value.i, NULL);
+	jaCvarValue(jaCvarGet(cfg, "render.height"), &value.i, NULL);
 	assert_int_equal(value.i, 320); // Value of " UwU  " can't be cast into a integer
 
-	jaCvarRetrieve(cfg, "render.fullscreen", &value.i, NULL);
+	jaCvarValue(jaCvarGet(cfg, "render.fullscreen"), &value.i, NULL);
 	assert_int_equal(value.i, 1); // Value of "2" gets clamp
 
 	// Bye!

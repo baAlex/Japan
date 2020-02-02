@@ -1,0 +1,107 @@
+
+cflags = -O0 -g -std=c11 -Wall -Wextra -Wconversion -pedantic -fvisibility=hidden -fcolor-diagnostics -DJA_EXPORT_SYMBOLS -DJA_DEBUG -I./include
+tidyflags = -checks=clang-analyzer-*,bugprone-*,cert-*,performance-*,portability-*
+
+rule compile_so
+ command = clang $cflags -c $in -o $out -fpic
+
+rule compile_a
+ command = clang $cflags -c $in -o $out; clang-tidy $tidyflags $in -- $cflags
+
+rule link
+ command = clang -lm -shared $in -o $out
+
+rule pack
+ command = ar rcs $out $in
+
+
+# Shared library
+build ./build/debug/so/aabounding.o: compile_so ./source/aabounding.c
+build ./build/debug/so/buffer.o:     compile_so ./source/buffer.c
+build ./build/debug/so/dictionary.o: compile_so ./source/dictionary.c
+build ./build/debug/so/endianness.o: compile_so ./source/endianness.c
+build ./build/debug/so/list.o:       compile_so ./source/list.c
+build ./build/debug/so/matrix.o:     compile_so ./source/matrix.c
+build ./build/debug/so/status.o:     compile_so ./source/status.c
+build ./build/debug/so/tree.o:       compile_so ./source/tree.c
+build ./build/debug/so/utilities.o:  compile_so ./source/utilities.c
+build ./build/debug/so/vector.o:     compile_so ./source/vector.c
+
+build ./build/debug/so/configuration/arguments.o:     compile_so ./source/configuration/arguments.c
+build ./build/debug/so/configuration/configuration.o: compile_so ./source/configuration/configuration.c
+build ./build/debug/so/configuration/file.o:          compile_so ./source/configuration/file.c
+
+build ./build/debug/so/image/format-sgi.o: compile_so ./source/image/format-sgi.c
+build ./build/debug/so/image/image.o:      compile_so ./source/image/image.c
+
+build ./build/debug/so/sound/format-au.o:  compile_so ./source/sound/format-au.c
+build ./build/debug/so/sound/format-wav.o: compile_so ./source/sound/format-wav.c
+build ./build/debug/so/sound/laws.o:       compile_so ./source/sound/laws.c
+build ./build/debug/so/sound/sound.o:      compile_so ./source/sound/sound.c
+
+build libjapan-dbg.so: link $
+./build/debug/so/aabounding.o $
+./build/debug/so/buffer.o $
+./build/debug/so/dictionary.o $
+./build/debug/so/endianness.o $
+./build/debug/so/list.o $
+./build/debug/so/matrix.o $
+./build/debug/so/status.o $
+./build/debug/so/tree.o $
+./build/debug/so/utilities.o $
+./build/debug/so/vector.o $
+./build/debug/so/configuration/configuration.o $
+./build/debug/so/configuration/arguments.o $
+./build/debug/so/configuration/file.o $
+./build/debug/so/image/format-sgi.o $
+./build/debug/so/image/image.o $
+./build/debug/so/sound/format-au.o $
+./build/debug/so/sound/format-wav.o $
+./build/debug/so/sound/laws.o $
+./build/debug/so/sound/sound.o
+
+
+# Static library
+build ./build/debug/a/aabounding.o: compile_a ./source/aabounding.c
+build ./build/debug/a/buffer.o:     compile_a ./source/buffer.c
+build ./build/debug/a/dictionary.o: compile_a ./source/dictionary.c
+build ./build/debug/a/endianness.o: compile_a ./source/endianness.c
+build ./build/debug/a/list.o:       compile_a ./source/list.c
+build ./build/debug/a/matrix.o:     compile_a ./source/matrix.c
+build ./build/debug/a/status.o:     compile_a ./source/status.c
+build ./build/debug/a/tree.o:       compile_a ./source/tree.c
+build ./build/debug/a/utilities.o:  compile_a ./source/utilities.c
+build ./build/debug/a/vector.o:     compile_a ./source/vector.c
+
+build ./build/debug/a/configuration/arguments.o:     compile_a ./source/configuration/arguments.c
+build ./build/debug/a/configuration/configuration.o: compile_a ./source/configuration/configuration.c
+build ./build/debug/a/configuration/file.o:          compile_a ./source/configuration/file.c
+
+build ./build/debug/a/image/format-sgi.o: compile_a ./source/image/format-sgi.c
+build ./build/debug/a/image/image.o:      compile_a ./source/image/image.c
+
+build ./build/debug/a/sound/format-au.o:  compile_a ./source/sound/format-au.c
+build ./build/debug/a/sound/format-wav.o: compile_a ./source/sound/format-wav.c
+build ./build/debug/a/sound/laws.o:       compile_a ./source/sound/laws.c
+build ./build/debug/a/sound/sound.o:      compile_a ./source/sound/sound.c
+
+build libjapan-dbg.a: pack $
+./build/debug/a/aabounding.o $
+./build/debug/a/buffer.o $
+./build/debug/a/dictionary.o $
+./build/debug/a/endianness.o $
+./build/debug/a/list.o $
+./build/debug/a/matrix.o $
+./build/debug/a/status.o $
+./build/debug/a/tree.o $
+./build/debug/a/utilities.o $
+./build/debug/a/vector.o $
+./build/debug/a/configuration/configuration.o $
+./build/debug/a/configuration/arguments.o $
+./build/debug/a/configuration/file.o $
+./build/debug/a/image/format-sgi.o $
+./build/debug/a/image/image.o $
+./build/debug/a/sound/format-au.o $
+./build/debug/a/sound/format-wav.o $
+./build/debug/a/sound/laws.o $
+./build/debug/a/sound/sound.o

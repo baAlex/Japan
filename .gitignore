@@ -1,9 +1,13 @@
+/test-suite
 /*.a
 /*.so
-/*.dll
-/*.lib
-/dev/
+
+/.ninja_log
+/.ninja_deps
+
 /build/
 /build-debug/
 /build-release/
+/objects/
+/dev/
 /.vscode/

@@ -25,17 +25,13 @@ SOFTWARE.
 -------------------------------
 
  [vector.c]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 -----------------------------*/
 
 #include "japan-vector.h"
 #include <math.h>
 
 
-/*-----------------------------
-
- Vector2
------------------------------*/
 inline struct jaVector2 jaVector2Clean()
 {
 	return (struct jaVector2){0.0f, 0.0f};
@@ -124,10 +120,6 @@ inline bool jaVector2Equals(struct jaVector2 a, struct jaVector2 b)
 }
 
 
-/*-----------------------------
-
- Vector3
------------------------------*/
 inline struct jaVector3 jaVector3Clean()
 {
 	return (struct jaVector3){0.0f, 0.0f, 0.0f};
@@ -216,10 +208,6 @@ inline bool jaVector3Equals(struct jaVector3 a, struct jaVector3 b)
 }
 
 
-/*-----------------------------
-
- Vector4
------------------------------*/
 inline struct jaVector4 jaVector4Clean()
 {
 	return (struct jaVector4){0.0f, 0.0f, 0.0f, 0.0f};

@@ -60,10 +60,6 @@ static struct jaListItem* sAllocItem(struct jaList* list, void* data, size_t dat
 }
 
 
-/*-----------------------------
-
- jaListClean()
------------------------------*/
 inline void jaListClean(struct jaList* list)
 {
 	while (list->last != NULL)
@@ -71,10 +67,6 @@ inline void jaListClean(struct jaList* list)
 }
 
 
-/*-----------------------------
-
- jaListAdd()
------------------------------*/
 struct jaListItem* jaListAdd(struct jaList* list, void* data, size_t data_size)
 {
 	struct jaListItem* new_item = NULL;
@@ -98,10 +90,6 @@ struct jaListItem* jaListAdd(struct jaList* list, void* data, size_t data_size)
 }
 
 
-/*-----------------------------
-
- jaListAddAfter()
------------------------------*/
 struct jaListItem* jaListAddAfter(struct jaListItem* item, void* data, size_t data_size)
 {
 	struct jaListItem* new_item = NULL;
@@ -130,10 +118,6 @@ struct jaListItem* jaListAddAfter(struct jaListItem* item, void* data, size_t da
 }
 
 
-/*-----------------------------
-
- jaListAddBefore()
------------------------------*/
 struct jaListItem* jaListAddBefore(struct jaListItem* item, void* data, size_t data_size)
 {
 	struct jaListItem* new_item = NULL;
@@ -162,10 +146,6 @@ struct jaListItem* jaListAddBefore(struct jaListItem* item, void* data, size_t d
 }
 
 
-/*-----------------------------
-
- jaListRemove()
------------------------------*/
 void jaListRemove(struct jaListItem* item)
 {
 	jaListDetach(item);
@@ -177,10 +157,6 @@ void jaListRemove(struct jaListItem* item)
 }
 
 
-/*-----------------------------
-
- jaListDetach()
------------------------------*/
 inline int jaListDetach(struct jaListItem* item)
 {
 	if (item->list != NULL)
@@ -208,10 +184,6 @@ inline int jaListDetach(struct jaListItem* item)
 }
 
 
-/*-----------------------------
-
- jaListIterate()
------------------------------*/
 struct jaListItem* jaListIterate(struct jaListState* state)
 {
 	struct jaListItem* to_return = NULL;

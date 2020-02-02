@@ -1,7 +1,7 @@
 /*-----------------------------
 
  [japan-image.h]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 -----------------------------*/
 
 #ifndef JAPAN_VERSION
@@ -63,9 +63,9 @@ struct jaImage
 struct jaImageEx
 {
 	size_t width;  // In pixels
-	size_t height; // In pixels, Ignored by ImageExLoadRaw() if set to 0
+	size_t height; // In pixels, Ignored by jaImageLoadRaw() if set to 0
 
-	size_t uncompressed_size; // Ignored by ImageExLoadRaw()
+	size_t uncompressed_size; // Ignored by jaImageLoadRaw()
 
 	enum jaEndianness endianness;
 	enum jaImageStorage storage;

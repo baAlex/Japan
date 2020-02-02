@@ -34,10 +34,6 @@ SOFTWARE.
 #include "japan-tree.h"
 
 
-/*-----------------------------
-
- jaTreeIterate()
------------------------------*/
 struct jaTree* jaTreeIterate(struct jaTreeState* state, struct jaBuffer* buffer)
 {
 	struct jaTree** future_parent_heap = NULL;
@@ -120,10 +116,6 @@ struct jaTree* jaTreeIterate(struct jaTreeState* state, struct jaBuffer* buffer)
 }
 
 
-/*-----------------------------
-
- jaTreeCreate()
------------------------------*/
 struct jaTree* jaTreeCreate(struct jaTree* parent, void* data, size_t data_size)
 {
 	struct jaTree* tree = NULL;
@@ -154,10 +146,6 @@ struct jaTree* jaTreeCreate(struct jaTree* parent, void* data, size_t data_size)
 }
 
 
-/*-----------------------------
-
- jaTreeDelete()
------------------------------*/
 void jaTreeDelete(struct jaTree* tree)
 {
 	struct jaTreeState state;
@@ -181,10 +169,6 @@ void jaTreeDelete(struct jaTree* tree)
 }
 
 
-/*-----------------------------
-
- jaTreeAttach()
------------------------------*/
 inline int jaTreeAttach(struct jaTree* tree, struct jaTree* new_parent)
 {
 	if (tree->parent == NULL && new_parent != NULL)
@@ -221,10 +205,6 @@ inline int jaTreeAttach(struct jaTree* tree, struct jaTree* new_parent)
 }
 
 
-/*-----------------------------
-
- jaTreeDetach()
------------------------------*/
 inline int jaTreeDetach(struct jaTree* tree)
 {
 	if (tree->parent != NULL)

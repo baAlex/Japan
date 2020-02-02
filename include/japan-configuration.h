@@ -54,7 +54,6 @@ struct jaTokenDelimiter
 struct jaConfiguration;
 struct jaCvar;
 
-
 JA_EXPORT struct jaConfiguration* jaConfigurationCreate();
 JA_EXPORT void jaConfigurationDelete(struct jaConfiguration*);
 
@@ -77,12 +76,12 @@ JA_EXPORT struct jaCvar* jaCvarCreateString(struct jaConfiguration*, const char*
                                             const char* allowed_values, const char* prohibited_values,
                                             struct jaStatus*);
 
-JA_EXPORT struct jaCvar* jaCvarFind(const struct jaConfiguration*, const char* name);
-JA_EXPORT void jaCvarDelete(struct jaCvar* cvar); // TODO
-
 JA_EXPORT int jaCvarValueInt(const struct jaCvar*, int* dest, struct jaStatus*);
 JA_EXPORT int jaCvarValueFloat(const struct jaCvar*, float* dest, struct jaStatus*);
 JA_EXPORT int jaCvarValueString(const struct jaCvar*, const char** dest, struct jaStatus*);
+
+JA_EXPORT struct jaCvar* jaCvarGet(const struct jaConfiguration*, const char* name);
+JA_EXPORT void jaCvarDelete(struct jaCvar* cvar); // TODO
 
 #define jaCvarCreate(config, name, default_value, a, b, st)\
 	_Generic((default_value),\
