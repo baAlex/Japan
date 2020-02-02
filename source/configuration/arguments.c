@@ -35,17 +35,17 @@ SOFTWARE.
 
  jaConfigurationArguments()
 -----------------------------*/
-int jaConfigurationArguments(struct jaConfiguration* config, int argc, const char* argv[], struct jaStatus* st)
+void jaConfigurationArguments(struct jaConfiguration* config, int argc, const char* argv[])
 {
-	return jaConfigurationArgumentsEx(config, argc, argv, ARGUMENTS_DEFAULT, NULL, st);
+	jaConfigurationArgumentsEx(config, argc, argv, ARGUMENTS_DEFAULT, NULL);
 }
 
-int jaConfigurationArgumentsEx(struct jaConfiguration* config, int argc, const char* argv[],
-                               enum jaArgumentsFlags flags,
-                               void (*warnings_callback)(enum jaStatusCode, int, const char*, const char*),
-                               struct jaStatus* st)
+void jaConfigurationArgumentsEx(struct jaConfiguration* config, int argc, const char* argv[],
+                                enum jaArgumentsFlags flags,
+                                void (*warnings_callback)(enum jaStatusCode, int, const char*, const char*))
 {
 	struct jaDictionaryItem* item = NULL;
+	enum jaStatusCode code;
 
 	for (int i = (flags == ARGUMENTS_INCLUDE_FIRST_ONE) ? 0 : 1; i < argc; i++)
 	{
@@ -61,22 +61,28 @@ int jaConfigurationArgumentsEx(struct jaConfiguration* config, int argc, const c
 		if ((item = jaDictionaryGet((struct jaDictionary*)config, (argv[i] + 1))) == NULL)
 		{
 			if (warnings_callback != NULL)
-				warnings_callback(STATUS_EXPECTED_KEY_TOKEN, i, argv[i], NULL); // TODO?
+				warnings_callback(STATUS_EXPECTED_KEY_TOKEN, i, argv[i], NULL);
 
 			continue;
 		}
 
-		// Check value
+		// Check value following
 		if ((i + 1) == argc)
 		{
 			if (warnings_callback != NULL)
-				warnings_callback(STATUS_NO_ASSIGNMENT, i, NULL, argv[i]);
+				warnings_callback(STATUS_NO_ASSIGNMENT, i, NULL, argv[i] + 1);
 
 			break;
 		}
 
-		// Set!
-		Store(item->data, argv[i + 1], SET_BY_FILE); // TODO
+		// Store!
+		code = Store(item->data, argv[i + 1], SET_BY_ARGUMENTS);
+
+		if (code != STATUS_SUCCESS)
+		{
+			if (warnings_callback != NULL)
+				warnings_callback(code, i, argv[i + 1], argv[i] + 1);
+		}
 
 		i++; // Important!
 	}
@@ -84,6 +90,4 @@ int jaConfigurationArgumentsEx(struct jaConfiguration* config, int argc, const c
 #ifdef JA_DEBUG
 	jaDictionaryIterate((struct jaDictionary*)config, PrintCallback, NULL);
 #endif
-
-	return 0; // TODO?
 }

@@ -84,6 +84,9 @@ int jaStatusPrint(const char* app_name, struct jaStatus st)
 	case STATUS_EXPECTED_EQUAL_TOKEN: code_message = "Unknown token, expected an equal sign"; break;
 	case STATUS_STATEMENT_OPEN: code_message = "Statement remains open"; break;
 	case STATUS_NO_ASSIGNMENT: code_message = "Statement didn't have an assignment"; break;
+	case STATUS_INTEGER_CAST_ERROR: code_message = "Can't cast into an integer"; break;
+	case STATUS_DECIMAL_CAST_ERROR: code_message = "Can't cast into a decimal"; break;
+
 	default: code_message = "Unknown status";
 	}
 

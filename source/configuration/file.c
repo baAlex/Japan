@@ -276,6 +276,8 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 static void sParse(const struct TokenizerState* tknzr, struct jaConfiguration* config, struct ParserState* state,
                    void (*warnings_callback)(enum jaStatusCode, int, const char*, const char*))
 {
+	enum jaStatusCode code;
+
 	if (state->buguous_statement == false)
 	{
 		// First step, find an valid configuration variable
@@ -321,8 +323,13 @@ static void sParse(const struct TokenizerState* tknzr, struct jaConfiguration* c
 				}
 				else
 				{
-					// JA_DEBUG_PRINT(" ~~~~~ '%s' = '%s' ~~~~~ \n", state->item_found->key, tknzr->token);
-					Store(state->item_found->data, tknzr->token, SET_BY_FILE); // TODO
+					code = Store(state->item_found->data, tknzr->token, SET_BY_FILE);
+
+					if (code != STATUS_SUCCESS)
+					{
+						if (warnings_callback != NULL)
+							warnings_callback(code, tknzr->line_number + 1, tknzr->token, state->item_found->key);
+					}
 				}
 
 				// And back to step one!

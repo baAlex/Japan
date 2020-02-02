@@ -57,31 +57,8 @@ struct jaCvar;
 JA_EXPORT struct jaConfiguration* jaConfigurationCreate();
 JA_EXPORT void jaConfigurationDelete(struct jaConfiguration*);
 
-JA_EXPORT int jaConfigurationArguments(struct jaConfiguration*, int argc, const char* argv[], struct jaStatus*);
-JA_EXPORT int jaConfigurationArgumentsEx(struct jaConfiguration*, int argc, const char* argv[], enum jaArgumentsFlags,
-                                         void (*warnings_callback)(enum jaStatusCode, int, const char*, const char*),
-                                         struct jaStatus*);
-
+JA_EXPORT void jaConfigurationArguments(struct jaConfiguration*, int argc, const char* argv[]);
 JA_EXPORT int jaConfigurationFile(struct jaConfiguration*, const char* filename, struct jaStatus*);
-JA_EXPORT int jaConfigurationFileEx(struct jaConfiguration*, FILE* fp, enum jaFileFlags,
-                                    void (*tokenizer_callback)(int, struct jaTokenDelimiter, const char*),
-                                    void (*warnings_callback)(enum jaStatusCode, int, const char*, const char*),
-                                    struct jaStatus*);
-
-JA_EXPORT struct jaCvar* jaCvarCreateInt(struct jaConfiguration*, const char* name, int default_value, int min, int max,
-                                         struct jaStatus*);
-JA_EXPORT struct jaCvar* jaCvarCreateFloat(struct jaConfiguration*, const char* name, float default_value, float min,
-                                           float max, struct jaStatus*);
-JA_EXPORT struct jaCvar* jaCvarCreateString(struct jaConfiguration*, const char* name, const char* default_value,
-                                            const char* allowed_values, const char* prohibited_values,
-                                            struct jaStatus*);
-
-JA_EXPORT int jaCvarValueInt(const struct jaCvar*, int* dest, struct jaStatus*);
-JA_EXPORT int jaCvarValueFloat(const struct jaCvar*, float* dest, struct jaStatus*);
-JA_EXPORT int jaCvarValueString(const struct jaCvar*, const char** dest, struct jaStatus*);
-
-JA_EXPORT struct jaCvar* jaCvarGet(const struct jaConfiguration*, const char* name);
-JA_EXPORT void jaCvarDelete(struct jaCvar* cvar); // TODO
 
 #define jaCvarCreate(config, name, default_value, a, b, st)\
 	_Generic((default_value),\
@@ -100,5 +77,30 @@ JA_EXPORT void jaCvarDelete(struct jaCvar* cvar); // TODO
 		const char** : jaCvarValueString,\
 		default : jaCvarValueInt\
 	)(cvar, dest, st)
+
+JA_EXPORT struct jaCvar* jaCvarGet(const struct jaConfiguration*, const char* name);
+JA_EXPORT void jaCvarDelete(struct jaCvar* cvar); // TODO
+
+// ----
+
+JA_EXPORT void jaConfigurationArgumentsEx(struct jaConfiguration*, int argc, const char* argv[], enum jaArgumentsFlags,
+                                          void (*warnings_callback)(enum jaStatusCode, int, const char*, const char*));
+
+JA_EXPORT int jaConfigurationFileEx(struct jaConfiguration*, FILE* fp, enum jaFileFlags,
+                                    void (*tokenizer_callback)(int, struct jaTokenDelimiter, const char*),
+                                    void (*warnings_callback)(enum jaStatusCode, int, const char*, const char*),
+                                    struct jaStatus*);
+
+JA_EXPORT struct jaCvar* jaCvarCreateInt(struct jaConfiguration*, const char* name, int default_value, int min, int max,
+                                         struct jaStatus*);
+JA_EXPORT struct jaCvar* jaCvarCreateFloat(struct jaConfiguration*, const char* name, float default_value, float min,
+                                           float max, struct jaStatus*);
+JA_EXPORT struct jaCvar* jaCvarCreateString(struct jaConfiguration*, const char* name, const char* default_value,
+                                            const char* allowed_values, const char* prohibited_values,
+                                            struct jaStatus*);
+
+JA_EXPORT int jaCvarValueInt(const struct jaCvar*, int* dest, struct jaStatus*);
+JA_EXPORT int jaCvarValueFloat(const struct jaCvar*, float* dest, struct jaStatus*);
+JA_EXPORT int jaCvarValueString(const struct jaCvar*, const char** dest, struct jaStatus*);
 
 #endif

@@ -35,7 +35,7 @@ static inline int sBufferSaveString(struct jaBuffer* b, const char* string)
 {
 	if (jaBufferResize(b, strlen(string) + 1) != NULL)
 	{
-		strcpy(b->data, string);
+		strncpy(b->data, string, strlen(string) + 1);
 		return 0;
 	}
 
@@ -108,11 +108,11 @@ int ValidateKey(const char* string, size_t len)
 
  Store()
 -----------------------------*/
-static int sStoreFloat(float* dest, const char* org, float min, float max, bool* changes)
+static int sStoreFloat(float* dest, const char* to_store, float min, float max, bool* changes)
 {
 	float old_value = *dest;
 	char* end = NULL;
-	float value = strtof(org, &end); // "Past the last character interpreted"
+	float value = strtof(to_store, &end); // "Past the last character interpreted"
 
 	if (*end != '\0')
 		for (; *end != '\0'; end++)
@@ -126,11 +126,11 @@ static int sStoreFloat(float* dest, const char* org, float min, float max, bool*
 	return 0;
 }
 
-static int sStoreInt(int* dest, const char* org, int min, int max, bool* changes)
+static int sStoreInt(int* dest, const char* to_store, int min, int max, bool* changes)
 {
 	int old_value = *dest;
 	char* end = NULL;
-	long value = strtol(org, &end, 0);
+	long value = strtol(to_store, &end, 0);
 
 	if (*end != '\0')
 		for (; *end != '\0'; end++)
@@ -140,7 +140,7 @@ static int sStoreInt(int* dest, const char* org, int min, int max, bool* changes
 				// Try with float
 				float temp = 0.0f;
 
-				if (sStoreFloat(&temp, org, (float)min, (float)max, changes) != 0)
+				if (sStoreFloat(&temp, to_store, (float)min, (float)max, changes) != 0)
 					return 1;
 
 				value = lroundf(temp);
@@ -162,43 +162,30 @@ static int sStoreString(struct jaBuffer* b, const char* str, bool* changes)
 	return sBufferSaveString(b, str);
 }
 
-int Store(struct jaCvar* cvar, const char* token, enum SetBy by)
+enum jaStatusCode Store(struct jaCvar* cvar, const char* to_store, enum SetBy by)
 {
 	bool changes = false;
 
-	switch (cvar->type)
+	if (cvar->type == TYPE_INT)
 	{
-	case TYPE_INT:
-		if (sStoreInt(&cvar->value.i, token, cvar->min.i, cvar->max.i, &changes) != 0)
-		{
-			JA_DEBUG_PRINT("[Warning] Token '%s' can't be cast into a integer value as '%s' requires\n", token,
-			               cvar->item->key);
-			return 1;
-		}
-		break;
-
-	case TYPE_FLOAT:
-		if (sStoreFloat(&cvar->value.f, token, cvar->min.f, cvar->max.f, &changes) != 0)
-		{
-			JA_DEBUG_PRINT("[Warning] Token '%s' can't be cast into a decimal value as '%s' requires\n", token,
-			               cvar->item->key);
-			return 1;
-		}
-		break;
-
-	case TYPE_STRING:
-		if (sStoreString(&cvar->value.s, token, &changes) != 0)
-		{
-			JA_DEBUG_PRINT("[Warning] Not enought memory to store value '%s' as '%s' requires\n", token,
-			               cvar->item->key);
-			return 1;
-		}
+		if (sStoreInt(&cvar->value.i, to_store, cvar->min.i, cvar->max.i, &changes) != 0)
+			return STATUS_INTEGER_CAST_ERROR;
+	}
+	else if (cvar->type == TYPE_FLOAT)
+	{
+		if (sStoreFloat(&cvar->value.f, to_store, cvar->min.f, cvar->max.f, &changes) != 0)
+			return STATUS_DECIMAL_CAST_ERROR;
+	}
+	else if (cvar->type == TYPE_STRING)
+	{
+		if (sStoreString(&cvar->value.s, to_store, &changes) != 0)
+			return STATUS_MEMORY_ERROR;
 	}
 
 	if (changes == true)
 		cvar->set_by = by;
 
-	return 0;
+	return STATUS_SUCCESS;
 }
 
 
@@ -232,24 +219,34 @@ inline void jaConfigurationDelete(struct jaConfiguration* config)
 
 /*-----------------------------
 
- sRegister()
+ jaCvarGet()
 -----------------------------*/
-static struct jaCvar* sRegister(struct jaConfiguration* config, const char* key, enum Type type, struct jaStatus* st)
+inline struct jaCvar* jaCvarGet(const struct jaConfiguration* config, const char* key)
+{
+	return (jaDictionaryGet((struct jaDictionary*)config, key))->data;
+}
+
+
+/*-----------------------------
+
+ jaCvarCreate
+-----------------------------*/
+static struct jaCvar* sCreate(struct jaConfiguration* config, const char* key, enum Type type, struct jaStatus* st)
 {
 	struct jaDictionaryItem* item = NULL;
 	struct jaCvar* cvar = NULL;
 
-	jaStatusSet(st, "sRegister", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaCvarCreate", STATUS_SUCCESS, NULL);
 
 	if (ValidateKey(key, strlen(key)) != 0)
 	{
-		jaStatusSet(st, "sRegister", STATUS_INVALID_ARGUMENT, "Invalid key");
+		jaStatusSet(st, "jaCvarCreate", STATUS_INVALID_ARGUMENT, "Invalid key");
 		return NULL;
 	}
 
 	if ((item = jaDictionaryAdd((struct jaDictionary*)config, key, NULL, sizeof(struct jaCvar))) == NULL)
 	{
-		jaStatusSet(st, "sRegister", STATUS_MEMORY_ERROR, NULL);
+		jaStatusSet(st, "jaCvarCreate", STATUS_MEMORY_ERROR, NULL);
 		return NULL;
 	}
 
@@ -263,54 +260,17 @@ static struct jaCvar* sRegister(struct jaConfiguration* config, const char* key,
 	return cvar;
 }
 
-
-/*-----------------------------
-
- jaCvarGet()
------------------------------*/
-static inline const char* sTypeName(enum Type type)
-{
-	switch (type)
-	{
-	case TYPE_INT: return "integer";
-	case TYPE_FLOAT: return "decimal";
-	case TYPE_STRING: return "string";
-	}
-
-	return NULL;
-}
-
-struct jaCvar* jaCvarGet(const struct jaConfiguration* config, const char* key)
-{
-	struct jaDictionaryItem* item = NULL;
-
-	// jaStatusSet(st, "jaCvarGet", STATUS_SUCCESS, NULL);
-
-	if ((item = jaDictionaryGet((struct jaDictionary*)config, key)) == NULL)
-	{
-		// jaStatusSet(st, "sRetrieve", STATUS_ERROR, "Configuration '%s' not registered", key);
-		return NULL;
-	}
-
-	return item->data;
-}
-
-
-/*-----------------------------
-
- "Generics"
------------------------------*/
 struct jaCvar* jaCvarCreateInt(struct jaConfiguration* config, const char* key, int default_value, int min, int max,
                                struct jaStatus* st)
 {
-	struct jaCvar* cvar = sRegister(config, key, TYPE_INT, st);
+	struct jaCvar* cvar = sCreate(config, key, TYPE_INT, st);
 
-	if (cvar != NULL)
-	{
-		cvar->value.i = jaClampInt(default_value, min, max);
-		cvar->min.i = min;
-		cvar->max.i = max;
-	}
+	if (cvar == NULL)
+		return NULL;
+
+	cvar->value.i = jaClampInt(default_value, min, max);
+	cvar->min.i = min;
+	cvar->max.i = max;
 
 	return cvar;
 }
@@ -318,14 +278,14 @@ struct jaCvar* jaCvarCreateInt(struct jaConfiguration* config, const char* key, 
 struct jaCvar* jaCvarCreateFloat(struct jaConfiguration* config, const char* key, float default_value, float min,
                                  float max, struct jaStatus* st)
 {
-	struct jaCvar* cvar = sRegister(config, key, TYPE_FLOAT, st);
+	struct jaCvar* cvar = sCreate(config, key, TYPE_FLOAT, st);
 
-	if (cvar != NULL)
-	{
-		cvar->value.f = jaClampFloat(default_value, min, max);
-		cvar->min.f = min;
-		cvar->max.f = max;
-	}
+	if (cvar == NULL)
+		return NULL;
+
+	cvar->value.f = jaClampFloat(default_value, min, max);
+	cvar->min.f = min;
+	cvar->max.f = max;
 
 	return cvar;
 }
@@ -336,7 +296,7 @@ struct jaCvar* jaCvarCreateString(struct jaConfiguration* config, const char* ke
 	(void)allowed_values;
 	(void)prohibited_values;
 
-	struct jaCvar* cvar = sRegister(config, key, TYPE_STRING, st);
+	struct jaCvar* cvar = sCreate(config, key, TYPE_STRING, st);
 
 	if (cvar != NULL)
 		sBufferSaveString(&cvar->value.s, default_value);
@@ -344,47 +304,70 @@ struct jaCvar* jaCvarCreateString(struct jaConfiguration* config, const char* ke
 	return cvar;
 }
 
+
+/*-----------------------------
+
+ jaCvarValue
+-----------------------------*/
 int jaCvarValueInt(const struct jaCvar* cvar, int* dest, struct jaStatus* st)
 {
-	if (cvar == NULL)
-		return 1;
+	jaStatusSet(st, "jaCvarValueInt", STATUS_SUCCESS, NULL);
 
-	if (cvar->type != TYPE_INT)
+	if (cvar == NULL)
 	{
-		jaStatusSet(st, "jaCvarValueInt", STATUS_ERROR, "Configuration '%s' has an %s value (%s requested)",
-		            cvar->item->key, sTypeName(cvar->type), sTypeName(TYPE_INT));
+		jaStatusSet(st, "jaCvarValueInt", STATUS_INVALID_ARGUMENT, NULL);
 		return 1;
 	}
 
-	*dest = cvar->value.i;
+	if (cvar->type == TYPE_INT)
+		*dest = cvar->value.i;
+	else if (cvar->type == TYPE_FLOAT)
+		*dest = (int)roundf(cvar->value.i);
+	else
+	{
+		jaStatusSet(st, "jaCvarValueInt", STATUS_ERROR, "Can't cast cvar '%s' into a string", cvar->item->key);
+		return 1;
+	}
+
 	return 0;
 }
 
 int jaCvarValueFloat(const struct jaCvar* cvar, float* dest, struct jaStatus* st)
 {
-	if (cvar == NULL)
-		return 1;
+	jaStatusSet(st, "jaCvarValueFloat", STATUS_SUCCESS, NULL);
 
-	if (cvar->type != TYPE_FLOAT)
+	if (cvar == NULL)
 	{
-		jaStatusSet(st, "jaCvarValueInt", STATUS_ERROR, "Configuration '%s' has an %s value (%s requested)",
-		            cvar->item->key, sTypeName(cvar->type), sTypeName(TYPE_FLOAT));
+		jaStatusSet(st, "jaCvarValueFloat", STATUS_INVALID_ARGUMENT, NULL);
 		return 1;
 	}
 
-	*dest = cvar->value.f;
+	if (cvar->type == TYPE_FLOAT)
+		*dest = cvar->value.f;
+	else if (cvar->type == TYPE_INT)
+		*dest = (float)cvar->value.i;
+	else
+	{
+		jaStatusSet(st, "jaCvarValueFloat", STATUS_ERROR, "Can't cast cvar '%s' into a string", cvar->item->key);
+		return 1;
+	}
+
 	return 0;
 }
 
 int jaCvarValueString(const struct jaCvar* cvar, const char** dest, struct jaStatus* st)
 {
+	jaStatusSet(st, "jaCvarValueString", STATUS_SUCCESS, NULL);
+
 	if (cvar == NULL)
+	{
+		jaStatusSet(st, "jaCvarValueString", STATUS_INVALID_ARGUMENT, NULL);
 		return 1;
+	}
 
 	if (cvar->type != TYPE_STRING)
 	{
-		jaStatusSet(st, "jaCvarValueInt", STATUS_ERROR, "Configuration '%s' has an %s value (%s requested)",
-		            cvar->item->key, sTypeName(cvar->type), sTypeName(TYPE_STRING));
+		jaStatusSet(st, "jaCvarValueString", STATUS_ERROR, "Can't cast cvar '%s' int a string", cvar->item->key);
 		return 1;
 	}
 

@@ -19,6 +19,7 @@
 	#include "japan-dictionary.h"
 	#include "japan-utilities.h"
 	#include "japan-configuration.h"
+	#include "japan-status.h"
 
 	#include "../common.h"
 
@@ -59,7 +60,7 @@
 	void PrintCallback(struct jaDictionaryItem* item, void* data);
 #endif
 
-	int Store(struct jaCvar* cvar, const char* token, enum SetBy);
+	enum jaStatusCode Store(struct jaCvar* cvar, const char* token, enum SetBy);
 	int ValidateKey(const char* string, size_t len);
 
 #endif

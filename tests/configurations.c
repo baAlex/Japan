@@ -45,7 +45,7 @@ void ConfigTest1(void** cmocka_state)
 	const char* v[] = {"", "-render.height", " X3  ", "-render.width", "   200.2  ", "-sound.volume",
 	                   "  +0.4 6", "-render.fullscreen", "2  ", "-name", "OwO", "UwU"};
 
-	jaConfigurationArguments(cfg, 12, v, NULL);
+	jaConfigurationArguments(cfg, 12, v);
 
 	// And check
 	union {
