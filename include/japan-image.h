@@ -25,8 +25,8 @@
 #ifndef JA_IMAGE_H
 #define JA_IMAGE_H
 
-#include <stdio.h>
 #include <stddef.h>
+#include <stdio.h>
 
 #include "japan-endianness.h"
 #include "japan-status.h"
@@ -40,52 +40,48 @@ enum jaImageStorage
 
 enum jaImageFormat
 {
-	IMAGE_GRAY8 = 0,
-	IMAGE_GRAYA8,
-	IMAGE_RGB8,
-	IMAGE_RGBA8,
-	IMAGE_GRAY16,
-	IMAGE_GRAYA16,
-	IMAGE_RGB16,
-	IMAGE_RGBA16
+	IMAGE_U8 = 0,
+	IMAGE_U16,
+	IMAGE_FLOAT
 };
 
 struct jaImage
 {
 	size_t width;
 	size_t height;
-	size_t size; // In bytes
+	size_t channels;
 
 	enum jaImageFormat format;
+	size_t size; // In bytes
+
 	void* data;
 };
 
 struct jaImageEx
 {
 	size_t width;  // In pixels
-	size_t height; // In pixels, Ignored by jaImageLoadRaw() if set to 0
+	size_t height; // "
+	size_t channels;
 
-	size_t uncompressed_size; // Ignored by jaImageLoadRaw()
-
+	enum jaImageFormat format;
 	enum jaEndianness endianness;
 	enum jaImageStorage storage;
-	enum jaImageFormat format;
+
+	size_t uncompressed_size;
 
 	size_t data_offset;
 };
 
-JA_EXPORT struct jaImage* jaImageCreate(enum jaImageFormat, size_t width, size_t height);
+JA_EXPORT struct jaImage* jaImageCreate(enum jaImageFormat, size_t width, size_t height, size_t channels);
 JA_EXPORT void jaImageDelete(struct jaImage* image);
 
 JA_EXPORT struct jaImage* jaImageLoad(const char* filename, struct jaStatus*);
 JA_EXPORT int jaImageSaveSgi(const struct jaImage* image, const char* filename, struct jaStatus*);
 JA_EXPORT int jaImageSaveRaw(const struct jaImage* image, const char* filename, struct jaStatus*);
 
-JA_EXPORT struct jaImage* jaImageLoadRaw(FILE* file, const struct jaImageEx* in_ex, struct jaStatus*);
 JA_EXPORT int jaImageExLoad(FILE* file, struct jaImageEx* out, struct jaStatus*);
 
-JA_EXPORT int jaBytesPerPixel(enum jaImageFormat);
+JA_EXPORT int jaBytesPerPixel(const struct jaImage* image);
 JA_EXPORT int jaBitsPerComponent(enum jaImageFormat);
-JA_EXPORT int jaImageChannels(enum jaImageFormat);
 
 #endif

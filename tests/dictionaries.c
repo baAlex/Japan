@@ -53,7 +53,7 @@ extern void DictionaryTest1_FNV1Hash(void** cmocka_state)
 
  DictionaryTest2_SimpleUsage()
 -----------------------------*/
-static void inline CheckItem(const struct jaDictionaryItem* a, const struct jaDictionaryItem* b, int item, bool* error)
+static inline void CheckItem(const struct jaDictionaryItem* a, const struct jaDictionaryItem* b, int item, bool* error)
 {
 	if (a != b)
 	{

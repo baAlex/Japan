@@ -46,17 +46,18 @@ extern int ImageExLoadSgi(FILE* file, struct jaImageEx* out, struct jaStatus* st
 
  jaImageCreate()
 -----------------------------*/
-struct jaImage* jaImageCreate(enum jaImageFormat format, size_t width, size_t height)
+struct jaImage* jaImageCreate(enum jaImageFormat format, size_t width, size_t height, size_t channels)
 {
 	struct jaImage* image = NULL;
-	size_t size = (size_t)jaBytesPerPixel(format) * width * height;
+	size_t size = (size_t)(jaBitsPerComponent(format) / 8) * width * height * channels;
 
 	if ((image = malloc(sizeof(struct jaImage) + size)) != NULL)
 	{
 		image->width = width;
 		image->height = height;
-		image->size = size;
+		image->channels = channels;
 		image->format = format;
+		image->size = size;
 		image->data = ((struct jaImage*)image + 1);
 	}
 
@@ -181,18 +182,13 @@ int jaImageExLoad(FILE* file, struct jaImageEx* out, struct jaStatus* st)
 
  jaBytesPerPixel()
 -----------------------------*/
-inline int jaBytesPerPixel(enum jaImageFormat format)
+inline int jaBytesPerPixel(const struct jaImage* image)
 {
-	switch (format)
+	switch (image->format)
 	{
-	case IMAGE_GRAY8: return 1;
-	case IMAGE_GRAYA8: return 2;
-	case IMAGE_RGB8: return 3;
-	case IMAGE_RGBA8: return 4;
-	case IMAGE_GRAY16: return 2;
-	case IMAGE_GRAYA16: return 4;
-	case IMAGE_RGB16: return 6;
-	case IMAGE_RGBA16: return 8;
+	case IMAGE_U8: return (1 * (int)image->channels);
+	case IMAGE_U16: return (2 * (int)image->channels);
+	case IMAGE_FLOAT: return (4 * (int)image->channels);
 	}
 
 	return 0;
@@ -207,36 +203,9 @@ inline int jaBitsPerComponent(enum jaImageFormat format)
 {
 	switch (format)
 	{
-	case IMAGE_GRAY8:
-	case IMAGE_GRAYA8:
-	case IMAGE_RGB8:
-	case IMAGE_RGBA8: return 8;
-	case IMAGE_GRAY16:
-	case IMAGE_GRAYA16:
-	case IMAGE_RGB16:
-	case IMAGE_RGBA16: return 16;
-	}
-
-	return 0;
-}
-
-
-/*-----------------------------
-
- jaImageChannels()
------------------------------*/
-inline int jaImageChannels(enum jaImageFormat format)
-{
-	switch (format)
-	{
-	case IMAGE_GRAY8:
-	case IMAGE_GRAY16: return 1;
-	case IMAGE_GRAYA8:
-	case IMAGE_GRAYA16: return 2;
-	case IMAGE_RGB8:
-	case IMAGE_RGB16: return 3;
-	case IMAGE_RGBA8:
-	case IMAGE_RGBA16: return 4;
+	case IMAGE_U8: return 8;
+	case IMAGE_U16: return 16;
+	case IMAGE_FLOAT: return 32;
 	}
 
 	return 0;

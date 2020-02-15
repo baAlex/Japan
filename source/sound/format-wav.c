@@ -110,7 +110,10 @@ static int WriteU8Pcm(FILE* file, const struct jaSound* sound)
 
 	for (org = sound->data; org < end; org++)
 	{
+		#pragma GCC diagnostic push
+		#pragma GCC diagnostic ignored "-Wconversion"
 		sample = *org + 0x80;
+		#pragma GCC diagnostic pop
 
 		if (fwrite(&sample, 1, 1, file) != 1)
 			return 1;

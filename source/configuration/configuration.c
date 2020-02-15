@@ -322,7 +322,7 @@ int jaCvarValueInt(const struct jaCvar* cvar, int* dest, struct jaStatus* st)
 	if (cvar->type == TYPE_INT)
 		*dest = cvar->value.i;
 	else if (cvar->type == TYPE_FLOAT)
-		*dest = (int)roundf(cvar->value.i);
+		*dest = (int)roundf(cvar->value.f);
 	else
 	{
 		jaStatusSet(st, "jaCvarValueInt", STATUS_ERROR, "Can't cast cvar '%s' into a string", cvar->item->key);

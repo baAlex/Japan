@@ -314,7 +314,11 @@ size_t jaSoundExRead(FILE* file, struct jaSoundEx ex, size_t size_to_read, void*
 				if (ex.unsigned_8bit == false)
 					break;
 
+				#pragma GCC diagnostic push
+				#pragma GCC diagnostic ignored "-Wconversion"
 				*dest.i8 = *dest.i8 + 0x80;
+				#pragma GCC diagnostic pop
+
 				dest.i8++;
 			}
 			else

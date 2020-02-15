@@ -28,6 +28,8 @@ extern void ConfigTest1(void** cmocka_state);
 extern void ConfigTest2_TokenizeFile(void** cmocka_state);
 extern void ConfigTest3_ParseFile(void** cmocka_state);
 
+extern void ImageTest1_Sgi(void** cmocka_state);
+
 
 int main()
 {
@@ -42,7 +44,9 @@ int main()
 
 		cmocka_unit_test(ConfigTest1),
 		cmocka_unit_test(ConfigTest2_TokenizeFile),
-		cmocka_unit_test(ConfigTest3_ParseFile)
+		cmocka_unit_test(ConfigTest3_ParseFile),
+
+		cmocka_unit_test(ImageTest1_Sgi)
 	};
 
 	return cmocka_run_group_tests(tests, NULL, NULL);

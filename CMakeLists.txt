@@ -39,8 +39,6 @@ add_library("japan" SHARED ${SOURCES})
 
 
 # Test suite
-# ----------
-
 find_package("cmocka")
 
 if (cmocka_FOUND)
@@ -48,6 +46,7 @@ if (cmocka_FOUND)
 	set(TEST_SUITE_SOURCES
 		"./tests/configurations.c"
 		"./tests/dictionaries.c"
+		"./tests/images.c"
 		"./tests/lists.c"
 		"./tests/test-suite.c")
 

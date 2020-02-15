@@ -101,6 +101,10 @@ void ConfigTest2_TokenizeFile(void** cmocka_state)
 -----------------------------*/
 void sTokenizerCallback(int line_no, struct jaTokenDelimiter delimiter, const char* token)
 {
+	(void)line_no;
+	(void)delimiter;
+	(void)token;
+
 	//printf("(b:%s%s%s) %04i: \"%s\"\n", (delimiter.ws) ? "ws" : "--", (delimiter.nl) ? "nl" : "--",
 	//       (delimiter.sc) ? "sc" : "--", line_no, token);
 }

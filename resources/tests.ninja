@@ -10,12 +10,14 @@ rule link
 
 build ./build/tests/configurations.o: compile ./tests/configurations.c
 build ./build/tests/dictionaries.o:   compile ./tests/dictionaries.c
+build ./build/tests/images.o:         compile ./tests/images.c
 build ./build/tests/lists.o:          compile ./tests/lists.c
 build ./build/tests/test-suite.o:     compile ./tests/test-suite.c
 
 build test-suite: link $
 ./build/tests/configurations.o $
 ./build/tests/dictionaries.o $
+./build/tests/images.o $
 ./build/tests/lists.o $
 ./build/tests/test-suite.o $
 ./libjapan-dbg.a
