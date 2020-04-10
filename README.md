@@ -1,9 +1,10 @@
-Japan
-=====
+LibJapan
+========
 [![Ubuntu CI](https://github.com/baAlex/Japan/workflows/Ubuntu/badge.svg)](https://github.com/baAlex/Japan/actions?query=workflow%3AUbuntu)
 [![Windows CI](https://github.com/baAlex/Japan/workflows/Windows/badge.svg)](https://github.com/baAlex/Japan/actions?query=workflow%3AWindows)
 
 Personal C library.
+
 
 License
 -------

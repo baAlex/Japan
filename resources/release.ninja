@@ -1,44 +1,44 @@
 
 cflags = -O3 -mtune=generic -fvisibility=hidden -DJA_EXPORT_SYMBOLS -I./include
 
-rule compile_so
+rule CompileSO
  command = clang $cflags -c $in -o $out -fpic
 
-rule compile_a
+rule CompileA
  command = clang $cflags -c $in -o $out
 
-rule link
+rule Link
  command = clang -lm -shared $in -o $out
 
-rule pack
+rule Pack
  command = ar rcs $out $in
 
 
 # Shared library
-build ./build/release/so/aabounding.o: compile_so ./source/aabounding.c
-build ./build/release/so/buffer.o:     compile_so ./source/buffer.c
-build ./build/release/so/dictionary.o: compile_so ./source/dictionary.c
-build ./build/release/so/endianness.o: compile_so ./source/endianness.c
-build ./build/release/so/list.o:       compile_so ./source/list.c
-build ./build/release/so/matrix.o:     compile_so ./source/matrix.c
-build ./build/release/so/status.o:     compile_so ./source/status.c
-build ./build/release/so/tree.o:       compile_so ./source/tree.c
-build ./build/release/so/utilities.o:  compile_so ./source/utilities.c
-build ./build/release/so/vector.o:     compile_so ./source/vector.c
+build ./build/release/so/aabounding.o: CompileSO ./source/aabounding.c
+build ./build/release/so/buffer.o:     CompileSO ./source/buffer.c
+build ./build/release/so/dictionary.o: CompileSO ./source/dictionary.c
+build ./build/release/so/endianness.o: CompileSO ./source/endianness.c
+build ./build/release/so/list.o:       CompileSO ./source/list.c
+build ./build/release/so/matrix.o:     CompileSO ./source/matrix.c
+build ./build/release/so/status.o:     CompileSO ./source/status.c
+build ./build/release/so/tree.o:       CompileSO ./source/tree.c
+build ./build/release/so/utilities.o:  CompileSO ./source/utilities.c
+build ./build/release/so/vector.o:     CompileSO ./source/vector.c
 
-build ./build/release/so/configuration/arguments.o:     compile_so ./source/configuration/arguments.c
-build ./build/release/so/configuration/configuration.o: compile_so ./source/configuration/configuration.c
-build ./build/release/so/configuration/file.o:          compile_so ./source/configuration/file.c
+build ./build/release/so/configuration/arguments.o:     CompileSO ./source/configuration/arguments.c
+build ./build/release/so/configuration/configuration.o: CompileSO ./source/configuration/configuration.c
+build ./build/release/so/configuration/file.o:          CompileSO ./source/configuration/file.c
 
-build ./build/release/so/image/format-sgi.o: compile_so ./source/image/format-sgi.c
-build ./build/release/so/image/image.o:      compile_so ./source/image/image.c
+build ./build/release/so/image/format-sgi.o: CompileSO ./source/image/format-sgi.c
+build ./build/release/so/image/image.o:      CompileSO ./source/image/image.c
 
-build ./build/release/so/sound/format-au.o:  compile_so ./source/sound/format-au.c
-build ./build/release/so/sound/format-wav.o: compile_so ./source/sound/format-wav.c
-build ./build/release/so/sound/laws.o:       compile_so ./source/sound/laws.c
-build ./build/release/so/sound/sound.o:      compile_so ./source/sound/sound.c
+build ./build/release/so/sound/format-au.o:  CompileSO ./source/sound/format-au.c
+build ./build/release/so/sound/format-wav.o: CompileSO ./source/sound/format-wav.c
+build ./build/release/so/sound/laws.o:       CompileSO ./source/sound/laws.c
+build ./build/release/so/sound/sound.o:      CompileSO ./source/sound/sound.c
 
-build libjapan.so: link $
+build libjapan.so: Link $
 ./build/release/so/aabounding.o $
 ./build/release/so/buffer.o $
 ./build/release/so/dictionary.o $
@@ -61,30 +61,30 @@ build libjapan.so: link $
 
 
 # Static library
-build ./build/release/a/aabounding.o: compile_a ./source/aabounding.c
-build ./build/release/a/buffer.o:     compile_a ./source/buffer.c
-build ./build/release/a/dictionary.o: compile_a ./source/dictionary.c
-build ./build/release/a/endianness.o: compile_a ./source/endianness.c
-build ./build/release/a/list.o:       compile_a ./source/list.c
-build ./build/release/a/matrix.o:     compile_a ./source/matrix.c
-build ./build/release/a/status.o:     compile_a ./source/status.c
-build ./build/release/a/tree.o:       compile_a ./source/tree.c
-build ./build/release/a/utilities.o:  compile_a ./source/utilities.c
-build ./build/release/a/vector.o:     compile_a ./source/vector.c
+build ./build/release/a/aabounding.o: CompileA ./source/aabounding.c
+build ./build/release/a/buffer.o:     CompileA ./source/buffer.c
+build ./build/release/a/dictionary.o: CompileA ./source/dictionary.c
+build ./build/release/a/endianness.o: CompileA ./source/endianness.c
+build ./build/release/a/list.o:       CompileA ./source/list.c
+build ./build/release/a/matrix.o:     CompileA ./source/matrix.c
+build ./build/release/a/status.o:     CompileA ./source/status.c
+build ./build/release/a/tree.o:       CompileA ./source/tree.c
+build ./build/release/a/utilities.o:  CompileA ./source/utilities.c
+build ./build/release/a/vector.o:     CompileA ./source/vector.c
 
-build ./build/release/a/configuration/arguments.o:     compile_a ./source/configuration/arguments.c
-build ./build/release/a/configuration/configuration.o: compile_a ./source/configuration/configuration.c
-build ./build/release/a/configuration/file.o:          compile_a ./source/configuration/file.c
+build ./build/release/a/configuration/arguments.o:     CompileA ./source/configuration/arguments.c
+build ./build/release/a/configuration/configuration.o: CompileA ./source/configuration/configuration.c
+build ./build/release/a/configuration/file.o:          CompileA ./source/configuration/file.c
 
-build ./build/release/a/image/format-sgi.o: compile_a ./source/image/format-sgi.c
-build ./build/release/a/image/image.o:      compile_a ./source/image/image.c
+build ./build/release/a/image/format-sgi.o: CompileA ./source/image/format-sgi.c
+build ./build/release/a/image/image.o:      CompileA ./source/image/image.c
 
-build ./build/release/a/sound/format-au.o:  compile_a ./source/sound/format-au.c
-build ./build/release/a/sound/format-wav.o: compile_a ./source/sound/format-wav.c
-build ./build/release/a/sound/laws.o:       compile_a ./source/sound/laws.c
-build ./build/release/a/sound/sound.o:      compile_a ./source/sound/sound.c
+build ./build/release/a/sound/format-au.o:  CompileA ./source/sound/format-au.c
+build ./build/release/a/sound/format-wav.o: CompileA ./source/sound/format-wav.c
+build ./build/release/a/sound/laws.o:       CompileA ./source/sound/laws.c
+build ./build/release/a/sound/sound.o:      CompileA ./source/sound/sound.c
 
-build libjapan.a: pack $
+build libjapan.a: Pack $
 ./build/release/a/aabounding.o $
 ./build/release/a/buffer.o $
 ./build/release/a/dictionary.o $
