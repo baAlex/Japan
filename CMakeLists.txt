@@ -39,9 +39,9 @@ add_library("japan" SHARED ${SOURCES})
 
 
 # Test suite
-find_package("cmocka")
+find_package(cmocka)
 
-if (cmocka_FOUND)
+if (CMOCKA_FOUND)
 
 	set(TEST_SUITE_SOURCES
 		"./tests/configurations.c"
@@ -51,8 +51,13 @@ if (cmocka_FOUND)
 		"./tests/test-suite.c")
 
 	add_executable("test-suite" ${TEST_SUITE_SOURCES})
-	target_link_libraries("test-suite" "japan-static")
-	target_link_libraries("test-suite" "cmocka")
-	target_link_libraries("test-suite" "m")
+	include_directories(${CMOCKA_INCLUDE_DIR})
 
-endif (cmocka_FOUND)
+	target_link_libraries("test-suite" "japan-static")
+	target_link_libraries("test-suite" ${CMOCKA_LIBRARIES})
+
+	if (NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
+		target_link_libraries("test-suite" "m")
+	endif()
+
+endif (CMOCKA_FOUND)
