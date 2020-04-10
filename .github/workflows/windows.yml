@@ -11,7 +11,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        vcpkg install cmocka
+        vcpkg install cmocka:x64-windows
 
     - name: Compile release build
       shell: cmd
@@ -19,7 +19,7 @@ jobs:
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
         mkdir build-release
         cd build-release
-        cmake .. "-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake"
+        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake ..
         cmake --build .
 
     - name: Compile debug build
