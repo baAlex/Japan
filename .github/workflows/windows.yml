@@ -19,7 +19,7 @@ jobs:
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
         mkdir build-release
         cd build-release
-        cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ..
+        cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ..
         nmake
 
     - name: Compile debug build
@@ -28,5 +28,5 @@ jobs:
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
         mkdir build-debug
         cd build-debug
-        cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Debug ..
+        cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ..
         nmake
