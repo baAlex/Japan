@@ -41,7 +41,7 @@ add_library("japan" SHARED ${SOURCES})
 # Test suite
 find_package(cmocka)
 
-if (CMOCKA_FOUND)
+if (cmocka_FOUND)
 
 	set(TEST_SUITE_SOURCES
 		"./tests/configurations.c"
@@ -60,4 +60,4 @@ if (CMOCKA_FOUND)
 		target_link_libraries("test-suite" "m")
 	endif()
 
-endif (CMOCKA_FOUND)
+endif (cmocka_FOUND)
