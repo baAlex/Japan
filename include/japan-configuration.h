@@ -4,31 +4,31 @@
  - Alexander Brandt 2019-2020
 -----------------------------*/
 
+#ifndef JAPAN_CONFIGURATION_H
+#define JAPAN_CONFIGURATION_H
+
 #ifndef JAPAN_VERSION
-#define JAPAN_VERSION "0.2.3"
-#define JAPAN_VERSION_MAJOR 0
-#define JAPAN_VERSION_MINOR 2
-#define JAPAN_VERSION_PATCH 3
+	#define JAPAN_VERSION "0.2.3"
+	#define JAPAN_VERSION_MAJOR 0
+	#define JAPAN_VERSION_MINOR 2
+	#define JAPAN_VERSION_PATCH 3
 #endif
 
 #ifdef JA_EXPORT_SYMBOLS
-#if defined(__clang__) || defined(__GNUC__)
-#define JA_EXPORT __attribute__((visibility("default")))
-#elif defined(_MSC_VER)
-#define JA_EXPORT __declspec(dllexport)
-#endif
+	#if defined(__clang__) || defined(__GNUC__)
+	#define JA_EXPORT __attribute__((visibility("default")))
+	#elif defined(_MSC_VER)
+	#define JA_EXPORT __declspec(dllexport)
+	#endif
 #else
-#define JA_EXPORT // Whitespace
+	#define JA_EXPORT // Whitespace
 #endif
 
-
-#ifndef JA_CONFIGURATION_H
-#define JA_CONFIGURATION_H
-
-#include "japan-status.h"
 #include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
+
+#include "japan-status.h"
 
 enum jaArgumentsFlags
 {

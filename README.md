@@ -2,6 +2,7 @@ LibJapan
 ========
 [![Ubuntu CI](https://github.com/baAlex/Japan/workflows/Ubuntu/badge.svg)](https://github.com/baAlex/Japan/actions?query=workflow%3AUbuntu)
 [![Windows CI](https://github.com/baAlex/Japan/workflows/Windows/badge.svg)](https://github.com/baAlex/Japan/actions?query=workflow%3AWindows)
+[![Code quality](https://img.shields.io/lgtm/grade/cpp/g/baAlex/libjapan.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/baAlex/libjapan/context:cpp)
 
 Personal C library.
 

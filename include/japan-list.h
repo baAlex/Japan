@@ -4,11 +4,14 @@
  - Alexander Brandt 2019-2020
 -----------------------------*/
 
+#ifndef JAPAN_LIST_H
+#define JAPAN_LIST_H
+
 #ifndef JAPAN_VERSION
-#define JAPAN_VERSION "0.2.3"
-#define JAPAN_VERSION_MAJOR 0
-#define JAPAN_VERSION_MINOR 2
-#define JAPAN_VERSION_PATCH 3
+	#define JAPAN_VERSION "0.2.3"
+	#define JAPAN_VERSION_MAJOR 0
+	#define JAPAN_VERSION_MINOR 2
+	#define JAPAN_VERSION_PATCH 3
 #endif
 
 #ifdef JA_EXPORT_SYMBOLS
@@ -20,10 +23,6 @@
 #else
 	#define JA_EXPORT // Whitespace
 #endif
-
-
-#ifndef JA_LIST_H
-#define JA_LIST_H
 
 #include <stddef.h>
 #include <stdbool.h>
