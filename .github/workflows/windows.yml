@@ -33,4 +33,6 @@ jobs:
 
     - name: Run test suite
       run: |
-        .\build-debug\test-suite.exe
+        cd build-debug
+        cd Debug
+        test-suite.exe
