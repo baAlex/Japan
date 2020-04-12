@@ -34,11 +34,11 @@ void ConfigTest1(void** cmocka_state)
 	// Create a configuration
 	struct jaConfiguration* cfg = jaConfigurationCreate();
 
-	jaCvarCreate(cfg, "render.width", 640, 0, INT_MAX, NULL);
-	jaCvarCreate(cfg, "sound.volume", 0.8f, 0.0f, 1.0f, NULL);
-	jaCvarCreate(cfg, "render.height", 320, 0, INT_MAX, NULL);
-	jaCvarCreate(cfg, "name", "Ranger", NULL, NULL, NULL);
-	jaCvarCreate(cfg, "render.fullscreen", 0, 0, 1, NULL);
+	jaCvarCreateInt(cfg, "render.width", 640, 0, INT_MAX, NULL);
+	jaCvarCreateFloat(cfg, "sound.volume", 0.8f, 0.0f, 1.0f, NULL);
+	jaCvarCreateInt(cfg, "render.height", 320, 0, INT_MAX, NULL);
+	jaCvarCreateString(cfg, "name", "Ranger", NULL, NULL, NULL);
+	jaCvarCreateInt(cfg, "render.fullscreen", 0, 0, 1, NULL);
 
 	// Read arguments, that includes whitespaces, out
 	// of range and incorrecty typed values
