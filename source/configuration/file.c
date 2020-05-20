@@ -117,7 +117,7 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 		{
 			if (jaBufferResize(buffer, (cursor + 1)) == NULL)
 			{
-				jaStatusSet(st, "jaConfigurationFile", STATUS_MEMORY_ERROR, NULL);
+				jaStatusSet(st, "jaConfigurationFile", JA_STATUS_MEMORY_ERROR, NULL);
 				return 1;
 			}
 
@@ -132,7 +132,7 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 				break;
 			}
 
-			jaStatusSet(st, "jaConfigurationFile", STATUS_UNEXPECTED_EOF, NULL);
+			jaStatusSet(st, "jaConfigurationFile", JA_STATUS_UNEXPECTED_EOF, NULL);
 			return 1;
 		}
 
@@ -222,7 +222,7 @@ static int sTokenize(FILE* fp, struct jaBuffer* buffer, struct TokenizerState* s
 
 			if (state->in_literal == true) // TODO?
 			{
-				jaStatusSet(st, "jaConfigurationFile", STATUS_UNSUPPORTED_FEATURE,
+				jaStatusSet(st, "jaConfigurationFile", JA_STATUS_UNSUPPORTED_FEATURE,
 				            "(Line %i) Multi-line literals unsupported", state->line_number + 1);
 				return 1;
 			}
@@ -287,7 +287,7 @@ static void sParse(const struct TokenizerState* tknzr, struct jaConfiguration* c
 			if ((state->item_found = jaDictionaryGet((struct jaDictionary*)config, tknzr->token)) == NULL)
 			{
 				if (warnings_callback != NULL)
-					warnings_callback(STATUS_EXPECTED_KEY_TOKEN, tknzr->line_number + 1, tknzr->token, NULL);
+					warnings_callback(JA_STATUS_EXPECTED_KEY_TOKEN, tknzr->line_number + 1, tknzr->token, NULL);
 
 				state->buguous_statement = true;
 			}
@@ -302,7 +302,7 @@ static void sParse(const struct TokenizerState* tknzr, struct jaConfiguration* c
 				else
 				{
 					if (warnings_callback != NULL)
-						warnings_callback(STATUS_EXPECTED_EQUAL_TOKEN, tknzr->line_number + 1, tknzr->token,
+						warnings_callback(JA_STATUS_EXPECTED_EQUAL_TOKEN, tknzr->line_number + 1, tknzr->token,
 						                  state->item_found->key);
 
 					state->buguous_statement = true; // As above
@@ -316,7 +316,7 @@ static void sParse(const struct TokenizerState* tknzr, struct jaConfiguration* c
 				if (tknzr->break_by.sc != true && tknzr->break_by.nl != true)
 				{
 					if (warnings_callback != NULL)
-						warnings_callback(STATUS_STATEMENT_OPEN, tknzr->line_number + 1, tknzr->token,
+						warnings_callback(JA_STATUS_STATEMENT_OPEN, tknzr->line_number + 1, tknzr->token,
 						                  state->item_found->key);
 
 					state->buguous_statement = true;
@@ -325,7 +325,7 @@ static void sParse(const struct TokenizerState* tknzr, struct jaConfiguration* c
 				{
 					code = Store(state->item_found->data, tknzr->token, SET_BY_FILE);
 
-					if (code != STATUS_SUCCESS)
+					if (code != JA_STATUS_SUCCESS)
 					{
 						if (warnings_callback != NULL)
 							warnings_callback(code, tknzr->line_number + 1, tknzr->token, state->item_found->key);
@@ -347,7 +347,7 @@ static void sParse(const struct TokenizerState* tknzr, struct jaConfiguration* c
 		if (state->buguous_statement == false && (state->item_found != NULL))
 		{
 			if (warnings_callback != NULL)
-				warnings_callback(STATUS_NO_ASSIGNMENT, tknzr->line_number + 1, tknzr->token, state->item_found->key);
+				warnings_callback(JA_STATUS_NO_ASSIGNMENT, tknzr->line_number + 1, tknzr->token, state->item_found->key);
 		}
 
 		// Set
@@ -369,11 +369,11 @@ int jaConfigurationFile(struct jaConfiguration* config, const char* filename, st
 
 	if ((fp = fopen(filename, "rb")) == NULL)
 	{
-		jaStatusSet(st, "jaConfigurationFile", STATUS_IO_ERROR, NULL);
+		jaStatusSet(st, "jaConfigurationFile", JA_STATUS_IO_ERROR, NULL);
 		return 1;
 	}
 
-	ret_value = jaConfigurationFileEx(config, fp, FILE_DEFAULT, NULL, NULL, st);
+	ret_value = jaConfigurationFileEx(config, fp, JA_FILE_DEFAULT, NULL, NULL, st);
 	fclose(fp);
 
 	return ret_value;
@@ -388,7 +388,7 @@ int jaConfigurationFileEx(struct jaConfiguration* config, FILE* fp, enum jaFileF
 	struct TokenizerState tknzr = {0};
 	struct ParserState prsr = {0};
 
-	jaStatusSet(st, "jaConfigurationFile", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaConfigurationFile", JA_STATUS_SUCCESS, NULL);
 
 	while (1)
 	{
@@ -398,7 +398,7 @@ int jaConfigurationFileEx(struct jaConfiguration* config, FILE* fp, enum jaFileF
 		if (tokenizer_callback != NULL)
 			tokenizer_callback(tknzr.line_number + 1, tknzr.break_by, tknzr.token);
 
-		if (flags != FILE_TOKENIZE_ONLY)
+		if (flags != JA_FILE_TOKENIZE_ONLY)
 			sParse(&tknzr, config, &prsr, warnings_callback);
 
 		// Token is the last one

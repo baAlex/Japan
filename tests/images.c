@@ -1,7 +1,7 @@
 /*-----------------------------
 
  [images.c]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 -----------------------------*/
 
 #include <math.h>
@@ -77,15 +77,15 @@ void ImageTest1_Sgi(void** cmocka_state)
 {
 	(void)cmocka_state;
 
-	uint64_t hash = Validate("./tests/akabeko-gray8.sgi", 360, 240, 1, IMAGE_U8);
-	assert_true((Validate("./tests/akabeko-gray8-rle.sgi", 360, 240, 1, IMAGE_U8) == hash));
+	uint64_t hash = Validate("./tests/akabeko-gray8.sgi", 360, 240, 1, JA_IMAGE_U8);
+	assert_true((Validate("./tests/akabeko-gray8-rle.sgi", 360, 240, 1, JA_IMAGE_U8) == hash));
 
-	hash = Validate("./tests/akabeko-graya8.sgi", 360, 240, 2, IMAGE_U8);
-	assert_true((Validate("./tests/akabeko-graya8-rle.sgi", 360, 240, 2, IMAGE_U8) == hash));
+	hash = Validate("./tests/akabeko-graya8.sgi", 360, 240, 2, JA_IMAGE_U8);
+	assert_true((Validate("./tests/akabeko-graya8-rle.sgi", 360, 240, 2, JA_IMAGE_U8) == hash));
 
-	hash = Validate("./tests/akabeko-rgb8.sgi", 360, 240, 3, IMAGE_U8);
-	assert_true((Validate("./tests/akabeko-rgb8-rle.sgi", 360, 240, 3, IMAGE_U8) == hash));
+	hash = Validate("./tests/akabeko-rgb8.sgi", 360, 240, 3, JA_IMAGE_U8);
+	assert_true((Validate("./tests/akabeko-rgb8-rle.sgi", 360, 240, 3, JA_IMAGE_U8) == hash));
 
-	hash = Validate("./tests/akabeko-rgba8.sgi", 360, 240, 4, IMAGE_U8);
-	assert_true((Validate("./tests/akabeko-rgba8-rle.sgi", 360, 240, 4, IMAGE_U8) == hash));
+	hash = Validate("./tests/akabeko-rgba8.sgi", 360, 240, 4, JA_IMAGE_U8);
+	assert_true((Validate("./tests/akabeko-rgba8-rle.sgi", 360, 240, 4, JA_IMAGE_U8) == hash));
 }

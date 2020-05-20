@@ -25,7 +25,7 @@ SOFTWARE.
 -------------------------------
 
  [format-au.c]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 
  http://pubs.opengroup.org/external/auformat.html
 -----------------------------*/
@@ -66,7 +66,7 @@ struct AuHead
 -----------------------------*/
 bool CheckMagicAu(uint32_t value)
 {
-	if (jaEndianToU32(value, ENDIAN_BIG, ENDIAN_SYSTEM) == AU_MAGIC)
+	if (jaEndianToU32(value, JA_ENDIAN_BIG, JA_ENDIAN_SYSTEM) == AU_MAGIC)
 		return true;
 
 	return false;
@@ -82,19 +82,19 @@ int SoundExLoadAu(FILE* file, struct jaSoundEx* out, struct jaStatus* st)
 	struct AuHead head;
 	enum jaEndianness sys_endianness = jaEndianSystem();
 
-	jaStatusSet(st, "SoundExLoadAu", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "SoundExLoadAu", JA_STATUS_SUCCESS, NULL);
 
 	if (fread(&head, sizeof(struct AuHead), 1, file) != 1)
 	{
-		jaStatusSet(st, "SoundExLoadAu", STATUS_UNEXPECTED_EOF, "head");
+		jaStatusSet(st, "SoundExLoadAu", JA_STATUS_UNEXPECTED_EOF, "head");
 		return 1;
 	}
 
-	out->frequency = (size_t)jaEndianToU32(head.frequency, ENDIAN_BIG, sys_endianness);
-	out->channels = (size_t)jaEndianToU32(head.channels, ENDIAN_BIG, sys_endianness);
-	out->uncompressed_size = (size_t)jaEndianToU32(head.data_size, ENDIAN_BIG, sys_endianness);
-	out->endianness = ENDIAN_BIG;
-	out->data_offset = (size_t)jaEndianToU32(head.data_offset, ENDIAN_BIG, sys_endianness);
+	out->frequency = (size_t)jaEndianToU32(head.frequency, JA_ENDIAN_BIG, sys_endianness);
+	out->channels = (size_t)jaEndianToU32(head.channels, JA_ENDIAN_BIG, sys_endianness);
+	out->uncompressed_size = (size_t)jaEndianToU32(head.data_size, JA_ENDIAN_BIG, sys_endianness);
+	out->endianness = JA_ENDIAN_BIG;
+	out->data_offset = (size_t)jaEndianToU32(head.data_offset, JA_ENDIAN_BIG, sys_endianness);
 	out->unsigned_8bit = false;
 	out->unspecified_size = false;
 
@@ -116,54 +116,54 @@ int SoundExLoadAu(FILE* file, struct jaSoundEx* out, struct jaStatus* st)
 		out->unspecified_size = true;
 	}
 
-	switch (jaEndianToU32(head.format, ENDIAN_BIG, sys_endianness))
+	switch (jaEndianToU32(head.format, JA_ENDIAN_BIG, sys_endianness))
 	{
 	case AU_PCM8:
 		out->length = out->uncompressed_size / out->channels;
-		out->format = SOUND_I8;
-		out->storage = SOUND_UNCOMPRESSED;
+		out->format = JA_SOUND_I8;
+		out->storage = JA_SOUND_UNCOMPRESSED;
 		out->minimum_unit_size = sizeof(int8_t);
 		break;
 	case AU_PCM16:
 		out->length = out->uncompressed_size / sizeof(int16_t) / out->channels;
-		out->format = SOUND_I16;
-		out->storage = SOUND_UNCOMPRESSED;
+		out->format = JA_SOUND_I16;
+		out->storage = JA_SOUND_UNCOMPRESSED;
 		out->minimum_unit_size = sizeof(int16_t);
 		break;
 	case AU_PCM32:
 		out->length = out->uncompressed_size / sizeof(int32_t) / out->channels;
-		out->format = SOUND_I32;
-		out->storage = SOUND_UNCOMPRESSED;
+		out->format = JA_SOUND_I32;
+		out->storage = JA_SOUND_UNCOMPRESSED;
 		out->minimum_unit_size = sizeof(int32_t);
 		break;
 	case AU_FLOAT:
 		out->length = out->uncompressed_size / sizeof(float) / out->channels;
-		out->format = SOUND_F32;
-		out->storage = SOUND_UNCOMPRESSED;
+		out->format = JA_SOUND_F32;
+		out->storage = JA_SOUND_UNCOMPRESSED;
 		out->minimum_unit_size = sizeof(float);
 		break;
 	case AU_DOUBLE:
 		out->length = out->uncompressed_size / sizeof(double) / out->channels;
-		out->format = SOUND_F64;
-		out->storage = SOUND_UNCOMPRESSED;
+		out->format = JA_SOUND_F64;
+		out->storage = JA_SOUND_UNCOMPRESSED;
 		out->minimum_unit_size = sizeof(double);
 		break;
 	case AU_ULAW:
 		out->length = out->uncompressed_size / out->channels;
-		out->format = SOUND_I16;
-		out->storage = SOUND_ULAW;
+		out->format = JA_SOUND_I16;
+		out->storage = JA_SOUND_ULAW;
 		out->minimum_unit_size = sizeof(int16_t);
 		out->uncompressed_size = out->uncompressed_size * 2;
 		break;
 	case AU_ALAW:
 		out->length = out->uncompressed_size / out->channels;
-		out->format = SOUND_I16;
-		out->storage = SOUND_ALAW;
+		out->format = JA_SOUND_I16;
+		out->storage = JA_SOUND_ALAW;
 		out->minimum_unit_size = sizeof(int16_t);
 		out->uncompressed_size = out->uncompressed_size * 2;
 		break;
 
-	default: jaStatusSet(st, "SoundExLoadAu", STATUS_UNKNOWN_DATA_FORMAT, NULL); return 1;
+	default: jaStatusSet(st, "SoundExLoadAu", JA_STATUS_UNKNOWN_DATA_FORMAT, NULL); return 1;
 	}
 
 	return 0;
@@ -180,46 +180,46 @@ int jaSoundSaveAu(const struct jaSound* sound, const char* filename, struct jaSt
 	FILE* file = NULL;
 	enum jaEndianness sys_endianness = jaEndianSystem();
 
-	jaStatusSet(st, "jaSoundSaveAu", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaSoundSaveAu", JA_STATUS_SUCCESS, NULL);
 
 	if (sound->channels > UINT32_MAX || sound->frequency > UINT32_MAX || sound->size > UINT32_MAX)
 	{
-		jaStatusSet(st, "jaSoundSaveAu", STATUS_UNSUPPORTED_FEATURE, "format ('%s')", filename);
+		jaStatusSet(st, "jaSoundSaveAu", JA_STATUS_UNSUPPORTED_FEATURE, "format ('%s')", filename);
 		return 1;
 	}
 
 	if ((file = fopen(filename, "wb")) == NULL)
 	{
-		jaStatusSet(st, "jaSoundSaveAu", STATUS_FS_ERROR, "'%s'", filename);
+		jaStatusSet(st, "jaSoundSaveAu", JA_STATUS_FS_ERROR, "'%s'", filename);
 		return 1;
 	}
 
 	// Head
-	head.magic = jaEndianToU32(AU_MAGIC, sys_endianness, ENDIAN_BIG);
-	head.data_offset = jaEndianToU32((uint32_t)sizeof(struct AuHead), sys_endianness, ENDIAN_BIG);
-	head.data_size = jaEndianToU32((uint32_t)sound->size, sys_endianness, ENDIAN_BIG);
-	head.frequency = jaEndianToU32((uint32_t)sound->frequency, sys_endianness, ENDIAN_BIG);
-	head.channels = jaEndianToU32((uint32_t)sound->channels, sys_endianness, ENDIAN_BIG);
+	head.magic = jaEndianToU32(AU_MAGIC, sys_endianness, JA_ENDIAN_BIG);
+	head.data_offset = jaEndianToU32((uint32_t)sizeof(struct AuHead), sys_endianness, JA_ENDIAN_BIG);
+	head.data_size = jaEndianToU32((uint32_t)sound->size, sys_endianness, JA_ENDIAN_BIG);
+	head.frequency = jaEndianToU32((uint32_t)sound->frequency, sys_endianness, JA_ENDIAN_BIG);
+	head.channels = jaEndianToU32((uint32_t)sound->channels, sys_endianness, JA_ENDIAN_BIG);
 
 	switch (sound->format)
 	{
-	case SOUND_I8: head.format = jaEndianToU32(AU_PCM8, sys_endianness, ENDIAN_BIG); break;
-	case SOUND_I16: head.format = jaEndianToU32(AU_PCM16, sys_endianness, ENDIAN_BIG); break;
-	case SOUND_I32: head.format = jaEndianToU32(AU_PCM32, sys_endianness, ENDIAN_BIG); break;
-	case SOUND_F32: head.format = jaEndianToU32(AU_FLOAT, sys_endianness, ENDIAN_BIG); break;
-	case SOUND_F64: head.format = jaEndianToU32(AU_DOUBLE, sys_endianness, ENDIAN_BIG); break;
+	case JA_SOUND_I8: head.format = jaEndianToU32(AU_PCM8, sys_endianness, JA_ENDIAN_BIG); break;
+	case JA_SOUND_I16: head.format = jaEndianToU32(AU_PCM16, sys_endianness, JA_ENDIAN_BIG); break;
+	case JA_SOUND_I32: head.format = jaEndianToU32(AU_PCM32, sys_endianness, JA_ENDIAN_BIG); break;
+	case JA_SOUND_F32: head.format = jaEndianToU32(AU_FLOAT, sys_endianness, JA_ENDIAN_BIG); break;
+	case JA_SOUND_F64: head.format = jaEndianToU32(AU_DOUBLE, sys_endianness, JA_ENDIAN_BIG); break;
 	}
 
 	if (fwrite(&head, sizeof(struct AuHead), 1, file) != 1)
 	{
-		jaStatusSet(st, "jaSoundSaveAu", STATUS_IO_ERROR, "head ('%s')", filename);
+		jaStatusSet(st, "jaSoundSaveAu", JA_STATUS_IO_ERROR, "head ('%s')", filename);
 		goto return_failure;
 	}
 
 	// Data
-	if (WritePcm(file, sound, ENDIAN_BIG) != 0)
+	if (WritePcm(file, sound, JA_ENDIAN_BIG) != 0)
 	{
-		jaStatusSet(st, "jaSoundSaveAu", STATUS_IO_ERROR, "data ('%s')", filename);
+		jaStatusSet(st, "jaSoundSaveAu", JA_STATUS_IO_ERROR, "data ('%s')", filename);
 		goto return_failure;
 	}
 

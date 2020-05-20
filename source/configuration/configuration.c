@@ -169,23 +169,23 @@ enum jaStatusCode Store(struct jaCvar* cvar, const char* to_store, enum SetBy by
 	if (cvar->type == TYPE_INT)
 	{
 		if (sStoreInt(&cvar->value.i, to_store, cvar->min.i, cvar->max.i, &changes) != 0)
-			return STATUS_INTEGER_CAST_ERROR;
+			return JA_STATUS_INTEGER_CAST_ERROR;
 	}
 	else if (cvar->type == TYPE_FLOAT)
 	{
 		if (sStoreFloat(&cvar->value.f, to_store, cvar->min.f, cvar->max.f, &changes) != 0)
-			return STATUS_DECIMAL_CAST_ERROR;
+			return JA_STATUS_DECIMAL_CAST_ERROR;
 	}
 	else if (cvar->type == TYPE_STRING)
 	{
 		if (sStoreString(&cvar->value.s, to_store, &changes) != 0)
-			return STATUS_MEMORY_ERROR;
+			return JA_STATUS_MEMORY_ERROR;
 	}
 
 	if (changes == true)
 		cvar->set_by = by;
 
-	return STATUS_SUCCESS;
+	return JA_STATUS_SUCCESS;
 }
 
 
@@ -236,17 +236,17 @@ static struct jaCvar* sCreate(struct jaConfiguration* config, const char* key, e
 	struct jaDictionaryItem* item = NULL;
 	struct jaCvar* cvar = NULL;
 
-	jaStatusSet(st, "jaCvarCreate", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaCvarCreate", JA_STATUS_SUCCESS, NULL);
 
 	if (ValidateKey(key, strlen(key)) != 0)
 	{
-		jaStatusSet(st, "jaCvarCreate", STATUS_INVALID_ARGUMENT, "Invalid key");
+		jaStatusSet(st, "jaCvarCreate", JA_STATUS_INVALID_ARGUMENT, "Invalid key");
 		return NULL;
 	}
 
 	if ((item = jaDictionaryAdd((struct jaDictionary*)config, key, NULL, sizeof(struct jaCvar))) == NULL)
 	{
-		jaStatusSet(st, "jaCvarCreate", STATUS_MEMORY_ERROR, NULL);
+		jaStatusSet(st, "jaCvarCreate", JA_STATUS_MEMORY_ERROR, NULL);
 		return NULL;
 	}
 
@@ -311,11 +311,11 @@ struct jaCvar* jaCvarCreateString(struct jaConfiguration* config, const char* ke
 -----------------------------*/
 int jaCvarValueInt(const struct jaCvar* cvar, int* dest, struct jaStatus* st)
 {
-	jaStatusSet(st, "jaCvarValueInt", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaCvarValueInt", JA_STATUS_SUCCESS, NULL);
 
 	if (cvar == NULL)
 	{
-		jaStatusSet(st, "jaCvarValueInt", STATUS_INVALID_ARGUMENT, NULL);
+		jaStatusSet(st, "jaCvarValueInt", JA_STATUS_INVALID_ARGUMENT, NULL);
 		return 1;
 	}
 
@@ -325,7 +325,7 @@ int jaCvarValueInt(const struct jaCvar* cvar, int* dest, struct jaStatus* st)
 		*dest = (int)roundf(cvar->value.f);
 	else
 	{
-		jaStatusSet(st, "jaCvarValueInt", STATUS_ERROR, "Can't cast cvar '%s' into a string", cvar->item->key);
+		jaStatusSet(st, "jaCvarValueInt", JA_STATUS_ERROR, "Can't cast cvar '%s' into a string", cvar->item->key);
 		return 1;
 	}
 
@@ -334,11 +334,11 @@ int jaCvarValueInt(const struct jaCvar* cvar, int* dest, struct jaStatus* st)
 
 int jaCvarValueFloat(const struct jaCvar* cvar, float* dest, struct jaStatus* st)
 {
-	jaStatusSet(st, "jaCvarValueFloat", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaCvarValueFloat", JA_STATUS_SUCCESS, NULL);
 
 	if (cvar == NULL)
 	{
-		jaStatusSet(st, "jaCvarValueFloat", STATUS_INVALID_ARGUMENT, NULL);
+		jaStatusSet(st, "jaCvarValueFloat", JA_STATUS_INVALID_ARGUMENT, NULL);
 		return 1;
 	}
 
@@ -348,7 +348,7 @@ int jaCvarValueFloat(const struct jaCvar* cvar, float* dest, struct jaStatus* st
 		*dest = (float)cvar->value.i;
 	else
 	{
-		jaStatusSet(st, "jaCvarValueFloat", STATUS_ERROR, "Can't cast cvar '%s' into a string", cvar->item->key);
+		jaStatusSet(st, "jaCvarValueFloat", JA_STATUS_ERROR, "Can't cast cvar '%s' into a string", cvar->item->key);
 		return 1;
 	}
 
@@ -357,17 +357,17 @@ int jaCvarValueFloat(const struct jaCvar* cvar, float* dest, struct jaStatus* st
 
 int jaCvarValueString(const struct jaCvar* cvar, const char** dest, struct jaStatus* st)
 {
-	jaStatusSet(st, "jaCvarValueString", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaCvarValueString", JA_STATUS_SUCCESS, NULL);
 
 	if (cvar == NULL)
 	{
-		jaStatusSet(st, "jaCvarValueString", STATUS_INVALID_ARGUMENT, NULL);
+		jaStatusSet(st, "jaCvarValueString", JA_STATUS_INVALID_ARGUMENT, NULL);
 		return 1;
 	}
 
 	if (cvar->type != TYPE_STRING)
 	{
-		jaStatusSet(st, "jaCvarValueString", STATUS_ERROR, "Can't cast cvar '%s' int a string", cvar->item->key);
+		jaStatusSet(st, "jaCvarValueString", JA_STATUS_ERROR, "Can't cast cvar '%s' int a string", cvar->item->key);
 		return 1;
 	}
 

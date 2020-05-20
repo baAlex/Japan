@@ -86,7 +86,7 @@ void ConfigTest2_TokenizeFile(void** cmocka_state)
 	struct jaConfiguration* cfg = jaConfigurationCreate();
 	FILE* fp = fopen("./tests/tokenize-test.jcfg", "rb");
 
-	if (jaConfigurationFileEx(cfg, fp, FILE_TOKENIZE_ONLY, NULL, NULL, &st) != 0)
+	if (jaConfigurationFileEx(cfg, fp, JA_FILE_TOKENIZE_ONLY, NULL, NULL, &st) != 0)
 		jaStatusPrint("", st);
 
 	// Bye!
@@ -113,18 +113,18 @@ void sWarningsCallback(enum jaStatusCode code, int line_no, const char* token, c
 {
 	switch (code)
 	{
-	case STATUS_EXPECTED_KEY_TOKEN:
+	case JA_STATUS_EXPECTED_KEY_TOKEN:
 		printf("[Warning] Expected an configuration key in line %i, found the unknown token '%s' instead\n", line_no,
 		       token);
 		break;
-	case STATUS_EXPECTED_EQUAL_TOKEN:
+	case JA_STATUS_EXPECTED_EQUAL_TOKEN:
 		printf("[Warning] Expected an equal sign for key '%s' in line %i, found the token '%s' instead\n", key, line_no,
 		       token);
 		break;
-	case STATUS_STATEMENT_OPEN:
+	case JA_STATUS_STATEMENT_OPEN:
 		printf("[Warning] Statement in line %i isn't properly closed, '%s' assignament ignored\n", line_no, key);
 		break;
-	case STATUS_NO_ASSIGNMENT:
+	case JA_STATUS_NO_ASSIGNMENT:
 		printf("[Warning] Configuration '%s' in line %i did't have a value assigned\n", key, line_no);
 		break;
 	default: break;
@@ -149,7 +149,7 @@ void ConfigTest3_ParseFile(void** cmocka_state)
 	jaCvarCreateFloat(cfg, "env.hold", 0.0f, 0.0f, 1000.0f, NULL);
 	jaCvarCreateFloat(cfg, "env.release", 200.0f, 0.0f, 1000.0f, NULL);
 
-	if (jaConfigurationFileEx(cfg, fp, FILE_DEFAULT, sTokenizerCallback, sWarningsCallback, &st) != 0)
+	if (jaConfigurationFileEx(cfg, fp, JA_FILE_DEFAULT, sTokenizerCallback, sWarningsCallback, &st) != 0)
 		jaStatusPrint("", st);
 
 	// Bye!

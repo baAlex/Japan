@@ -28,9 +28,9 @@
 
 enum jaEndianness
 {
-	ENDIAN_SYSTEM = -1,
-	ENDIAN_LITTLE = 0,
-	ENDIAN_BIG
+	JA_ENDIAN_SYSTEM = -1,
+	JA_ENDIAN_LITTLE = 0,
+	JA_ENDIAN_BIG
 };
 
 JA_EXPORT enum jaEndianness jaEndianSystem();

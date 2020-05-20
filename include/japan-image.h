@@ -32,16 +32,16 @@
 
 enum jaImageStorage
 {
-	IMAGE_UNCOMPRESSED_INTERLEAVED = 0, // (r, g, b), (r, g, b), (r, g, b)...
-	IMAGE_UNCOMPRESSED_PLANAR,          // (r, r, r...), (g, g, g...), (b, b, b...)
-	IMAGE_SGI_RLE
+	JA_IMAGE_UNCOMPRESSED_INTERLEAVED = 0, // (r, g, b), (r, g, b), (r, g, b)...
+	JA_IMAGE_UNCOMPRESSED_PLANAR,          // (r, r, r...), (g, g, g...), (b, b, b...)
+	JA_IMAGE_SGI_RLE
 };
 
 enum jaImageFormat
 {
-	IMAGE_U8 = 0,
-	IMAGE_U16,
-	IMAGE_FLOAT
+	JA_IMAGE_U8 = 0,
+	JA_IMAGE_U16,
+	JA_IMAGE_FLOAT
 };
 
 struct jaImage

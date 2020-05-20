@@ -25,7 +25,7 @@ SOFTWARE.
 -------------------------------
 
  [format-sgi.c]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 
  http://paulbourke.net/dataformats/sgirgb/sgiversion.html
  https://www.fileformat.info/format/sgiimage/egff.htm
@@ -118,7 +118,7 @@ static int sReadUncompressed(FILE* file, struct jaImage* image)
 						return 1;
 
 					sPlotPixel_16(channel, (size_t)row, col, image,
-					              jaEndianToU16(pixel.u16, ENDIAN_BIG, sys_endianness));
+					              jaEndianToU16(pixel.u16, JA_ENDIAN_BIG, sys_endianness));
 				}
 		}
 	}
@@ -153,8 +153,8 @@ static int sReadCompressed_8(FILE* file, struct jaImage* image)
 
 	for (size_t i = 0; i < table_len; i++)
 	{
-		offset_table[i] = jaEndianToU32(offset_table[i], ENDIAN_BIG, ENDIAN_SYSTEM);
-		size_table[i] = jaEndianToU32(size_table[i], ENDIAN_BIG, ENDIAN_SYSTEM);
+		offset_table[i] = jaEndianToU32(offset_table[i], JA_ENDIAN_BIG, JA_ENDIAN_SYSTEM);
+		size_table[i] = jaEndianToU32(size_table[i], JA_ENDIAN_BIG, JA_ENDIAN_SYSTEM);
 	}
 
 	// Data
@@ -229,7 +229,7 @@ return_failure:
 -----------------------------*/
 bool CheckMagicSgi(uint16_t value)
 {
-	if (jaEndianToU16(value, ENDIAN_BIG, ENDIAN_SYSTEM) == SGI_MAGIC)
+	if (jaEndianToU16(value, JA_ENDIAN_BIG, JA_ENDIAN_SYSTEM) == SGI_MAGIC)
 		return true;
 
 	return false;
@@ -245,7 +245,7 @@ struct jaImage* ImageLoadSgi(FILE* file, const char* filename, struct jaStatus* 
 	struct jaImageEx ex = {0};
 	struct jaImage* image = NULL;
 
-	jaStatusSet(st, "ImageLoadSgi", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "ImageLoadSgi", JA_STATUS_SUCCESS, NULL);
 
 	if (ImageExLoadSgi(file, &ex, st) != 0)
 		goto return_failure;
@@ -254,36 +254,36 @@ struct jaImage* ImageLoadSgi(FILE* file, const char* filename, struct jaStatus* 
 	JA_DEBUG_PRINT(" - Dimensions: %zux%zu px\n", ex.width, ex.height);
 	JA_DEBUG_PRINT(" - Channels: %zu\n", ex.channels);
 	JA_DEBUG_PRINT(" - Format: %i\n", ex.format);
-	JA_DEBUG_PRINT(" - jaEndianness: %s\n", (ex.endianness == ENDIAN_LITTLE) ? "little" : "big");
-	JA_DEBUG_PRINT(" - Storage: %s (%u)\n", (ex.storage == IMAGE_SGI_RLE) ? "sgi rle" : "planar", ex.storage);
+	JA_DEBUG_PRINT(" - jaEndianness: %s\n", (ex.endianness == JA_ENDIAN_LITTLE) ? "little" : "big");
+	JA_DEBUG_PRINT(" - Storage: %s (%u)\n", (ex.storage == JA_IMAGE_SGI_RLE) ? "sgi rle" : "planar", ex.storage);
 	JA_DEBUG_PRINT(" - Uncompressed size: %zu bytes\n", ex.uncompressed_size);
 	JA_DEBUG_PRINT(" - Data offset: 0x%zX\n", ex.data_offset);
 
 	if (fseek(file, (long)ex.data_offset, SEEK_SET) != 0)
 	{
-		jaStatusSet(st, "ImageLoadSgi", STATUS_UNEXPECTED_EOF, "at data seek ('%s')", filename);
+		jaStatusSet(st, "ImageLoadSgi", JA_STATUS_UNEXPECTED_EOF, "at data seek ('%s')", filename);
 		goto return_failure;
 	}
 
 	if ((image = jaImageCreate(ex.format, ex.width, ex.height, ex.channels)) == NULL)
 		goto return_failure;
 
-	if (ex.storage == IMAGE_SGI_RLE)
+	if (ex.storage == JA_IMAGE_SGI_RLE)
 	{
 		if (jaBitsPerComponent(ex.format) == 8 && sReadCompressed_8(file, image) != 0)
 		{
-			jaStatusSet(st, "ImageLoadSgi", STATUS_UNEXPECTED_EOF, "reading 8 bits compressed data ('%s')", filename);
+			jaStatusSet(st, "ImageLoadSgi", JA_STATUS_UNEXPECTED_EOF, "reading 8 bits compressed data ('%s')", filename);
 			goto return_failure;
 		}
 		//	else if (sReadCompressed_16(file, image) != 0)
 		//	{
-		//		jaStatusSet(st, "ImageLoadSgi", STATUS_UNEXPECTED_EOF, "reading 16 bits compressed data ('%s')",
+		//		jaStatusSet(st, "ImageLoadSgi", JA_STATUS_UNEXPECTED_EOF, "reading 16 bits compressed data ('%s')",
 		// filename); 		goto return_failure;
 		//	}
 	}
 	else if (sReadUncompressed(file, image) != 0)
 	{
-		jaStatusSet(st, "ImageLoadSgi", STATUS_UNEXPECTED_EOF, "reading uncompressed data ('%s')", filename);
+		jaStatusSet(st, "ImageLoadSgi", JA_STATUS_UNEXPECTED_EOF, "reading uncompressed data ('%s')", filename);
 		goto return_failure;
 	}
 
@@ -307,30 +307,30 @@ int ImageExLoadSgi(FILE* file, struct jaImageEx* out, struct jaStatus* st)
 	struct SgiHead head;
 	enum jaEndianness sys_endianness = jaEndianSystem();
 
-	jaStatusSet(st, "ImageExLoadSgi", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "ImageExLoadSgi", JA_STATUS_SUCCESS, NULL);
 
 	if (fread(&head, sizeof(struct SgiHead), 1, file) != 1)
 	{
-		jaStatusSet(st, "ImageExLoadSgi", STATUS_UNEXPECTED_EOF, "near head");
+		jaStatusSet(st, "ImageExLoadSgi", JA_STATUS_UNEXPECTED_EOF, "near head");
 		return 1;
 	}
 
-	out->width = (size_t)jaEndianToU16(head.x_size, ENDIAN_BIG, sys_endianness);
-	out->height = (size_t)jaEndianToU16(head.y_size, ENDIAN_BIG, sys_endianness);
-	out->channels = (size_t)jaEndianToU16(head.z_size, ENDIAN_BIG, sys_endianness);
+	out->width = (size_t)jaEndianToU16(head.x_size, JA_ENDIAN_BIG, sys_endianness);
+	out->height = (size_t)jaEndianToU16(head.y_size, JA_ENDIAN_BIG, sys_endianness);
+	out->channels = (size_t)jaEndianToU16(head.z_size, JA_ENDIAN_BIG, sys_endianness);
 	out->data_offset = 512;
-	out->endianness = ENDIAN_BIG;
-	out->storage = (head.compression == 0) ? IMAGE_UNCOMPRESSED_PLANAR : IMAGE_SGI_RLE;
+	out->endianness = JA_ENDIAN_BIG;
+	out->storage = (head.compression == 0) ? JA_IMAGE_UNCOMPRESSED_PLANAR : JA_IMAGE_SGI_RLE;
 
-	switch (jaEndianToI32(head.pixel_type, ENDIAN_BIG, sys_endianness))
+	switch (jaEndianToI32(head.pixel_type, JA_ENDIAN_BIG, sys_endianness))
 	{
-	case 1: jaStatusSet(st, "ImageExLoadSgi", STATUS_OBSOLETE_FEATURE, "dithered image"); return 1;
-	case 2: jaStatusSet(st, "ImageExLoadSgi", STATUS_OBSOLETE_FEATURE, "indexed image"); return 1;
-	case 3: jaStatusSet(st, "ImageExLoadSgi", STATUS_OBSOLETE_FEATURE, "palette data"); return 1;
+	case 1: jaStatusSet(st, "ImageExLoadSgi", JA_STATUS_OBSOLETE_FEATURE, "dithered image"); return 1;
+	case 2: jaStatusSet(st, "ImageExLoadSgi", JA_STATUS_OBSOLETE_FEATURE, "indexed image"); return 1;
+	case 3: jaStatusSet(st, "ImageExLoadSgi", JA_STATUS_OBSOLETE_FEATURE, "palette data"); return 1;
 	case 0: break;
 	}
 
-	switch (jaEndianToU16(head.dimension, ENDIAN_BIG, sys_endianness))
+	switch (jaEndianToU16(head.dimension, JA_ENDIAN_BIG, sys_endianness))
 	{
 	case 1: // One dimensional grayscale image (only uses width/x_size)
 		out->height = 1;
@@ -347,17 +347,17 @@ int ImageExLoadSgi(FILE* file, struct jaImageEx* out, struct jaStatus* st)
 
 	if (head.precision == 1)
 	{
-		out->format = IMAGE_U8;
+		out->format = JA_IMAGE_U8;
 		out->uncompressed_size = 1 * out->width * out->height * out->channels;
 	}
 	else if (head.precision == 2)
 	{
-		out->format = IMAGE_U16;
+		out->format = JA_IMAGE_U16;
 		out->uncompressed_size = 2 * out->width * out->height * out->channels;
 	}
 	else
 	{
-		jaStatusSet(st, "ImageExLoadSgi", STATUS_UNSUPPORTED_FEATURE, "precision (%i)", head.precision);
+		jaStatusSet(st, "ImageExLoadSgi", JA_STATUS_UNSUPPORTED_FEATURE, "precision (%i)", head.precision);
 		return 1;
 	}
 
@@ -375,41 +375,41 @@ int jaImageSaveSgi(const struct jaImage* image, const char* filename, struct jaS
 	FILE* file = NULL;
 	enum jaEndianness sys_endianness = jaEndianSystem();
 
-	jaStatusSet(st, "jaImageSaveSgi", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaImageSaveSgi", JA_STATUS_SUCCESS, NULL);
 
 	if (image->width > UINT16_MAX || image->height > UINT16_MAX)
 	{
-		jaStatusSet(st, "jaImageSaveSgi", STATUS_UNSUPPORTED_FEATURE, "image dimensions ('%s')", filename);
+		jaStatusSet(st, "jaImageSaveSgi", JA_STATUS_UNSUPPORTED_FEATURE, "image dimensions ('%s')", filename);
 		return 1;
 	}
 
-	if (image->format != IMAGE_U8 && image->format != IMAGE_U16) // The two formats supported by Sgi
+	if (image->format != JA_IMAGE_U8 && image->format != JA_IMAGE_U16) // The two formats supported by Sgi
 	{
-		jaStatusSet(st, "jaImageSaveSgi", STATUS_UNSUPPORTED_FEATURE, "image format ('%s')", filename);
+		jaStatusSet(st, "jaImageSaveSgi", JA_STATUS_UNSUPPORTED_FEATURE, "image format ('%s')", filename);
 		return 1;
 	}
 
 	if ((file = fopen(filename, "wb")) == NULL)
 	{
-		jaStatusSet(st, "jaImageSaveSgi", STATUS_FS_ERROR, "'%s'", filename);
+		jaStatusSet(st, "jaImageSaveSgi", JA_STATUS_FS_ERROR, "'%s'", filename);
 		return 1;
 	}
 
 	// Head
-	head.magic = jaEndianToI16(SGI_MAGIC, sys_endianness, ENDIAN_BIG);
+	head.magic = jaEndianToI16(SGI_MAGIC, sys_endianness, JA_ENDIAN_BIG);
 	head.compression = 0;
 	head.precision = (int8_t)jaBitsPerComponent(image->format) / 8;
-	head.dimension = jaEndianToU16(3, sys_endianness, ENDIAN_BIG);
+	head.dimension = jaEndianToU16(3, sys_endianness, JA_ENDIAN_BIG);
 
-	head.x_size = jaEndianToU16((uint16_t)image->width, sys_endianness, ENDIAN_BIG);
-	head.y_size = jaEndianToU16((uint16_t)image->height, sys_endianness, ENDIAN_BIG);
-	head.z_size = jaEndianToU16((uint16_t)image->channels, sys_endianness, ENDIAN_BIG);
+	head.x_size = jaEndianToU16((uint16_t)image->width, sys_endianness, JA_ENDIAN_BIG);
+	head.y_size = jaEndianToU16((uint16_t)image->height, sys_endianness, JA_ENDIAN_BIG);
+	head.z_size = jaEndianToU16((uint16_t)image->channels, sys_endianness, JA_ENDIAN_BIG);
 
 	head.pixel_type = 0;
 
 	if (fwrite(&head, sizeof(struct SgiHead), 1, file) != 1)
 	{
-		jaStatusSet(st, "jaImageSaveSgi", STATUS_IO_ERROR, "head ('%s')", filename);
+		jaStatusSet(st, "jaImageSaveSgi", JA_STATUS_IO_ERROR, "head ('%s')", filename);
 		goto return_failure;
 	}
 
@@ -424,7 +424,7 @@ int jaImageSaveSgi(const struct jaImage* image, const char* filename, struct jaS
 
 	if (fseek(file, 512, SEEK_SET) != 0) // Data start at offset 512
 	{
-		jaStatusSet(st, "jaImageSaveSgi", STATUS_IO_ERROR, "at data seek ('%s')", filename);
+		jaStatusSet(st, "jaImageSaveSgi", JA_STATUS_IO_ERROR, "at data seek ('%s')", filename);
 		goto return_failure;
 	}
 
@@ -439,7 +439,7 @@ int jaImageSaveSgi(const struct jaImage* image, const char* filename, struct jaS
 				{
 					if (fwrite(&src.u8[(image->width * (size_t)row + col) * image->channels], 1, 1, file) != 1)
 					{
-						jaStatusSet(st, "jaImageSaveSgi", STATUS_IO_ERROR, "data ('%s')", filename);
+						jaStatusSet(st, "jaImageSaveSgi", JA_STATUS_IO_ERROR, "data ('%s')", filename);
 						goto return_failure;
 					}
 				}
@@ -453,11 +453,11 @@ int jaImageSaveSgi(const struct jaImage* image, const char* filename, struct jaS
 				for (size_t col = 0; col < image->width; col++)
 				{
 					pixel = jaEndianToU16(src.u16[(image->width * (size_t)row + col) * image->channels], sys_endianness,
-					                      ENDIAN_BIG);
+					                      JA_ENDIAN_BIG);
 
 					if (fwrite(&pixel, sizeof(uint16_t), 1, file) != 1)
 					{
-						jaStatusSet(st, "jaImageSaveSgi", STATUS_IO_ERROR, "data ('%s')", filename);
+						jaStatusSet(st, "jaImageSaveSgi", JA_STATUS_IO_ERROR, "data ('%s')", filename);
 						goto return_failure;
 					}
 				}

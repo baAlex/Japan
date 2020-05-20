@@ -68,24 +68,24 @@ int jaStatusPrint(const char* app_name, struct jaStatus st)
 
 	switch (st.code)
 	{
-	case STATUS_SUCCESS: code_message = "Success"; break;
-	case STATUS_ERROR: code_message = "Error"; break;
-	case STATUS_FS_ERROR: code_message = "Filesystem error"; break;
-	case STATUS_IO_ERROR: code_message = "File Input/Output error"; break;
-	case STATUS_UNEXPECTED_EOF: code_message = "End of file prematurely reached"; break;
-	case STATUS_UNEXPECTED_DATA: code_message = "Unexpected data"; break;
-	case STATUS_UNKNOWN_FILE_FORMAT: code_message = "Unknown file format"; break;
-	case STATUS_UNSUPPORTED_FEATURE: code_message = "Unsupported feature"; break;
-	case STATUS_OBSOLETE_FEATURE: code_message = "Obsolete feature"; break;
-	case STATUS_UNKNOWN_DATA_FORMAT: code_message = "Unknown data format"; break;
-	case STATUS_INVALID_ARGUMENT: code_message = "Invalid argument"; break;
-	case STATUS_MEMORY_ERROR: code_message = "Memory error"; break;
-	case STATUS_EXPECTED_KEY_TOKEN: code_message = "Unknown token, expected a key name"; break;
-	case STATUS_EXPECTED_EQUAL_TOKEN: code_message = "Unknown token, expected an equal sign"; break;
-	case STATUS_STATEMENT_OPEN: code_message = "Statement remains open"; break;
-	case STATUS_NO_ASSIGNMENT: code_message = "Statement didn't have an assignment"; break;
-	case STATUS_INTEGER_CAST_ERROR: code_message = "Can't cast into an integer"; break;
-	case STATUS_DECIMAL_CAST_ERROR: code_message = "Can't cast into a decimal"; break;
+	case JA_STATUS_SUCCESS: code_message = "Success"; break;
+	case JA_STATUS_ERROR: code_message = "Error"; break;
+	case JA_STATUS_FS_ERROR: code_message = "Filesystem error"; break;
+	case JA_STATUS_IO_ERROR: code_message = "File Input/Output error"; break;
+	case JA_STATUS_UNEXPECTED_EOF: code_message = "End of file prematurely reached"; break;
+	case JA_STATUS_UNEXPECTED_DATA: code_message = "Unexpected data"; break;
+	case JA_STATUS_UNKNOWN_FILE_FORMAT: code_message = "Unknown file format"; break;
+	case JA_STATUS_UNSUPPORTED_FEATURE: code_message = "Unsupported feature"; break;
+	case JA_STATUS_OBSOLETE_FEATURE: code_message = "Obsolete feature"; break;
+	case JA_STATUS_UNKNOWN_DATA_FORMAT: code_message = "Unknown data format"; break;
+	case JA_STATUS_INVALID_ARGUMENT: code_message = "Invalid argument"; break;
+	case JA_STATUS_MEMORY_ERROR: code_message = "Memory error"; break;
+	case JA_STATUS_EXPECTED_KEY_TOKEN: code_message = "Unknown token, expected a key name"; break;
+	case JA_STATUS_EXPECTED_EQUAL_TOKEN: code_message = "Unknown token, expected an equal sign"; break;
+	case JA_STATUS_STATEMENT_OPEN: code_message = "Statement remains open"; break;
+	case JA_STATUS_NO_ASSIGNMENT: code_message = "Statement didn't have an assignment"; break;
+	case JA_STATUS_INTEGER_CAST_ERROR: code_message = "Can't cast into an integer"; break;
+	case JA_STATUS_DECIMAL_CAST_ERROR: code_message = "Can't cast into a decimal"; break;
 
 	default: code_message = "Unknown status";
 	}

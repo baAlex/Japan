@@ -25,7 +25,7 @@ SOFTWARE.
 -------------------------------
 
  [format-wav.c]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 
  http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html
 
@@ -133,19 +133,19 @@ static int sReadRiffBlock(size_t block_size, FILE* file, struct jaStatus* st)
 
 	if (block_size < sizeof(struct RiffBlock)) // (*a)
 	{
-		jaStatusSet(st, "SoundExLoadWav", STATUS_UNKNOWN_DATA_FORMAT, "riff block");
+		jaStatusSet(st, "SoundExLoadWav", JA_STATUS_UNKNOWN_DATA_FORMAT, "riff block");
 		return 1;
 	}
 
 	if (fread(&riff, sizeof(struct RiffBlock), 1, file) != 1)
 	{
-		jaStatusSet(st, "SoundExLoadWav", STATUS_UNEXPECTED_EOF, "at riff block");
+		jaStatusSet(st, "SoundExLoadWav", JA_STATUS_UNEXPECTED_EOF, "at riff block");
 		return 1;
 	}
 
 	if (strncmp(riff.wave_signature, WAVE_SIGNATURE, ID_LEN) != 0)
 	{
-		jaStatusSet(st, "SoundExLoadWav", STATUS_UNKNOWN_FILE_FORMAT, "invalid wave signature");
+		jaStatusSet(st, "SoundExLoadWav", JA_STATUS_UNKNOWN_FILE_FORMAT, "invalid wave signature");
 		return 1;
 	}
 
@@ -167,77 +167,77 @@ static int sReadFmtBlock(size_t block_size, FILE* file, struct jaSoundEx* out, s
 
 	if (block_size != 16 && block_size != 18 && block_size != 40)
 	{
-		jaStatusSet(st, "SoundExLoadWav", STATUS_UNKNOWN_DATA_FORMAT, "fmt block");
+		jaStatusSet(st, "SoundExLoadWav", JA_STATUS_UNKNOWN_DATA_FORMAT, "fmt block");
 		return 1;
 	}
 
 	if (fread(&fmt, block_size, 1, file) != 1)
 	{
-		jaStatusSet(st, "SoundExLoadWav", STATUS_UNEXPECTED_EOF, "at fmt block");
+		jaStatusSet(st, "SoundExLoadWav", JA_STATUS_UNEXPECTED_EOF, "at fmt block");
 		return 1;
 	}
 
-	out->frequency = (size_t)jaEndianToU32(fmt.frequency, ENDIAN_LITTLE, sys_endianness);
-	out->channels = (size_t)jaEndianToU16(fmt.channels, ENDIAN_LITTLE, sys_endianness);
-	out->endianness = ENDIAN_LITTLE;
+	out->frequency = (size_t)jaEndianToU32(fmt.frequency, JA_ENDIAN_LITTLE, sys_endianness);
+	out->channels = (size_t)jaEndianToU16(fmt.channels, JA_ENDIAN_LITTLE, sys_endianness);
+	out->endianness = JA_ENDIAN_LITTLE;
 	out->unsigned_8bit = true;
 	out->unspecified_size = false;
 
-	fmt.format = jaEndianToU16(fmt.format, ENDIAN_LITTLE, sys_endianness);
-	fmt.bits_per_sample = jaEndianToU16(fmt.bits_per_sample, ENDIAN_LITTLE, sys_endianness);
+	fmt.format = jaEndianToU16(fmt.format, JA_ENDIAN_LITTLE, sys_endianness);
+	fmt.bits_per_sample = jaEndianToU16(fmt.bits_per_sample, JA_ENDIAN_LITTLE, sys_endianness);
 
 	if (fmt.format == WAVE_FORMAT_ULAW)
 	{
-		out->format = SOUND_I16;
-		out->storage = SOUND_ULAW;
+		out->format = JA_SOUND_I16;
+		out->storage = JA_SOUND_ULAW;
 		out->minimum_unit_size = sizeof(int16_t);
 	}
 	else if (fmt.format == WAVE_FORMAT_ALAW)
 	{
-		out->format = SOUND_I16;
-		out->storage = SOUND_ALAW;
+		out->format = JA_SOUND_I16;
+		out->storage = JA_SOUND_ALAW;
 		out->minimum_unit_size = sizeof(int16_t);
 	}
 	else if (fmt.format == WAVE_FORMAT_PCM)
 	{
-		out->storage = SOUND_UNCOMPRESSED;
+		out->storage = JA_SOUND_UNCOMPRESSED;
 		out->minimum_unit_size = fmt.bits_per_sample / 8;
 
 		if (fmt.bits_per_sample == 8)
-			out->format = SOUND_I8;
+			out->format = JA_SOUND_I8;
 		else if (fmt.bits_per_sample == 16)
-			out->format = SOUND_I16;
+			out->format = JA_SOUND_I16;
 		else if (fmt.bits_per_sample == 32)
-			out->format = SOUND_I32;
+			out->format = JA_SOUND_I32;
 		else
 		{
-			jaStatusSet(st, "SoundExLoadWav", STATUS_UNSUPPORTED_FEATURE, "pcm bits per sample");
+			jaStatusSet(st, "SoundExLoadWav", JA_STATUS_UNSUPPORTED_FEATURE, "pcm bits per sample");
 			return 1;
 		}
 	}
 	else if (fmt.format == WAVE_FORMAT_IEEE_FLOAT)
 	{
-		out->storage = SOUND_UNCOMPRESSED;
+		out->storage = JA_SOUND_UNCOMPRESSED;
 		out->minimum_unit_size = fmt.bits_per_sample / 8;
 
 		if (fmt.bits_per_sample == 32)
-			out->format = SOUND_F32;
+			out->format = JA_SOUND_F32;
 		else if (fmt.bits_per_sample == 64)
-			out->format = SOUND_F64;
+			out->format = JA_SOUND_F64;
 		else
 		{
-			jaStatusSet(st, "SoundExLoadWav", STATUS_UNSUPPORTED_FEATURE, "float bits per sample");
+			jaStatusSet(st, "SoundExLoadWav", JA_STATUS_UNSUPPORTED_FEATURE, "float bits per sample");
 			return 1;
 		}
 	}
 	else if (fmt.format == WAVE_FORMAT_EXTENSIBLE)
 	{
-		jaStatusSet(st, "SoundExLoadWav", STATUS_UNSUPPORTED_FEATURE, "extensible format");
+		jaStatusSet(st, "SoundExLoadWav", JA_STATUS_UNSUPPORTED_FEATURE, "extensible format");
 		return 1;
 	}
 	else
 	{
-		jaStatusSet(st, "SoundExLoadWav", STATUS_UNKNOWN_DATA_FORMAT, NULL);
+		jaStatusSet(st, "SoundExLoadWav", JA_STATUS_UNKNOWN_DATA_FORMAT, NULL);
 		return 1;
 	}
 
@@ -255,12 +255,12 @@ static int sReadDataBlock(size_t block_size, FILE* file, struct jaSoundEx* out, 
 	out->uncompressed_size = block_size;
 	out->data_offset = (size_t)ftell(file);
 
-	if (out->storage != SOUND_UNCOMPRESSED)
+	if (out->storage != JA_SOUND_UNCOMPRESSED)
 		out->uncompressed_size = block_size * 2;
 
 	if (fseek(file, (long)block_size, SEEK_CUR) != 0)
 	{
-		jaStatusSet(st, "SoundExLoadWav", STATUS_UNEXPECTED_EOF, "at generic seek");
+		jaStatusSet(st, "SoundExLoadWav", JA_STATUS_UNEXPECTED_EOF, "at generic seek");
 		return 1;
 	}
 
@@ -293,7 +293,7 @@ int SoundExLoadWav(FILE* file, struct jaSoundEx* out, struct jaStatus* st)
 
 	struct GenericHead head;
 
-	jaStatusSet(st, "SoundExLoadWav", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "SoundExLoadWav", JA_STATUS_SUCCESS, NULL);
 
 	while (1)
 	{
@@ -302,14 +302,14 @@ int SoundExLoadWav(FILE* file, struct jaSoundEx* out, struct jaStatus* st)
 		{
 			if (riff_read == false || fmt_read == false || data_read == false)
 			{
-				jaStatusSet(st, "SoundExLoadWav", STATUS_UNEXPECTED_EOF, "at generic head");
+				jaStatusSet(st, "SoundExLoadWav", JA_STATUS_UNEXPECTED_EOF, "at generic head");
 				return 1;
 			}
 			else
 				break; // We have all what we need
 		}
 
-		head.size = jaEndianToU32(head.size, ENDIAN_LITTLE, ENDIAN_SYSTEM);
+		head.size = jaEndianToU32(head.size, JA_ENDIAN_LITTLE, JA_ENDIAN_SYSTEM);
 
 		// Riff block
 		if (strncmp(head.id, RIFF_ID, ID_LEN) == 0)
@@ -325,7 +325,7 @@ int SoundExLoadWav(FILE* file, struct jaSoundEx* out, struct jaStatus* st)
 		{
 			if (riff_read == false)
 			{
-				jaStatusSet(st, "SoundExLoadWav", STATUS_UNEXPECTED_DATA, "expected riff block");
+				jaStatusSet(st, "SoundExLoadWav", JA_STATUS_UNEXPECTED_DATA, "expected riff block");
 				return 1;
 			}
 
@@ -340,7 +340,7 @@ int SoundExLoadWav(FILE* file, struct jaSoundEx* out, struct jaStatus* st)
 		{
 			if (fmt_read == false)
 			{
-				jaStatusSet(st, "SoundExLoadWav", STATUS_UNEXPECTED_DATA, "expected fmt block");
+				jaStatusSet(st, "SoundExLoadWav", JA_STATUS_UNEXPECTED_DATA, "expected fmt block");
 				return 1;
 			}
 
@@ -355,7 +355,7 @@ int SoundExLoadWav(FILE* file, struct jaSoundEx* out, struct jaStatus* st)
 
 			if (fseek(file, (long)head.size, SEEK_CUR) != 0)
 			{
-				jaStatusSet(st, "SoundExLoadWav", STATUS_UNEXPECTED_EOF, "at generic seek");
+				jaStatusSet(st, "SoundExLoadWav", JA_STATUS_UNEXPECTED_EOF, "at generic seek");
 				return 1;
 			}
 		}
@@ -376,11 +376,11 @@ int jaSoundSaveWav(const struct jaSound* sound, const char* filename, struct jaS
 	struct GenericHead head;
 	size_t bps = (size_t)jaBytesPerSample(sound->format);
 
-	jaStatusSet(st, "jaSoundSaveWav", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaSoundSaveWav", JA_STATUS_SUCCESS, NULL);
 
 	if ((file = fopen(filename, "wb")) == NULL)
 	{
-		jaStatusSet(st, "jaSoundSaveWav", STATUS_FS_ERROR, "'%s'", filename);
+		jaStatusSet(st, "jaSoundSaveWav", JA_STATUS_FS_ERROR, "'%s'", filename);
 		return 1;
 	}
 
@@ -394,11 +394,11 @@ int jaSoundSaveWav(const struct jaSound* sound, const char* filename, struct jaS
 		size += sizeof(struct GenericHead) + sound->size; // DataBlock
 
 		memcpy(head.id, RIFF_ID, ID_LEN);
-		head.size = jaEndianToU32((uint32_t)size, sys_endianness, ENDIAN_LITTLE); // (*a)
+		head.size = jaEndianToU32((uint32_t)size, sys_endianness, JA_ENDIAN_LITTLE); // (*a)
 
 		if (fwrite(&head, sizeof(struct GenericHead), 1, file) != 1)
 		{
-			jaStatusSet(st, "jaSoundSaveWav", STATUS_IO_ERROR, "riff head ('%s')", filename);
+			jaStatusSet(st, "jaSoundSaveWav", JA_STATUS_IO_ERROR, "riff head ('%s')", filename);
 			goto return_failure;
 		}
 
@@ -406,7 +406,7 @@ int jaSoundSaveWav(const struct jaSound* sound, const char* filename, struct jaS
 
 		if (fwrite(&riff, sizeof(struct RiffBlock), 1, file) != 1)
 		{
-			jaStatusSet(st, "jaSoundSaveWav", STATUS_IO_ERROR, "riff block ('%s')", filename);
+			jaStatusSet(st, "jaSoundSaveWav", JA_STATUS_IO_ERROR, "riff block ('%s')", filename);
 			goto return_failure;
 		}
 	}
@@ -416,51 +416,51 @@ int jaSoundSaveWav(const struct jaSound* sound, const char* filename, struct jaS
 		struct FmtBlock fmt = {0};
 
 		memcpy(head.id, FMT_ID, ID_LEN);
-		head.size = jaEndianToU32(16, sys_endianness, ENDIAN_LITTLE);
+		head.size = jaEndianToU32(16, sys_endianness, JA_ENDIAN_LITTLE);
 
 		if (fwrite(&head, sizeof(struct GenericHead), 1, file) != 1)
 		{
-			jaStatusSet(st, "jaSoundSaveWav", STATUS_IO_ERROR, "fmt head ('%s')", filename);
+			jaStatusSet(st, "jaSoundSaveWav", JA_STATUS_IO_ERROR, "fmt head ('%s')", filename);
 			goto return_failure;
 		}
 
 		switch (sound->format)
 		{
-		case SOUND_I8:
-			fmt.format = jaEndianToU16(WAVE_FORMAT_PCM, sys_endianness, ENDIAN_LITTLE);
-			fmt.bits_per_sample = jaEndianToU16(8, sys_endianness, ENDIAN_LITTLE);
+		case JA_SOUND_I8:
+			fmt.format = jaEndianToU16(WAVE_FORMAT_PCM, sys_endianness, JA_ENDIAN_LITTLE);
+			fmt.bits_per_sample = jaEndianToU16(8, sys_endianness, JA_ENDIAN_LITTLE);
 			break;
 
-		case SOUND_I16:
-			fmt.format = jaEndianToU16(WAVE_FORMAT_PCM, sys_endianness, ENDIAN_LITTLE);
-			fmt.bits_per_sample = jaEndianToU16(16, sys_endianness, ENDIAN_LITTLE);
+		case JA_SOUND_I16:
+			fmt.format = jaEndianToU16(WAVE_FORMAT_PCM, sys_endianness, JA_ENDIAN_LITTLE);
+			fmt.bits_per_sample = jaEndianToU16(16, sys_endianness, JA_ENDIAN_LITTLE);
 			break;
 
-		case SOUND_I32: // Audacity way
-			fmt.format = jaEndianToU16(WAVE_FORMAT_PCM, sys_endianness, ENDIAN_LITTLE);
-			fmt.bits_per_sample = jaEndianToU16(32, sys_endianness, ENDIAN_LITTLE);
+		case JA_SOUND_I32: // Audacity way
+			fmt.format = jaEndianToU16(WAVE_FORMAT_PCM, sys_endianness, JA_ENDIAN_LITTLE);
+			fmt.bits_per_sample = jaEndianToU16(32, sys_endianness, JA_ENDIAN_LITTLE);
 			break;
 
-		case SOUND_F32:
-			fmt.format = jaEndianToU16(WAVE_FORMAT_IEEE_FLOAT, sys_endianness, ENDIAN_LITTLE);
-			fmt.bits_per_sample = jaEndianToU16(32, sys_endianness, ENDIAN_LITTLE);
+		case JA_SOUND_F32:
+			fmt.format = jaEndianToU16(WAVE_FORMAT_IEEE_FLOAT, sys_endianness, JA_ENDIAN_LITTLE);
+			fmt.bits_per_sample = jaEndianToU16(32, sys_endianness, JA_ENDIAN_LITTLE);
 			break;
 
-		case SOUND_F64:
-			fmt.format = jaEndianToU16(WAVE_FORMAT_IEEE_FLOAT, sys_endianness, ENDIAN_LITTLE);
-			fmt.bits_per_sample = jaEndianToU16(64, sys_endianness, ENDIAN_LITTLE);
+		case JA_SOUND_F64:
+			fmt.format = jaEndianToU16(WAVE_FORMAT_IEEE_FLOAT, sys_endianness, JA_ENDIAN_LITTLE);
+			fmt.bits_per_sample = jaEndianToU16(64, sys_endianness, JA_ENDIAN_LITTLE);
 			break;
 		}
 
-		fmt.channels = jaEndianToU16((uint16_t)sound->channels, sys_endianness, ENDIAN_LITTLE);
-		fmt.frequency = jaEndianToU32((uint32_t)sound->frequency, sys_endianness, ENDIAN_LITTLE);
+		fmt.channels = jaEndianToU16((uint16_t)sound->channels, sys_endianness, JA_ENDIAN_LITTLE);
+		fmt.frequency = jaEndianToU32((uint32_t)sound->frequency, sys_endianness, JA_ENDIAN_LITTLE);
 		fmt.avg_bytes_frequency =
-		    jaEndianToU32((uint32_t)(sound->channels * sound->frequency * bps), sys_endianness, ENDIAN_LITTLE);
-		fmt.data_align_size = jaEndianToU16((uint16_t)(sound->channels * bps), sys_endianness, ENDIAN_LITTLE);
+		    jaEndianToU32((uint32_t)(sound->channels * sound->frequency * bps), sys_endianness, JA_ENDIAN_LITTLE);
+		fmt.data_align_size = jaEndianToU16((uint16_t)(sound->channels * bps), sys_endianness, JA_ENDIAN_LITTLE);
 
 		if (fwrite(&fmt, 16, 1, file) != 1)
 		{
-			jaStatusSet(st, "jaSoundSaveWav", STATUS_IO_ERROR, "fmt block ('%s')", filename);
+			jaStatusSet(st, "jaSoundSaveWav", JA_STATUS_IO_ERROR, "fmt block ('%s')", filename);
 			goto return_failure;
 		}
 	}
@@ -470,19 +470,19 @@ int jaSoundSaveWav(const struct jaSound* sound, const char* filename, struct jaS
 		struct FactBlock fact = {0};
 
 		memcpy(head.id, FACT_ID, ID_LEN);
-		head.size = jaEndianToU32((uint32_t)sizeof(struct FactBlock), sys_endianness, ENDIAN_LITTLE);
+		head.size = jaEndianToU32((uint32_t)sizeof(struct FactBlock), sys_endianness, JA_ENDIAN_LITTLE);
 
 		if (fwrite(&head, sizeof(struct GenericHead), 1, file) != 1)
 		{
-			jaStatusSet(st, "jaSoundSaveWav", STATUS_IO_ERROR, "fact head ('%s')", filename);
+			jaStatusSet(st, "jaSoundSaveWav", JA_STATUS_IO_ERROR, "fact head ('%s')", filename);
 			goto return_failure;
 		}
 
-		fact.samples_no = jaEndianToU32((uint32_t)sound->length, sys_endianness, ENDIAN_LITTLE);
+		fact.samples_no = jaEndianToU32((uint32_t)sound->length, sys_endianness, JA_ENDIAN_LITTLE);
 
 		if (fwrite(&fact, sizeof(struct FactBlock), 1, file) != 1)
 		{
-			jaStatusSet(st, "jaSoundSaveWav", STATUS_IO_ERROR, "fact block ('%s')", filename);
+			jaStatusSet(st, "jaSoundSaveWav", JA_STATUS_IO_ERROR, "fact block ('%s')", filename);
 			goto return_failure;
 		}
 	}
@@ -492,19 +492,19 @@ int jaSoundSaveWav(const struct jaSound* sound, const char* filename, struct jaS
 		int ret = 0;
 
 		memcpy(head.id, DATA_ID, ID_LEN);
-		head.size = jaEndianToU32((uint32_t)sound->size, sys_endianness, ENDIAN_LITTLE);
+		head.size = jaEndianToU32((uint32_t)sound->size, sys_endianness, JA_ENDIAN_LITTLE);
 
 		if (fwrite(&head, sizeof(struct GenericHead), 1, file) != 1)
 		{
-			jaStatusSet(st, "jaSoundSaveWav", STATUS_IO_ERROR, "data head ('%s')", filename);
+			jaStatusSet(st, "jaSoundSaveWav", JA_STATUS_IO_ERROR, "data head ('%s')", filename);
 			goto return_failure;
 		}
 
-		ret = (sound->format == SOUND_I8) ? WriteU8Pcm(file, sound) : WritePcm(file, sound, ENDIAN_LITTLE);
+		ret = (sound->format == JA_SOUND_I8) ? WriteU8Pcm(file, sound) : WritePcm(file, sound, JA_ENDIAN_LITTLE);
 
 		if (ret != 1)
 		{
-			jaStatusSet(st, "jaSoundSaveWav", STATUS_IO_ERROR, "data block ('%s')", filename);
+			jaStatusSet(st, "jaSoundSaveWav", JA_STATUS_IO_ERROR, "data block ('%s')", filename);
 			goto return_failure;
 		}
 	}

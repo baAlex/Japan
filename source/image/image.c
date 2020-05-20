@@ -25,7 +25,7 @@ SOFTWARE.
 -------------------------------
 
  [image.c]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 -----------------------------*/
 
 #include <stdbool.h>
@@ -85,17 +85,17 @@ struct jaImage* jaImageLoad(const char* filename, struct jaStatus* st)
 	struct jaImage* image = NULL;
 	uint16_t magic = 0;
 
-	jaStatusSet(st, "jaImageLoad", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaImageLoad", JA_STATUS_SUCCESS, NULL);
 
 	if ((file = fopen(filename, "rb")) == NULL)
 	{
-		jaStatusSet(st, "jaImageLoad", STATUS_FS_ERROR, "'%s'", filename);
+		jaStatusSet(st, "jaImageLoad", JA_STATUS_FS_ERROR, "'%s'", filename);
 		return NULL;
 	}
 
 	if (fread(&magic, sizeof(uint16_t), 1, file) != 1)
 	{
-		jaStatusSet(st, "jaImageLoad", STATUS_UNEXPECTED_EOF, "near magic ('%s')", filename);
+		jaStatusSet(st, "jaImageLoad", JA_STATUS_UNEXPECTED_EOF, "near magic ('%s')", filename);
 		goto return_failure;
 	}
 
@@ -107,7 +107,7 @@ struct jaImage* jaImageLoad(const char* filename, struct jaStatus* st)
 	//	image = ImageLoadBmp(file, filename, st;
 	else
 	{
-		jaStatusSet(st, "jaImageLoad", STATUS_UNKNOWN_FILE_FORMAT, "'%s'", filename);
+		jaStatusSet(st, "jaImageLoad", JA_STATUS_UNKNOWN_FILE_FORMAT, "'%s'", filename);
 		goto return_failure;
 	}
 
@@ -129,17 +129,17 @@ int jaImageSaveRaw(const struct jaImage* image, const char* filename, struct jaS
 {
 	FILE* file = NULL;
 
-	jaStatusSet(st, "jaImageSaveRaw", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaImageSaveRaw", JA_STATUS_SUCCESS, NULL);
 
 	if ((file = fopen(filename, "wb")) == NULL)
 	{
-		jaStatusSet(st, "jaImageSaveRaw", STATUS_FS_ERROR, "'%s'", filename);
+		jaStatusSet(st, "jaImageSaveRaw", JA_STATUS_FS_ERROR, "'%s'", filename);
 		return 1;
 	}
 
 	if (fwrite(image->data, image->size, 1, file) != 1)
 	{
-		jaStatusSet(st, "jaImageSaveRaw", STATUS_IO_ERROR, "'%s'", filename);
+		jaStatusSet(st, "jaImageSaveRaw", JA_STATUS_IO_ERROR, "'%s'", filename);
 		fclose(file);
 		return 1;
 	}
@@ -157,11 +157,11 @@ int jaImageExLoad(FILE* file, struct jaImageEx* out, struct jaStatus* st)
 {
 	uint16_t magic = 0;
 
-	jaStatusSet(st, "jaImageExLoad", STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaImageExLoad", JA_STATUS_SUCCESS, NULL);
 
 	if (fread(&magic, sizeof(uint16_t), 1, file) != 1)
 	{
-		jaStatusSet(st, "jaImageExLoad", STATUS_UNEXPECTED_EOF, "near magic");
+		jaStatusSet(st, "jaImageExLoad", JA_STATUS_UNEXPECTED_EOF, "near magic");
 		return 1;
 	}
 
@@ -173,7 +173,7 @@ int jaImageExLoad(FILE* file, struct jaImageEx* out, struct jaStatus* st)
 	//	return ImageExLoadBmp(file, out, st);
 
 	// Unsuccessfully bye!
-	jaStatusSet(st, "jaImageExLoad", STATUS_UNKNOWN_FILE_FORMAT, NULL);
+	jaStatusSet(st, "jaImageExLoad", JA_STATUS_UNKNOWN_FILE_FORMAT, NULL);
 	return 1;
 }
 
@@ -186,9 +186,9 @@ inline int jaBytesPerPixel(const struct jaImage* image)
 {
 	switch (image->format)
 	{
-	case IMAGE_U8: return (1 * (int)image->channels);
-	case IMAGE_U16: return (2 * (int)image->channels);
-	case IMAGE_FLOAT: return (4 * (int)image->channels);
+	case JA_IMAGE_U8: return (1 * (int)image->channels);
+	case JA_IMAGE_U16: return (2 * (int)image->channels);
+	case JA_IMAGE_FLOAT: return (4 * (int)image->channels);
 	}
 
 	return 0;
@@ -203,9 +203,9 @@ inline int jaBitsPerComponent(enum jaImageFormat format)
 {
 	switch (format)
 	{
-	case IMAGE_U8: return 8;
-	case IMAGE_U16: return 16;
-	case IMAGE_FLOAT: return 32;
+	case JA_IMAGE_U8: return 8;
+	case JA_IMAGE_U16: return 16;
+	case JA_IMAGE_FLOAT: return 32;
 	}
 
 	return 0;

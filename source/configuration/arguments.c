@@ -37,7 +37,7 @@ SOFTWARE.
 -----------------------------*/
 void jaConfigurationArguments(struct jaConfiguration* config, int argc, const char* argv[])
 {
-	jaConfigurationArgumentsEx(config, argc, argv, ARGUMENTS_DEFAULT, NULL);
+	jaConfigurationArgumentsEx(config, argc, argv, JA_ARGUMENTS_DEFAULT, NULL);
 }
 
 void jaConfigurationArgumentsEx(struct jaConfiguration* config, int argc, const char* argv[],
@@ -47,13 +47,13 @@ void jaConfigurationArgumentsEx(struct jaConfiguration* config, int argc, const 
 	struct jaDictionaryItem* item = NULL;
 	enum jaStatusCode code;
 
-	for (int i = (flags == ARGUMENTS_INCLUDE_FIRST_ONE) ? 0 : 1; i < argc; i++)
+	for (int i = (flags == JA_ARGUMENTS_INCLUDE_FIRST_ONE) ? 0 : 1; i < argc; i++)
 	{
 		// Check key
 		if (argv[i][0] != '-')
 		{
 			if (warnings_callback != NULL)
-				warnings_callback(STATUS_EXPECTED_KEY_TOKEN, i, argv[i], NULL);
+				warnings_callback(JA_STATUS_EXPECTED_KEY_TOKEN, i, argv[i], NULL);
 
 			continue;
 		}
@@ -61,7 +61,7 @@ void jaConfigurationArgumentsEx(struct jaConfiguration* config, int argc, const 
 		if ((item = jaDictionaryGet((struct jaDictionary*)config, (argv[i] + 1))) == NULL)
 		{
 			if (warnings_callback != NULL)
-				warnings_callback(STATUS_EXPECTED_KEY_TOKEN, i, argv[i], NULL);
+				warnings_callback(JA_STATUS_EXPECTED_KEY_TOKEN, i, argv[i], NULL);
 
 			continue;
 		}
@@ -70,7 +70,7 @@ void jaConfigurationArgumentsEx(struct jaConfiguration* config, int argc, const 
 		if ((i + 1) == argc)
 		{
 			if (warnings_callback != NULL)
-				warnings_callback(STATUS_NO_ASSIGNMENT, i, NULL, argv[i] + 1);
+				warnings_callback(JA_STATUS_NO_ASSIGNMENT, i, NULL, argv[i] + 1);
 
 			break;
 		}
@@ -78,7 +78,7 @@ void jaConfigurationArgumentsEx(struct jaConfiguration* config, int argc, const 
 		// Store!
 		code = Store(item->data, argv[i + 1], SET_BY_ARGUMENTS);
 
-		if (code != STATUS_SUCCESS)
+		if (code != JA_STATUS_SUCCESS)
 		{
 			if (warnings_callback != NULL)
 				warnings_callback(code, i, argv[i + 1], argv[i] + 1);

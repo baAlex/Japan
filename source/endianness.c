@@ -39,9 +39,9 @@ inline enum jaEndianness jaEndianSystem()
 	int8_t* p = (int8_t*)&i;
 
 	if (p[0] != 1)
-		return ENDIAN_BIG;
+		return JA_ENDIAN_BIG;
 
-	return ENDIAN_LITTLE;
+	return JA_ENDIAN_LITTLE;
 }
 
 
@@ -83,8 +83,8 @@ inline uint16_t jaEndianReverseU16(uint16_t value)
 
 uint64_t jaEndianToU64(uint64_t value, enum jaEndianness from, enum jaEndianness to)
 {
-	to = (to == ENDIAN_SYSTEM) ? jaEndianSystem() : to;
-	from = (from == ENDIAN_SYSTEM) ? jaEndianSystem() : from;
+	to = (to == JA_ENDIAN_SYSTEM) ? jaEndianSystem() : to;
+	from = (from == JA_ENDIAN_SYSTEM) ? jaEndianSystem() : from;
 
 	if (from == to)
 		return value;
@@ -95,8 +95,8 @@ uint64_t jaEndianToU64(uint64_t value, enum jaEndianness from, enum jaEndianness
 
 uint32_t jaEndianToU32(uint32_t value, enum jaEndianness from, enum jaEndianness to)
 {
-	to = (to == ENDIAN_SYSTEM) ? jaEndianSystem() : to;
-	from = (from == ENDIAN_SYSTEM) ? jaEndianSystem() : from;
+	to = (to == JA_ENDIAN_SYSTEM) ? jaEndianSystem() : to;
+	from = (from == JA_ENDIAN_SYSTEM) ? jaEndianSystem() : from;
 
 	if (from == to)
 		return value;
@@ -107,8 +107,8 @@ uint32_t jaEndianToU32(uint32_t value, enum jaEndianness from, enum jaEndianness
 
 uint16_t jaEndianToU16(uint16_t value, enum jaEndianness from, enum jaEndianness to)
 {
-	to = (to == ENDIAN_SYSTEM) ? jaEndianSystem() : to;
-	from = (from == ENDIAN_SYSTEM) ? jaEndianSystem() : from;
+	to = (to == JA_ENDIAN_SYSTEM) ? jaEndianSystem() : to;
+	from = (from == JA_ENDIAN_SYSTEM) ? jaEndianSystem() : from;
 
 	if (from == to)
 		return value;
