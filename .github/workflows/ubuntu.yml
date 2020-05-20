@@ -19,14 +19,14 @@ jobs:
         mkdir build-release
         cd build-release
         cmake -DCMAKE_BUILD_TYPE=Release ..
-        cmake --build .
+        cmake --build . --config Release
 
     - name: Compile debug build
       run: |
         mkdir build-debug
         cd build-debug
         cmake -DCMAKE_BUILD_TYPE=Debug ..
-        cmake --build .
+        cmake --build . --config Debug
 
     - name: Run test suite
       run: |

@@ -1,6 +1,6 @@
 
 cflags = -O0 -g -std=c11 -Wall -Wextra -Wconversion -pedantic -fvisibility=hidden -fcolor-diagnostics -DJA_EXPORT_SYMBOLS -DJA_DEBUG -I./include
-tidyflags = -checks=clang-analyzer-*,bugprone-*,cert-*,performance-*,portability-*
+tidyflags = -header-filter=.* -checks=clang-analyzer-*,bugprone-*,cert-*,performance-*,portability-*
 
 rule CompileSO
  command = clang $cflags -c $in -o $out -fpic
