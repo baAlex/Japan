@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 
 project("LibJapan" C)
+option(JA_BUILD_SHARED "Build shared library" ON)
+option(JA_BUILD_STATIC "Build static library" ON)
+option(JA_BUILD_TEST   "Build test suite" ON)
+
 include_directories("./include/")
 
 if ((CMAKE_C_COMPILER_ID MATCHES "Clang") OR (CMAKE_C_COMPILER_ID MATCHES "GNU"))
@@ -34,30 +38,35 @@ set(SOURCES
 	"./source/sound/laws.c"
 	"./source/sound/sound.c")
 
-add_library("japan-static" STATIC ${SOURCES})
-add_library("japan" SHARED ${SOURCES})
+if (JA_BUILD_SHARED)
+	add_library("japan" SHARED ${SOURCES})
+endif ()
 
+if (JA_BUILD_STATIC)
+	add_library("japan-static" STATIC ${SOURCES})
+endif ()
 
-# Test suite
-find_package(cmocka)
+if (JA_BUILD_TEST)
 
-if (cmocka_FOUND)
+	find_package(cmocka)
+	if (cmocka_FOUND)
 
-	set(TEST_SUITE_SOURCES
-		"./tests/configurations.c"
-		"./tests/dictionaries.c"
-		"./tests/images.c"
-		"./tests/lists.c"
-		"./tests/test-suite.c")
+		set(TEST_SUITE_SOURCES
+			"./tests/configurations.c"
+			"./tests/dictionaries.c"
+			"./tests/images.c"
+			"./tests/lists.c"
+			"./tests/test-suite.c")
 
-	add_executable("test-suite" ${TEST_SUITE_SOURCES})
-	include_directories(${CMOCKA_INCLUDE_DIR})
+		add_executable("test-suite" ${TEST_SUITE_SOURCES})
+		include_directories(${CMOCKA_INCLUDE_DIR})
 
-	target_link_libraries("test-suite" "japan-static")
-	target_link_libraries("test-suite" ${CMOCKA_LIBRARIES})
+		target_link_libraries("test-suite" "japan-static")
+		target_link_libraries("test-suite" ${CMOCKA_LIBRARIES})
 
-	if (NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
-		target_link_libraries("test-suite" "m")
-	endif()
+		if (NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
+			target_link_libraries("test-suite" "m")
+		endif()
 
-endif (cmocka_FOUND)
+	endif ()
+endif ()
