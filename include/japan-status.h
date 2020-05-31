@@ -7,13 +7,6 @@
 #ifndef JAPAN_STATUS_H
 #define JAPAN_STATUS_H
 
-#ifndef JAPAN_VERSION
-	#define JAPAN_VERSION "0.2.3"
-	#define JAPAN_VERSION_MAJOR 0
-	#define JAPAN_VERSION_MINOR 2
-	#define JAPAN_VERSION_PATCH 3
-#endif
-
 #ifdef JA_EXPORT_SYMBOLS
 	#if defined(__clang__) || defined(__GNUC__)
 	#define JA_EXPORT __attribute__((visibility("default")))

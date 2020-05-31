@@ -25,6 +25,7 @@ build ./build/release/so/status.o:     CompileSO ./source/status.c
 build ./build/release/so/tree.o:       CompileSO ./source/tree.c
 build ./build/release/so/utilities.o:  CompileSO ./source/utilities.c
 build ./build/release/so/vector.o:     CompileSO ./source/vector.c
+build ./build/release/so/version.o:    CompileSO ./source/version.c
 
 build ./build/release/so/configuration/arguments.o:     CompileSO ./source/configuration/arguments.c
 build ./build/release/so/configuration/configuration.o: CompileSO ./source/configuration/configuration.c
@@ -49,6 +50,7 @@ build libjapan.so: Link $
 ./build/release/so/tree.o $
 ./build/release/so/utilities.o $
 ./build/release/so/vector.o $
+./build/release/so/version.o $
 ./build/release/so/configuration/arguments.o $
 ./build/release/so/configuration/configuration.o $
 ./build/release/so/configuration/file.o $
@@ -71,6 +73,7 @@ build ./build/release/a/status.o:     CompileA ./source/status.c
 build ./build/release/a/tree.o:       CompileA ./source/tree.c
 build ./build/release/a/utilities.o:  CompileA ./source/utilities.c
 build ./build/release/a/vector.o:     CompileA ./source/vector.c
+build ./build/release/a/version.o:    CompileA ./source/version.c
 
 build ./build/release/a/configuration/arguments.o:     CompileA ./source/configuration/arguments.c
 build ./build/release/a/configuration/configuration.o: CompileA ./source/configuration/configuration.c
@@ -95,6 +98,7 @@ build libjapan.a: Pack $
 ./build/release/a/tree.o $
 ./build/release/a/utilities.o $
 ./build/release/a/vector.o $
+./build/release/a/version.o $
 ./build/release/a/configuration/arguments.o $
 ./build/release/a/configuration/configuration.o $
 ./build/release/a/configuration/file.o $

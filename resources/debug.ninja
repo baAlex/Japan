@@ -1,5 +1,5 @@
 
-cflags = -O0 -g -std=c11 -Wall -Wextra -Wconversion -pedantic -fvisibility=hidden -fcolor-diagnostics -DJA_EXPORT_SYMBOLS -DJA_DEBUG -I./include
+cflags = -O0 -g -std=c99 -Wall -Wextra -Wconversion -pedantic -fvisibility=hidden -fcolor-diagnostics -DJA_EXPORT_SYMBOLS -DJA_DEBUG -I./include
 tidyflags = -header-filter=.* -checks=clang-analyzer-*,bugprone-*,cert-*,performance-*,portability-*
 
 rule CompileSO
@@ -26,6 +26,7 @@ build ./build/debug/so/status.o:     CompileSO ./source/status.c
 build ./build/debug/so/tree.o:       CompileSO ./source/tree.c
 build ./build/debug/so/utilities.o:  CompileSO ./source/utilities.c
 build ./build/debug/so/vector.o:     CompileSO ./source/vector.c
+build ./build/debug/so/version.o:    CompileSO ./source/version.c
 
 build ./build/debug/so/configuration/arguments.o:     CompileSO ./source/configuration/arguments.c
 build ./build/debug/so/configuration/configuration.o: CompileSO ./source/configuration/configuration.c
@@ -50,6 +51,7 @@ build libjapan-dbg.so: Link $
 ./build/debug/so/tree.o $
 ./build/debug/so/utilities.o $
 ./build/debug/so/vector.o $
+./build/debug/so/version.o $
 ./build/debug/so/configuration/configuration.o $
 ./build/debug/so/configuration/arguments.o $
 ./build/debug/so/configuration/file.o $
@@ -72,6 +74,7 @@ build ./build/debug/a/status.o:     CompileA ./source/status.c
 build ./build/debug/a/tree.o:       CompileA ./source/tree.c
 build ./build/debug/a/utilities.o:  CompileA ./source/utilities.c
 build ./build/debug/a/vector.o:     CompileA ./source/vector.c
+build ./build/debug/a/version.o:    CompileA ./source/version.c
 
 build ./build/debug/a/configuration/arguments.o:     CompileA ./source/configuration/arguments.c
 build ./build/debug/a/configuration/configuration.o: CompileA ./source/configuration/configuration.c
@@ -96,6 +99,7 @@ build libjapan-dbg.a: pack $
 ./build/debug/a/tree.o $
 ./build/debug/a/utilities.o $
 ./build/debug/a/vector.o $
+./build/debug/a/version.o $
 ./build/debug/a/configuration/configuration.o $
 ./build/debug/a/configuration/arguments.o $
 ./build/debug/a/configuration/file.o $

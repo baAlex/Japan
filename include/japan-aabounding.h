@@ -7,13 +7,6 @@
 #ifndef JAPAN_AABOUNDING_H
 #define JAPAN_AABOUNDING_H
 
-#ifndef JAPAN_VERSION
-	#define JAPAN_VERSION "0.2.3"
-	#define JAPAN_VERSION_MAJOR 0
-	#define JAPAN_VERSION_MINOR 2
-	#define JAPAN_VERSION_PATCH 3
-#endif
-
 #ifdef JA_EXPORT_SYMBOLS
 	#if defined(__clang__) || defined(__GNUC__)
 	#define JA_EXPORT __attribute__((visibility("default")))
@@ -62,6 +55,8 @@ JA_EXPORT struct jaAABBox jaAABToBox(struct jaAABRectangle, float min_z, float m
 JA_EXPORT struct jaVector2 jaAABMiddleRect(struct jaAABRectangle);
 JA_EXPORT struct jaVector3 jaAABMiddleBox(struct jaAABBox);
 
+#if __STDC_VERSION__ == 201112L
+
 #define jaAABCollision(a, b)\
 	_Generic((a),\
 		struct jaAABRectangle : _Generic((b),\
@@ -80,5 +75,7 @@ JA_EXPORT struct jaVector3 jaAABMiddleBox(struct jaAABBox);
 		struct jaAABBox : jaAABMiddleBox,\
 		default : jaAABMiddleRect\
 	)(obj)
+
+#endif
 
 #endif

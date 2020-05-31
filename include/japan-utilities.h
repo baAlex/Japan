@@ -7,13 +7,6 @@
 #ifndef JAPAN_UTILITIES_H
 #define JAPAN_UTILITIES_H
 
-#ifndef JAPAN_VERSION
-	#define JAPAN_VERSION "0.2.3"
-	#define JAPAN_VERSION_MAJOR 0
-	#define JAPAN_VERSION_MINOR 2
-	#define JAPAN_VERSION_PATCH 3
-#endif
-
 #ifdef JA_EXPORT_SYMBOLS
 	#if defined(__clang__) || defined(__GNUC__)
 	#define JA_EXPORT __attribute__((visibility("default")))
@@ -48,6 +41,8 @@ JA_EXPORT int jaClampInt(int v, int min, int max);
 JA_EXPORT size_t jaClampSizeT(size_t v, size_t min, size_t max);
 JA_EXPORT float jaClampFloat(float v, float min, float max);
 
+#if __STDC_VERSION__ == 201112L
+
 #define jaMax(a, b) _Generic((a), int : jaMaxInt, size_t : jaMaxSizeT, float : fmaxf, default : jaMaxInt)(a, b)
 #define jaMin(a, b) _Generic((a), int : jaMinInt, size_t : jaMinSizeT, float : fminf, default : jaMinInt)(a, b)
 
@@ -58,5 +53,7 @@ JA_EXPORT float jaClampFloat(float v, float min, float max);
 		float : jaClampFloat,\
 		default : jaClampInt\
 	)(value, min, max)
+
+#endif
 
 #endif
