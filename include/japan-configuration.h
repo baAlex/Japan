@@ -53,7 +53,7 @@ JA_EXPORT void jaConfigurationDelete(struct jaConfiguration*);
 JA_EXPORT void jaConfigurationArguments(struct jaConfiguration*, int argc, const char* argv[]);
 JA_EXPORT int jaConfigurationFile(struct jaConfiguration*, const char* filename, struct jaStatus*);
 
-#if __STDC_VERSION__ == 201112L
+#if __STDC_VERSION__ >= 201112L
 
 #define jaCvarCreate(config, name, default_value, a, b, st)\
 	_Generic((default_value),\

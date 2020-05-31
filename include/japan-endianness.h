@@ -44,7 +44,7 @@ JA_EXPORT int64_t jaEndianToI64(int64_t value, enum jaEndianness from, enum jaEn
 JA_EXPORT int32_t jaEndianToI32(int32_t value, enum jaEndianness from, enum jaEndianness to);
 JA_EXPORT int16_t jaEndianToI16(int16_t value, enum jaEndianness from, enum jaEndianness to);
 
-#if __STDC_VERSION__ == 201112L
+#if __STDC_VERSION__ >= 201112L
 
 #define jaEndianReverse(value)\
 	_Generic((value),\
