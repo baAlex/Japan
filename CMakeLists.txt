@@ -1,21 +1,32 @@
 cmake_minimum_required(VERSION 3.10)
 
 project("LibJapan" C)
-option(JA_BUILD_SHARED "Build shared library" ON)
-option(JA_BUILD_STATIC "Build static library" ON)
-option(JA_BUILD_TEST   "Build test suite" ON)
+option(JA_EXPORT_SYMBOLS "Export symbols" ON)
+option(JA_BUILD_SHARED   "Build shared library" ON)
+option(JA_BUILD_STATIC   "Build static library" ON)
+option(JA_BUILD_TEST     "Build test suite" ON)
 
 include_directories("./include/")
 
 if ((CMAKE_C_COMPILER_ID MATCHES "Clang") OR (CMAKE_C_COMPILER_ID MATCHES "GNU"))
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden -DJA_EXPORT_SYMBOLS")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
 	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -g -std=c99 -Wall -Wextra -Wconversion -pedantic -DJA_DEBUG")
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -mtune=generic")
 elseif (CMAKE_C_COMPILER_ID MATCHES "MSVC")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /utf-8 /DJA_EXPORT_SYMBOLS")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /utf-8")
 	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Od /Zi /DJA_DEBUG /D_CRT_SECURE_NO_WARNINGS")
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /O2 /D_CRT_SECURE_NO_WARNINGS")
 endif()
+
+if (JA_EXPORT_SYMBOLS)
+
+	if ((CMAKE_C_COMPILER_ID MATCHES "Clang") OR (CMAKE_C_COMPILER_ID MATCHES "GNU"))
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DJA_EXPORT_SYMBOLS")
+	elseif (CMAKE_C_COMPILER_ID MATCHES "MSVC")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /DJA_EXPORT_SYMBOLS")
+	endif()
+
+endif ()
 
 set(SOURCES
 	"./source/aabounding.c"
