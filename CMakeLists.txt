@@ -71,11 +71,11 @@ if (JA_BUILD_TEST)
 		add_executable("test-suite" ${TEST_SUITE_SOURCES})
 		target_include_directories("test-suite" PRIVATE ${CMOCKA_INCLUDE_DIR})
 
-		target_link_libraries("test-suite" "japan-static")
-		target_link_libraries("test-suite" ${CMOCKA_LIBRARIES})
+		target_link_libraries("test-suite" PRIVATE "japan-static")
+		target_link_libraries("test-suite" PRIVATE ${CMOCKA_LIBRARIES})
 
 		if (NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
-			target_link_libraries("test-suite" "m")
+			target_link_libraries("test-suite" PRIVATE "m")
 		endif()
 
 	endif ()

@@ -3,10 +3,11 @@ LibJapan
 ========
 [![Ubuntu CI](https://github.com/baAlex/libjapan/workflows/Ubuntu/badge.svg)](https://github.com/baAlex/libjapan/actions?query=workflow%3AUbuntu)
 [![Windows CI](https://github.com/baAlex/libjapan/workflows/Windows/badge.svg)](https://github.com/baAlex/libjapan/actions?query=workflow%3AWindows)
-[![Code quality](https://img.shields.io/lgtm/grade/cpp/g/baAlex/libjapan.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/baAlex/libjapan/context:cpp)
+[![CodeQL scanning](https://github.com/baAlex/libjapan/workflows/CodeQL%20scanning/badge.svg)](https://github.com/baAlex/libjapan/actions?query=workflow%3A%22CodeQL+scanning%22)
 
+- *(2020/7/7) Windows CI fails as Cmocka dependency is broken in VCPKG[[1]](https://github.com/microsoft/vcpkg/pull/12196).*
 
-A collection of frequently used features that the C language lacks: lists, hashes, trees, math functions (vectors, matrices), between an etcetera of other utilities. Nothing different to existing general-purpose libraries.
+A collection of frequently used features that the C language lacks: lists, hashes, trees, maths functions (vectors, matrices), between an etcetera of other utilities. Nothing different to existing general-purpose libraries.
 
 The project born as an exercise to learn the language and since then I been updating/refactoring it according to my needs and experience. There are some flaws to fix, designs to polish, and probably the library is too game-development oriented, i'm working on those aspects... so any help or suggestion is more that welcomed.
 
