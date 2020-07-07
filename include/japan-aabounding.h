@@ -55,7 +55,7 @@ JA_EXPORT struct jaAABBox jaAABToBox(struct jaAABRectangle, float min_z, float m
 JA_EXPORT struct jaVector2 jaAABMiddleRect(struct jaAABRectangle);
 JA_EXPORT struct jaVector3 jaAABMiddleBox(struct jaAABBox);
 
-#if __STDC_VERSION__ >= 201112L
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
 #define jaAABCollision(a, b)\
 	_Generic((a),\

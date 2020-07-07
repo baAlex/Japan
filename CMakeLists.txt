@@ -19,13 +19,11 @@ elseif (CMAKE_C_COMPILER_ID MATCHES "MSVC")
 endif()
 
 if (JA_EXPORT_SYMBOLS)
-
 	if ((CMAKE_C_COMPILER_ID MATCHES "Clang") OR (CMAKE_C_COMPILER_ID MATCHES "GNU"))
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DJA_EXPORT_SYMBOLS")
 	elseif (CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /DJA_EXPORT_SYMBOLS")
 	endif()
-
 endif ()
 
 set(SOURCES
@@ -60,7 +58,7 @@ endif ()
 
 if (JA_BUILD_TEST)
 
-	find_package(cmocka)
+	find_package(cmocka CONFIG)
 	if (cmocka_FOUND)
 
 		set(TEST_SUITE_SOURCES
@@ -71,7 +69,7 @@ if (JA_BUILD_TEST)
 			"./tests/test-suite.c")
 
 		add_executable("test-suite" ${TEST_SUITE_SOURCES})
-		include_directories(${CMOCKA_INCLUDE_DIR})
+		target_include_directories("test-suite" PRIVATE ${CMOCKA_INCLUDE_DIR})
 
 		target_link_libraries("test-suite" "japan-static")
 		target_link_libraries("test-suite" ${CMOCKA_LIBRARIES})
