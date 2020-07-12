@@ -27,7 +27,6 @@ if (JA_EXPORT_SYMBOLS)
 endif ()
 
 set(SOURCES
-	"./source/aabounding.c"
 	"./source/buffer.c"
 	"./source/dictionary.c"
 	"./source/endianness.c"
