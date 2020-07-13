@@ -49,10 +49,18 @@ set(SOURCES
 
 if (JA_BUILD_SHARED)
 	add_library("japan" SHARED ${SOURCES})
+
+	if (NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
+	target_link_libraries("japan" "m")
+	endif()
 endif ()
 
 if (JA_BUILD_STATIC)
 	add_library("japan-static" STATIC ${SOURCES})
+
+	if (NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
+	target_link_libraries("japan-static" "m")
+	endif()
 endif ()
 
 if (JA_BUILD_TEST)
@@ -72,10 +80,6 @@ if (JA_BUILD_TEST)
 
 		target_link_libraries("test-suite" PRIVATE "japan-static")
 		target_link_libraries("test-suite" PRIVATE ${CMOCKA_LIBRARIES})
-
-		if (NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
-			target_link_libraries("test-suite" PRIVATE "m")
-		endif()
 
 	endif ()
 endif ()
