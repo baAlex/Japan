@@ -5,8 +5,6 @@ LibJapan
 [![Windows CI](https://github.com/baAlex/libjapan/workflows/Windows/badge.svg)](https://github.com/baAlex/libjapan/actions?query=workflow%3AWindows)
 [![CodeQL scanning](https://github.com/baAlex/libjapan/workflows/CodeQL%20scanning/badge.svg)](https://github.com/baAlex/libjapan/security/code-scanning)
 
-- *(2020/7/7) Windows CI fails as Cmocka dependency is broken in VCPKG[[1]](https://github.com/microsoft/vcpkg/pull/12196).*
-
 A collection of frequently used features that the C language lacks: lists, hashes, trees, maths functions (vectors, matrices), between an etcetera of other utilities. Nothing different to existing general-purpose libraries.
 
 The project born as an exercise to learn the language and since then I been updating/refactoring it according to my needs and experience. There are some flaws to fix, designs to polish, and probably the library is too game-development oriented, I'm working on those aspects... so any help or suggestion is more that welcomed.

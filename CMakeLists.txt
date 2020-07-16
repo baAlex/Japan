@@ -64,7 +64,6 @@ if (JA_BUILD_STATIC)
 endif ()
 
 if (JA_BUILD_TEST)
-
 	find_package(cmocka CONFIG)
 	if (cmocka_FOUND)
 
@@ -80,6 +79,5 @@ if (JA_BUILD_TEST)
 
 		target_link_libraries("test-suite" PRIVATE "japan-static")
 		target_link_libraries("test-suite" PRIVATE ${CMOCKA_LIBRARIES})
-
 	endif ()
 endif ()
