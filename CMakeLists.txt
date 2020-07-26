@@ -29,6 +29,7 @@ endif ()
 set(SOURCES
 	"./source/buffer.c"
 	"./source/dictionary.c"
+	"./source/encode.c"
 	"./source/endianness.c"
 	"./source/list.c"
 	"./source/matrix.c"
@@ -70,6 +71,7 @@ if (JA_BUILD_TEST)
 		set(TEST_SUITE_SOURCES
 			"./tests/configurations.c"
 			"./tests/dictionaries.c"
+			"./tests/encodes.c"
 			"./tests/images.c"
 			"./tests/lists.c"
 			"./tests/test-suite.c")
