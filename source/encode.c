@@ -85,7 +85,7 @@ inline size_t jaUTF8UnitLength(uint8_t c)
 	return 255;
 }
 
-int jaUTF8ValidateUnit(const uint8_t* c, size_t bytes, uint32_t* out_code)
+int jaUTF8ValidateUnit(const uint8_t* c, size_t bytes, size_t* out_bytes, uint32_t* out_code)
 {
 	size_t tail_len = jaUTF8UnitLength(*c);
 	uint32_t code = (uint32_t)(*c);
@@ -94,6 +94,8 @@ int jaUTF8ValidateUnit(const uint8_t* c, size_t bytes, uint32_t* out_code)
 	{
 		if (out_code != NULL)
 			*out_code = code;
+		if (out_bytes != NULL)
+			*out_bytes = 0;
 
 		return 0;
 	}
@@ -134,6 +136,8 @@ int jaUTF8ValidateUnit(const uint8_t* c, size_t bytes, uint32_t* out_code)
 	// Bye!
 	if (out_code != NULL)
 		*out_code = code;
+	if (out_bytes != NULL)
+		*out_bytes = tail_len;
 
 	return 0;
 }
@@ -160,9 +164,9 @@ static inline int sUTF8ValidateUnitSimple(const uint8_t* c, size_t* tail_len)
 	}
 
 	// Overloading check
-	if ((tail_len == 1 && code < 0x0080)      // One tail byte = U+0080 to U+07FF
-	    || (tail_len == 2 && code < 0x0800)   // Two tails bytes = U+0800 to U+FFFF
-	    || (tail_len == 3 && code < 0x10000)) // Three tails bytes = U+10000 to U+10FFFF
+	if ((*tail_len == 1 && code < 0x0080)      // One tail byte = U+0080 to U+07FF
+	    || (*tail_len == 2 && code < 0x0800)   // Two tails bytes = U+0800 to U+FFFF
+	    || (*tail_len == 3 && code < 0x10000)) // Three tails bytes = U+10000 to U+10FFFF
 		return 1;
 
 	// Bye!
