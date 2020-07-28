@@ -20,17 +20,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define JA_ASCII_NULL 0x00
-#define JA_ASCII_EOL 0x0A // Aka LF
+JA_EXPORT int jaASCIIValidateUnit(uint8_t byte);
+JA_EXPORT int jaASCIIValidateString(const uint8_t* string, size_t n, size_t* out_bytes);
 
-#define JA_UTF8_NULL 0x00
-#define JA_UTF8_EOL 0x0A // Aka LF
-
-JA_EXPORT int jaASCIIValidateUnit(uint8_t c);
-JA_EXPORT int jaASCIIValidateString(const uint8_t* string, size_t bytes, size_t* out_bytes);
-
-JA_EXPORT size_t jaUTF8UnitLength(uint8_t c); // A return of >3 means an encoding error in 'c'
-JA_EXPORT int jaUTF8ValidateUnit(const uint8_t* c, size_t bytes, size_t* out_bytes, uint32_t* out_code);
-JA_EXPORT int jaUTF8ValidateString(const uint8_t* string, size_t bytes, size_t* out_bytes, size_t* out_units);
+JA_EXPORT size_t jaUTF8UnitLength(uint8_t head_byte);
+JA_EXPORT int jaUTF8ValidateUnit(const uint8_t* byte, size_t n, size_t* out_unit_len, uint32_t* out_unit_code);
 
 #endif

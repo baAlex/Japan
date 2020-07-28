@@ -67,10 +67,10 @@ void EncodeTest1(void** cmocka_state)
 					goto again;
 				}
 
-				// Using hash since the replacement character is already used
+				// Using '?' since the replacement character is already used
 				// by VSCode and Gnome Terminal (where I'm reading the results),
 				// this way being capable of identify what my code reject and what not
-				putc('#', out);
+				putc('?', out);
 			}
 		}
 	}
