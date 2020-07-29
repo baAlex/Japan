@@ -18,6 +18,19 @@
 
 #include "japan-image.h"
 
+#include <string.h>
+
+
+const char* sBasename(const char* filename)
+{
+	const char* s = NULL;
+
+	// Inefficient
+	if ((s = strrchr(filename, '/')) == NULL)
+		s = strrchr(filename, '\\');
+
+	return s;
+}
 
 // Borrowed from dictionary.c
 static uint64_t sFNV1Hash(const char* key, size_t size)
@@ -47,7 +60,7 @@ static uint64_t Validate(const char* filename, size_t expected_width, size_t exp
 
 	if ((image = jaImageLoad(filename, &st)) == NULL)
 	{
-		jaStatusPrint("ImateTest1_Sgi", st);
+		jaStatusPrint("ImageTest1_Sgi", st);
 		assert_false(true);
 	}
 
@@ -55,17 +68,19 @@ static uint64_t Validate(const char* filename, size_t expected_width, size_t exp
 	assert_true((image->height == expected_height));
 	assert_true((image->channels == expected_channels));
 
-	assert_true((image->size ==
-	             (size_t)(jaBitsPerComponent(expected_format) / 8) * expected_width * expected_height * expected_channels));
+	assert_true((image->size == (size_t)(jaBitsPerComponent(expected_format) / 8) * expected_width * expected_height *
+	                                expected_channels));
 
 	uint64_t hash = sFNV1Hash(image->data, image->size);
 
-	sprintf(temp_filename, "%s.data", filename);
-
-	if(jaImageSaveRaw(image, temp_filename, &st) != 0)
 	{
-		jaStatusPrint("ImateTest1_Sgi", st);
-		assert_false(true);
+		sprintf(temp_filename, "./tests/out/%s.data", sBasename(filename));
+
+		if (jaImageSaveRaw(image, temp_filename, &st) != 0)
+		{
+			jaStatusPrint("ImageTest1_Sgi", st);
+			assert_false(true);
+		}
 	}
 
 	jaImageDelete(image);

@@ -19,7 +19,7 @@
 #include "japan-encode.h"
 
 
-#define LITTLE_BUFFER_LEN 4 // For a single Unicode unit
+#define LITTLE_BUFFER_LEN 4 // Minimum for a single Unicode unit
 #define BIG_BUFFER_LEN (512 * 1024)
 
 
@@ -44,18 +44,18 @@ static void sBufferIteration(uint8_t* buffer, size_t total_buffer_len, FILE* fp_
 			}
 			else
 			{
-				// Bug- BBUUUUUUGGGGGG!!!!!!
-
 				// Maybe the buffer truncated the unit
-				/*if (unit_bytes > buffer_len - i)
+				if (unit_bytes != 255 && unit_bytes > buffer_len - i)
 				{
-				    size_t keep = buffer_len - i;
+					size_t keep = buffer_len - i;
 
-				    memcpy(buffer, buffer + i, keep);
-				    buffer_len = fread(buffer + keep, 1, total_buffer_len - keep, fp_in);
-				    buffer_len += keep;
-				    goto again;
-				}*/
+					for (size_t u = 0; u < keep; u++)
+						buffer[u] = buffer[i + u];
+
+					buffer_len = fread(buffer + keep, 1, total_buffer_len - keep, fp_in);
+					buffer_len += keep;
+					goto again;
+				}
 
 				// Using '?' since the replacement character is already used
 				// by VSCode and Gnome Terminal (where I'm reading the results),
@@ -67,12 +67,53 @@ static void sBufferIteration(uint8_t* buffer, size_t total_buffer_len, FILE* fp_
 }
 
 
+void EncodeTest1_BigLittleCoherency(void** cmocka_state)
+{
+	(void)cmocka_state;
+
+	FILE* fp_l = fopen("./tests/out/Kuhn-UTF8-lbuffer.txt", "rb");
+	FILE* fp_b = fopen("./tests/out/Kuhn-UTF8-bbuffer.txt", "rb");
+	assert_true(fp_l != NULL);
+	assert_true(fp_b != NULL);
+
+	uint8_t byte_l = 0;
+	uint8_t byte_b = 0;
+	size_t offset = 0;
+
+	while (1)
+	{
+		size_t status_l = fread(&byte_l, 1, 1, fp_l);
+		size_t status_b = fread(&byte_b, 1, 1, fp_b);
+
+		if (status_l != status_b)
+		{
+			fprintf(stderr, "[Error] Premature ending at offset %zu\n", offset);
+			assert_true(0);
+		}
+
+		if (byte_l != byte_b)
+		{
+			fprintf(stderr, "[Error] Discrepancy at offset %zu (%02X != %02X)\n", offset, byte_l, byte_b);
+			assert_true(0);
+		}
+
+		if (status_l == 0)
+			break;
+
+		offset += 1;
+	}
+
+	fclose(fp_l);
+	fclose(fp_b);
+}
+
+
 void EncodeTest1_KuhnLittleBuffer(void** cmocka_state)
 {
 	(void)cmocka_state;
 
-	FILE* fp_in = fopen("./tests/UTF-8-test.txt", "rb");
-	FILE* fp_out = fopen("./Kuhn-UTF8-little.txt", "wb");
+	FILE* fp_in = fopen("./tests/Kuhn-UTF8.txt", "rb");
+	FILE* fp_out = fopen("./tests/out/Kuhn-UTF8-lbuffer.txt", "wb");
 	assert_true(fp_in != NULL);
 	assert_true(fp_out != NULL);
 
@@ -89,8 +130,8 @@ void EncodeTest1_KuhnBigBuffer(void** cmocka_state)
 {
 	(void)cmocka_state;
 
-	FILE* fp_in = fopen("./tests/UTF-8-test.txt", "rb");
-	FILE* fp_out = fopen("./Kuhn-UTF8-big.txt", "wb");
+	FILE* fp_in = fopen("./tests/Kuhn-UTF8.txt", "rb");
+	FILE* fp_out = fopen("./tests/out/Kuhn-UTF8-bbuffer.txt", "wb");
 	assert_true(fp_in != NULL);
 	assert_true(fp_out != NULL);
 

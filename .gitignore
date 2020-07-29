@@ -2,7 +2,7 @@
 /*.a
 /*.so
 
-/tests/*.data
+/tests/out/
 
 /.ninja_log
 /.ninja_deps

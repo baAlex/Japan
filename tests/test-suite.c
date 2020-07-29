@@ -14,6 +14,9 @@
 #include <string.h>
 #include <time.h>
 
+#include <sys/stat.h>
+#include <sys/types.h>
+
 #include <cmocka.h>
 
 
@@ -32,9 +35,13 @@ extern void ImageTest1_Sgi(void** cmocka_state);
 
 extern void EncodeTest1_KuhnBigBuffer(void** cmocka_state);
 extern void EncodeTest1_KuhnLittleBuffer(void** cmocka_state);
+extern void EncodeTest1_BigLittleCoherency(void** cmocka_state);
 
 int main()
 {
+
+	mkdir("./tests/out/", 0777); // Deprecated on Window...
+
 	const struct CMUnitTest tests[] = {cmocka_unit_test(ListTest1_Iteration),
 	                                   cmocka_unit_test(ListTest2_RemovalAtIteration),
 	                                   cmocka_unit_test(ListTest3_BeforeAfterAddition),
@@ -49,7 +56,8 @@ int main()
 	                                   cmocka_unit_test(ConfigTest3_ParseFile),
 
 	                                   cmocka_unit_test(EncodeTest1_KuhnBigBuffer),
-	                                   cmocka_unit_test(EncodeTest1_KuhnLittleBuffer)};
+	                                   cmocka_unit_test(EncodeTest1_KuhnLittleBuffer),
+	                                   cmocka_unit_test(EncodeTest1_BigLittleCoherency)};
 
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }
