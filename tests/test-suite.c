@@ -30,27 +30,26 @@ extern void ConfigTest3_ParseFile(void** cmocka_state);
 
 extern void ImageTest1_Sgi(void** cmocka_state);
 
-extern void EncodeTest1(void** cmocka_state);
+extern void EncodeTest1_KuhnBigBuffer(void** cmocka_state);
+extern void EncodeTest1_KuhnLittleBuffer(void** cmocka_state);
 
 int main()
 {
-	const struct CMUnitTest tests[] =
-	{
-		cmocka_unit_test(ListTest1_Iteration),
-		cmocka_unit_test(ListTest2_RemovalAtIteration),
-		cmocka_unit_test(ListTest3_BeforeAfterAddition),
+	const struct CMUnitTest tests[] = {cmocka_unit_test(ListTest1_Iteration),
+	                                   cmocka_unit_test(ListTest2_RemovalAtIteration),
+	                                   cmocka_unit_test(ListTest3_BeforeAfterAddition),
 
-		cmocka_unit_test(DictionaryTest1_FNV1Hash),
-		cmocka_unit_test(DictionaryTest2_SimpleUsage),
+	                                   cmocka_unit_test(DictionaryTest1_FNV1Hash),
+	                                   cmocka_unit_test(DictionaryTest2_SimpleUsage),
 
-		cmocka_unit_test(ImageTest1_Sgi),
+	                                   cmocka_unit_test(ImageTest1_Sgi),
 
-		cmocka_unit_test(ConfigTest1),
-		cmocka_unit_test(ConfigTest2_TokenizeFile),
-		cmocka_unit_test(ConfigTest3_ParseFile),
+	                                   cmocka_unit_test(ConfigTest1),
+	                                   cmocka_unit_test(ConfigTest2_TokenizeFile),
+	                                   cmocka_unit_test(ConfigTest3_ParseFile),
 
-		cmocka_unit_test(EncodeTest1)
-	};
+	                                   cmocka_unit_test(EncodeTest1_KuhnBigBuffer),
+	                                   cmocka_unit_test(EncodeTest1_KuhnLittleBuffer)};
 
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }
