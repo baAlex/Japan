@@ -35,12 +35,13 @@ extern void ImageTest1_Sgi(void** cmocka_state);
 
 extern void EncodeTest1_KuhnBigBuffer(void** cmocka_state);
 extern void EncodeTest1_KuhnLittleBuffer(void** cmocka_state);
-extern void EncodeTest1_BigLittleCoherency(void** cmocka_state);
+extern void EncodeTest1_KuhnOneShot(void** cmocka_state);
+extern void EncodeTest1_Coherency(void** cmocka_state);
 
 int main()
 {
 
-	mkdir("./tests/out/", 0777); // Deprecated on Window...
+	mkdir("./tests/out/", 0777); // Deprecated on Windows...
 
 	const struct CMUnitTest tests[] = {cmocka_unit_test(ListTest1_Iteration),
 	                                   cmocka_unit_test(ListTest2_RemovalAtIteration),
@@ -57,7 +58,8 @@ int main()
 
 	                                   cmocka_unit_test(EncodeTest1_KuhnBigBuffer),
 	                                   cmocka_unit_test(EncodeTest1_KuhnLittleBuffer),
-	                                   cmocka_unit_test(EncodeTest1_BigLittleCoherency)};
+	                                   cmocka_unit_test(EncodeTest1_KuhnOneShot),
+	                                   cmocka_unit_test(EncodeTest1_Coherency)};
 
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

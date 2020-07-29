@@ -162,13 +162,13 @@ int jaUTF8ValidateUnit(const uint8_t* byte, size_t n, size_t* out_unit_len, uint
 	return 0;
 }
 
-static inline int sUTF8ValidateUnitSimple(const uint8_t* byte, size_t n, size_t* unit_len)
+static inline int sUTF8ValidateUnitSimple(const uint8_t* byte, const uint8_t* end, size_t* unit_len)
 {
 	*unit_len = jaUTF8UnitLength(*byte);
 
 	if (*unit_len == 1)
 		return 0;
-	else if (*unit_len > 4 || *unit_len > n)
+	else if (*unit_len > 4 || (byte + *unit_len) > end)
 		return 1;
 
 	// Validate whole unit
@@ -208,4 +208,38 @@ static inline int sUTF8ValidateUnitSimple(const uint8_t* byte, size_t n, size_t*
 	return 0;
 }
 
-int jaUTF8ValidateString(const uint8_t* string, size_t bytes, size_t* out_bytes, size_t* out_units) {}
+int jaUTF8ValidateString(const uint8_t* string, size_t n, size_t* out_bytes, size_t* out_units)
+{
+	size_t bytes = 0;
+	size_t units = 0;
+
+	size_t unit_lenght = 0;
+
+	for (const uint8_t* string_end = (string + n); string < string_end; string++)
+	{
+		if (sUTF8ValidateUnitSimple(string, string_end, &unit_lenght) != 0)
+			break;
+
+		bytes += unit_lenght;
+		units += 1;
+
+		if (*string == 0x00) // NULL
+		{
+			if (out_bytes != NULL)
+				*out_bytes = bytes; // Counts NULL as part of the string
+			if (out_units != NULL)
+				*out_units = units;
+
+			return 0;
+		}
+
+		string += unit_lenght - 1;
+	}
+
+	if (out_bytes != NULL)
+		*out_bytes = bytes; // Valid bytes so far
+	if (out_units != NULL)
+		*out_units = units;
+
+	return 1;
+}

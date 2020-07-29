@@ -25,5 +25,6 @@ JA_EXPORT int jaASCIIValidateString(const uint8_t* string, size_t n, size_t* out
 
 JA_EXPORT size_t jaUTF8UnitLength(uint8_t head_byte);
 JA_EXPORT int jaUTF8ValidateUnit(const uint8_t* byte, size_t n, size_t* out_unit_len, uint32_t* out_unit_code);
+JA_EXPORT int jaUTF8ValidateString(const uint8_t* string, size_t n, size_t* out_bytes, size_t* out_units);
 
 #endif
