@@ -24,14 +24,14 @@ SOFTWARE.
 
 -------------------------------
 
- [encode.c]
+ [string.c]
  - Alexander Brandt 2020
 
 https://en.wikipedia.org/wiki/Ascii
 https://en.wikipedia.org/wiki/UTF-8
 -----------------------------*/
 
-#include "japan-encode.h"
+#include "japan-string.h"
 
 
 inline int jaASCIIValidateUnit(uint8_t byte)

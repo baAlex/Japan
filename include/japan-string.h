@@ -1,11 +1,11 @@
-/*-----------------------------
+stringstring/*-----------------------------
 
- [japan-encode.h]
- - Alexander Brandt 2019-2020
+ [japan-string.h]
+ - Alexander Brandt 2020
 -----------------------------*/
 
-#ifndef JAPAN_ENCODE_H
-#define JAPAN_ENCODE_H
+#ifndef JAPAN_STRING_H
+#define JAPAN_STRING_H
 
 #ifdef JA_EXPORT_SYMBOLS
 	#if defined(__clang__) || defined(__GNUC__)

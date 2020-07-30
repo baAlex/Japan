@@ -29,11 +29,11 @@ endif ()
 set(SOURCES
 	"./source/buffer.c"
 	"./source/dictionary.c"
-	"./source/encode.c"
 	"./source/endianness.c"
 	"./source/list.c"
 	"./source/matrix.c"
 	"./source/status.c"
+	"./source/string.c"
 	"./source/tree.c"
 	"./source/utilities.c"
 	"./source/vector.c"
@@ -71,9 +71,9 @@ if (JA_BUILD_TEST)
 		set(TEST_SUITE_SOURCES
 			"./tests/configurations.c"
 			"./tests/dictionaries.c"
-			"./tests/encodes.c"
 			"./tests/images.c"
 			"./tests/lists.c"
+			"./tests/strings.c"
 			"./tests/test-suite.c")
 
 		add_executable("test-suite" ${TEST_SUITE_SOURCES})

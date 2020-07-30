@@ -1,6 +1,6 @@
 /*-----------------------------
 
- [encodes.c]
+ [strings.c]
  - Alexander Brandt 2020
 -----------------------------*/
 
@@ -16,7 +16,7 @@
 
 #include <cmocka.h>
 
-#include "japan-encode.h"
+#include "japan-string.h"
 
 
 #define LITTLE_BUFFER_LEN 4 // Minimum for a single Unicode unit
@@ -68,7 +68,7 @@ static void sBufferIteration(uint8_t* buffer, size_t total_buffer_len, FILE* fp_
 }
 
 
-void EncodeTest1_Coherency(void** cmocka_state)
+void StringEncodeTest1_Coherency(void** cmocka_state)
 {
 	(void)cmocka_state;
 
@@ -115,7 +115,7 @@ void EncodeTest1_Coherency(void** cmocka_state)
 }
 
 
-void EncodeTest1_KuhnLittleBuffer(void** cmocka_state)
+void StringEncodeTest1_KuhnLittleBuffer(void** cmocka_state)
 {
 	(void)cmocka_state;
 
@@ -133,7 +133,7 @@ void EncodeTest1_KuhnLittleBuffer(void** cmocka_state)
 }
 
 
-void EncodeTest1_KuhnBigBuffer(void** cmocka_state)
+void StringEncodeTest1_KuhnBigBuffer(void** cmocka_state)
 {
 	(void)cmocka_state;
 
@@ -151,7 +151,7 @@ void EncodeTest1_KuhnBigBuffer(void** cmocka_state)
 }
 
 
-void EncodeTest1_KuhnOneShot(void** cmocka_state)
+void StringEncodeTest1_KuhnOneShot(void** cmocka_state)
 {
 	(void)cmocka_state;
 
