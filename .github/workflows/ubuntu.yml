@@ -31,3 +31,9 @@ jobs:
     - name: Run test suite
       run: |
         ./build-debug/test-suite
+
+    - name: Upload tests output artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: Tests output
+        path: tests/out/
