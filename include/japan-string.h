@@ -1,4 +1,4 @@
-stringstring/*-----------------------------
+/*-----------------------------
 
  [japan-string.h]
  - Alexander Brandt 2020
