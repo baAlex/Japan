@@ -37,6 +37,8 @@ extern void StringEncodeTest1_KuhnBigBuffer(void** cmocka_state);
 extern void StringEncodeTest1_KuhnLittleBuffer(void** cmocka_state);
 extern void StringEncodeTest1_KuhnOneShot(void** cmocka_state);
 extern void StringEncodeTest1_Coherency(void** cmocka_state);
+extern void StringTokenizerTest1_Simple(void** cmocka_state);
+extern void StringTokenizerTest2_Rockafeller(void** cmocka_state);
 
 int main()
 {
@@ -59,7 +61,9 @@ int main()
 	                                   cmocka_unit_test(StringEncodeTest1_KuhnBigBuffer),
 	                                   cmocka_unit_test(StringEncodeTest1_KuhnLittleBuffer),
 	                                   cmocka_unit_test(StringEncodeTest1_KuhnOneShot),
-	                                   cmocka_unit_test(StringEncodeTest1_Coherency)};
+	                                   cmocka_unit_test(StringEncodeTest1_Coherency),
+	                                   cmocka_unit_test(StringTokenizerTest1_Simple),
+	                                   cmocka_unit_test(StringTokenizerTest2_Rockafeller)};
 
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

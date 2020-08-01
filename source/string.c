@@ -31,6 +31,10 @@ https://en.wikipedia.org/wiki/Ascii
 https://en.wikipedia.org/wiki/UTF-8
 -----------------------------*/
 
+#include <stdlib.h>
+#include <string.h>
+
+#include "japan-buffer.h"
 #include "japan-string.h"
 
 
@@ -240,6 +244,180 @@ int jaUTF8ValidateString(const uint8_t* string, size_t n, size_t* out_bytes, siz
 		*out_bytes = bytes; // Valid bytes so far
 	if (out_units != NULL)
 		*out_units = units;
+
+	return 1;
+}
+
+
+struct jaTokenizer
+{
+	// Set at creation:
+	int (*callback)(struct jaTokenizer*, struct jaToken*);
+	const uint8_t* input;
+	const uint8_t* input_start;
+	const uint8_t* input_end;
+
+	// Zero at creation:
+	struct jaBuffer token_buffer;
+	struct jaBuffer end_buffer;
+
+	size_t line_number;
+	size_t unit_number;
+	size_t byte_offset;
+
+	union
+	{
+		struct jaTokenEnd e; // A internal copy of what the user receives
+		uint64_t union_hack; // Hack of the union variety
+	} end;
+};
+
+
+static inline int sBufferAppend(struct jaBuffer* buffer, size_t* index, uint8_t data)
+{
+	if (*index + 1 > buffer->size)
+		jaBufferResize(buffer, *index + 1); // TODO, check failure
+
+	((uint8_t*)buffer->data)[*index] = data;
+	*index += 1;
+
+	return 0;
+}
+
+
+static int sASCIITokenizer(struct jaTokenizer* state, struct jaToken* out_token)
+{
+	size_t token_buffer_i = 0;
+	size_t end_buffer_i = 0;
+
+	state->end.union_hack = 0;
+
+	if (state->input >= state->input_end)
+		return 2;
+
+	out_token->line_number = state->line_number;
+	out_token->unit_number = state->unit_number;
+	out_token->byte_offset = state->byte_offset;
+
+	for (; state->input < state->input_end; state->input += 1)
+	{
+		if (jaASCIIValidateUnit(*state->input) != 0) // TODO, return error
+			break;
+
+		state->unit_number += 1;
+		state->byte_offset += 1;
+
+		switch (*state->input)
+		{
+		case 0x00: // NULL
+			state->end.e.null = true;
+			state->input_end = state->input; // User gave us a wrong end
+			goto outside_loop;
+		case 0x20: // SPACE
+		case 0x09: // HORIZONTAL TAB
+			state->end.e.whitespace = true;
+			sBufferAppend(&state->end_buffer, &end_buffer_i, *state->input);
+			break;
+		case 0x0A: // LINE FEED
+			state->end.e.new_line = true;
+			state->line_number += 1;
+			sBufferAppend(&state->end_buffer, &end_buffer_i, *state->input);
+			break;
+		case 0x2E: // FULL STOP
+			state->end.e.full_stop = true;
+			sBufferAppend(&state->end_buffer, &end_buffer_i, *state->input);
+			break;
+		case 0x2C: // COMMA
+			state->end.e.comma = true;
+			sBufferAppend(&state->end_buffer, &end_buffer_i, *state->input);
+			break;
+		case 0x3B: // SEMICOLON
+			state->end.e.semicolon = true;
+			sBufferAppend(&state->end_buffer, &end_buffer_i, *state->input);
+			break;
+		case 0x22: // DOUBLE QUOTATION
+		case 0x27: // SIMPLE QUOTATION
+			state->end.e.quotation = true;
+			sBufferAppend(&state->end_buffer, &end_buffer_i, *state->input);
+			break;
+		case 0x2D: // HYPHEN MINUS
+			state->end.e.hyphen = true;
+			sBufferAppend(&state->end_buffer, &end_buffer_i, *state->input);
+			break;
+
+			// Character to form the token
+		default:
+			if (state->end.union_hack == 0)
+				sBufferAppend(&state->token_buffer, &token_buffer_i, *state->input);
+			else
+			{
+				state->unit_number -= 1; // This character never existed ;)
+				state->byte_offset -= 1;
+				goto outside_loop;
+			}
+		}
+	}
+
+outside_loop:
+	sBufferAppend(&state->token_buffer, &token_buffer_i, 0x00);
+	sBufferAppend(&state->end_buffer, &end_buffer_i, 0x00);
+
+	// Bye!
+	out_token->string = state->token_buffer.data;
+	out_token->end_string = state->end_buffer.data;
+	out_token->end = state->end.e;
+	return 0;
+}
+
+
+static int sUTF8Tokenizer(struct jaTokenizer* state, struct jaToken* out_token)
+{
+	(void)state;
+	(void)out_token;
+	return 1;
+}
+
+
+static inline struct jaTokenizer* sTokenizerCreate(const uint8_t* string, size_t n, int (*callback)())
+{
+	struct jaTokenizer* state = NULL;
+
+	if ((state = calloc(1, sizeof(struct jaTokenizer))) != NULL)
+	{
+		state->callback = callback;
+		state->input_start = string;
+		state->input_end = string + n;
+		state->input = string;
+	}
+
+	return state;
+}
+
+
+struct jaTokenizer* jaASCIITokenizerCreate(const uint8_t* string, size_t n)
+{
+	return sTokenizerCreate(string, n, sASCIITokenizer);
+}
+
+struct jaTokenizer* jaUTF8TokenizerCreate(const uint8_t* string, size_t n)
+{
+	return sTokenizerCreate(string, n, sUTF8Tokenizer);
+}
+
+inline void jaTokenizerDelete(struct jaTokenizer* state)
+{
+	if (state != NULL)
+	{
+		jaBufferClean(&state->token_buffer);
+		jaBufferClean(&state->end_buffer);
+		free(state);
+	}
+}
+
+inline int jaTokenize(struct jaTokenizer* state, struct jaToken* out_token)
+{
+	if (out_token != NULL)
+		return state->callback(state, out_token);
 
 	return 1;
 }

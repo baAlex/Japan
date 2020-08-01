@@ -189,3 +189,74 @@ void StringEncodeTest1_KuhnOneShot(void** cmocka_state)
 	fclose(fp_out);
 	fclose(fp_in);
 }
+
+
+void StringTokenizerTest1_Simple(void** cmocka_state)
+{
+	(void)cmocka_state;
+
+	struct jaToken token;
+	struct jaTokenizer* t = jaASCIITokenizerCreate((uint8_t*)"cat.\nneko\t,gato- ", 1000);
+	assert_true(t != NULL);
+
+	while (1)
+	{
+		if (jaTokenize(t, &token) != 0)
+			break;
+
+		printf("Token (offset: %zu, line: %zu) «%s», ending with: «%s»\n", token.byte_offset, token.line_number,
+		       token.string, token.end_string);
+	}
+
+	jaTokenizerDelete(t);
+}
+
+
+void StringTokenizerTest2_Rockafeller(void** cmocka_state)
+{
+	(void)cmocka_state;
+
+	FILE* fp = fopen("./tests/rockafeller.txt", "rb");
+	assert_true(fp != NULL);
+
+	uint8_t buffer[ONE_SHOT_BUFFER_LEN];
+	size_t buffer_len = fread(buffer, 1, ONE_SHOT_BUFFER_LEN, fp);
+
+	struct jaTokenizer* t = jaASCIITokenizerCreate(buffer, buffer_len);
+	assert_true(t != NULL);
+
+	int occurrences_right = 0;
+	int occurrences_funk = 0;
+	int occurrences_soul = 0;
+	int occurrences_now = 0;
+
+	while (1)
+	{
+		struct jaToken token;
+
+		if (jaTokenize(t, &token) != 0)
+			break;
+
+		if (strcmp((char*)token.string, "Right") == 0)
+			occurrences_right += 1;
+		if (strcmp((char*)token.string, "funk") == 0)
+			occurrences_funk += 1;
+		if (strcmp((char*)token.string, "soul") == 0)
+			occurrences_soul += 1;
+		if (strcmp((char*)token.string, "now") == 0)
+			occurrences_now += 1;
+	}
+
+	printf("'Right' occurrences: %i\n", occurrences_right);
+	printf("'funk' occurrences: %i\n", occurrences_funk);
+	printf("'soul' occurrences: %i\n", occurrences_soul);
+	printf("'now' occurrences: %i\n", occurrences_now);
+
+	assert_true(occurrences_right == 32);
+	assert_true(occurrences_funk == 37);
+	assert_true(occurrences_soul == 37);
+	assert_true(occurrences_now == 121);
+
+	jaTokenizerDelete(t);
+	fclose(fp);
+}
