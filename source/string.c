@@ -29,6 +29,9 @@ SOFTWARE.
 
 https://en.wikipedia.org/wiki/Ascii
 https://en.wikipedia.org/wiki/UTF-8
+
+TODO: Investigate how handle CRLF correctly?
+      discard CR seems so wrong...
 -----------------------------*/
 
 #include <stdlib.h>
@@ -304,6 +307,9 @@ static int sASCIITokenizer(struct jaTokenizer* state, struct jaToken* out_token)
 		if (jaASCIIValidateUnit(*state->input) != 0) // TODO, return error
 			break;
 
+		if (*state->input == 0x0D) // CARRIAGE RETURN
+			continue; // Welcome to UNIX :)
+
 		state->unit_number += 1;
 		state->byte_offset += 1;
 
@@ -378,7 +384,7 @@ static int sUTF8Tokenizer(struct jaTokenizer* state, struct jaToken* out_token)
 }
 
 
-static inline struct jaTokenizer* sTokenizerCreate(const uint8_t* string, size_t n, int (*callback)())
+static inline struct jaTokenizer* sTokenizerCreate(const uint8_t* string, size_t n, int (*callback)(struct jaTokenizer*, struct jaToken*))
 {
 	struct jaTokenizer* state = NULL;
 

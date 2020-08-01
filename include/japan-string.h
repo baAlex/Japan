@@ -31,7 +31,7 @@ struct jaTokenEnd
 
 	bool null : 1;
 	bool whitespace : 1; // Spaces and tab
-	bool new_line : 1;   // LF
+	bool new_line : 1;   // LF, discards CR
 	bool full_stop : 1;
 	bool comma : 1;
 	bool semicolon : 1;

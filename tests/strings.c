@@ -204,7 +204,7 @@ void StringTokenizerTest1_Simple(void** cmocka_state)
 		if (jaTokenize(t, &token) != 0)
 			break;
 
-		printf("Token (offset: %zu, line: %zu) «%s», ending with: «%s»\n", token.byte_offset, token.line_number,
+		printf("Token (offset: %zu, line: %zu) '%s', ending with: '%s'\n", token.byte_offset, token.line_number,
 		       token.string, token.end_string);
 	}
 
