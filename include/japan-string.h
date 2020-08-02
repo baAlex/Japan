@@ -25,18 +25,41 @@ struct jaTokenizer;
 
 struct jaTokenEnd
 {
-	// TODO: I'm sure that Unicode define a criteria on
-	// what breaks and what not. It seems that everything
-	// that is not alphanumeric breaks, except a underscore
-
 	bool null : 1;
 	bool whitespace : 1; // Spaces and tab
 	bool new_line : 1;   // LF, discards CR
-	bool full_stop : 1;
+
+	bool exclamation : 1;
+	bool quotation : 1;   // Aka: English double neutral quotation mark
+	bool number_sign : 1; // Aka: Hash(tag)
+	bool dollar_sign : 1;
+	bool percent_sign : 1;
+	bool ampersand : 1;
+	bool apostrophe : 1; // Aka: English simple neutral quotation mark
+	bool left_parenthesis : 1;
+	bool right_parenthesis : 1;
+	bool asterisk : 1;
+	bool plus_sign : 1;
 	bool comma : 1;
+	bool minus_sign : 1; // Unicode name: Hyphen-minus
+	bool full_stop : 1;
+	bool slash : 1; // Unicode name: Solidus-slash
+	bool colon : 1;
 	bool semicolon : 1;
-	bool quotation : 1; // The English ones, single and double
-	bool hyphen : 1;
+	bool less_than_sign : 1;
+	bool equals_sign : 1;
+	bool greater_than_sign : 1;
+	bool question_mark : 1;
+	bool at_sign : 1; // Unicode name: Commercial at
+	bool left_square_bracket : 1;
+	bool backslash : 1; // Unicode name: Reverse solidus-backslash
+	bool right_square_bracket : 1;
+	bool accent : 1; // Unicode name: Circumflex accent
+	bool grave_accent : 1;
+	bool left_curly_bracket : 1;
+	bool vertical_line : 1;
+	bool right_curly_bracket : 1;
+	bool tilde : 1;
 };
 
 struct jaToken

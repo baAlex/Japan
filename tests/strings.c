@@ -195,8 +195,11 @@ void StringTokenizerTest1_Simple(void** cmocka_state)
 {
 	(void)cmocka_state;
 
+	printf("%zu\n", sizeof(struct jaTokenEnd)); // I'm paranoid :/
+	printf("%zu\n", sizeof(struct jaToken));
+
 	struct jaToken token;
-	struct jaTokenizer* t = jaASCIITokenizerCreate((uint8_t*)"cat.\nneko\t,gato- ", 1000);
+	struct jaTokenizer* t = jaASCIITokenizerCreate((uint8_t*)"cat.   \nneko\t,gato- ", 1000);
 	assert_true(t != NULL);
 
 	while (1)
@@ -229,6 +232,7 @@ void StringTokenizerTest2_Rockafeller(void** cmocka_state)
 	int occurrences_funk = 0;
 	int occurrences_soul = 0;
 	int occurrences_now = 0;
+	int tokens = 0;
 
 	while (1)
 	{
@@ -237,13 +241,15 @@ void StringTokenizerTest2_Rockafeller(void** cmocka_state)
 		if (jaTokenize(t, &token) != 0)
 			break;
 
+		tokens += 1;
+
 		if (strcmp((char*)token.string, "Right") == 0)
 			occurrences_right += 1;
-		if (strcmp((char*)token.string, "funk") == 0)
+		else if (strcmp((char*)token.string, "funk") == 0)
 			occurrences_funk += 1;
-		if (strcmp((char*)token.string, "soul") == 0)
+		else if (strcmp((char*)token.string, "soul") == 0)
 			occurrences_soul += 1;
-		if (strcmp((char*)token.string, "now") == 0)
+		else if (strcmp((char*)token.string, "now") == 0)
 			occurrences_now += 1;
 	}
 
@@ -251,6 +257,7 @@ void StringTokenizerTest2_Rockafeller(void** cmocka_state)
 	printf("'funk' occurrences: %i\n", occurrences_funk);
 	printf("'soul' occurrences: %i\n", occurrences_soul);
 	printf("'now' occurrences: %i\n", occurrences_now);
+	printf("%i tokens\n", tokens);
 
 	assert_true(occurrences_right == 32);
 	assert_true(occurrences_funk == 37);

@@ -307,51 +307,75 @@ static int sASCIITokenizer(struct jaTokenizer* state, struct jaToken* out_token)
 		if (jaASCIIValidateUnit(*state->input) != 0) // TODO, return error
 			break;
 
-		if (*state->input == 0x0D) // CARRIAGE RETURN
-			continue; // Welcome to UNIX :)
+		if (*state->input == 0x0D) // CR
+			continue;
 
 		state->unit_number += 1;
 		state->byte_offset += 1;
 
+		// Close your eyes, hopefully an intelligent compiler will append
+		// the following conditional mess to the big switch below (TODO)
+		if ((*state->input >= 0x21 && *state->input <= 0x2F) || (*state->input >= 0x3A && *state->input <= 0x40) ||
+		    (*state->input >= 0x5B && *state->input <= 0x5E) || (*state->input == 0x60) ||
+		    (*state->input >= 0x7B && *state->input <= 0x7E) || (*state->input == 0x0A))
+			sBufferAppend(&state->end_buffer, &end_buffer_i, *state->input);
+
+		// Choose which characters will form the token,
+		// and which ones mark his end
 		switch (*state->input)
 		{
+		case 0x21: state->end.e.exclamation = true; break;
+		case 0x22: state->end.e.quotation = true; break;
+		case 0x23: state->end.e.number_sign = true; break;
+		case 0x24: state->end.e.dollar_sign = true; break;
+		case 0x25: state->end.e.percent_sign = true; break;
+		case 0x26: state->end.e.ampersand = true; break;
+		case 0x27: state->end.e.apostrophe = true; break;
+		case 0x28: state->end.e.left_parenthesis = true; break;
+		case 0x29: state->end.e.right_parenthesis = true; break;
+		case 0x2A: state->end.e.asterisk = true; break;
+		case 0x2B: state->end.e.plus_sign = true; break;
+		case 0x2C: state->end.e.comma = true; break;
+		case 0x2D: state->end.e.minus_sign = true; break;
+		case 0x2E: state->end.e.full_stop = true; break;
+		case 0x2F: state->end.e.slash = true; break;
+
+		case 0x3A: state->end.e.colon = true; break;
+		case 0x3B: state->end.e.semicolon = true; break;
+		case 0x3C: state->end.e.less_than_sign = true; break;
+		case 0x3D: state->end.e.equals_sign = true; break;
+		case 0x3E: state->end.e.greater_than_sign = true; break;
+		case 0x3F: state->end.e.question_mark = true; break;
+		case 0x40: state->end.e.at_sign = true; break;
+
+		case 0x5B: state->end.e.left_square_bracket = true; break;
+		case 0x5C: state->end.e.backslash = true; break;
+		case 0x5D: state->end.e.right_square_bracket = true; break;
+		case 0x5E: state->end.e.accent = true; break;
+
+		case 0x60: state->end.e.grave_accent = true; break;
+
+		case 0x7B: state->end.e.left_curly_bracket = true; break;
+		case 0x7C: state->end.e.vertical_line = true; break;
+		case 0x7D: state->end.e.right_curly_bracket = true; break;
+		case 0x7E: state->end.e.tilde = true; break;
+
+		case 0x20: // Space
+		case 0x09: // Horizontal Tab
+			state->end.e.whitespace = true;
+			break;
+
+		case 0x0A: // LF
+			state->end.e.new_line = true;
+			state->line_number += 1;
+			break;
+
 		case 0x00: // NULL
 			state->end.e.null = true;
 			state->input_end = state->input; // User gave us a wrong end
 			goto outside_loop;
-		case 0x20: // SPACE
-		case 0x09: // HORIZONTAL TAB
-			state->end.e.whitespace = true;
-			sBufferAppend(&state->end_buffer, &end_buffer_i, *state->input);
-			break;
-		case 0x0A: // LINE FEED
-			state->end.e.new_line = true;
-			state->line_number += 1;
-			sBufferAppend(&state->end_buffer, &end_buffer_i, *state->input);
-			break;
-		case 0x2E: // FULL STOP
-			state->end.e.full_stop = true;
-			sBufferAppend(&state->end_buffer, &end_buffer_i, *state->input);
-			break;
-		case 0x2C: // COMMA
-			state->end.e.comma = true;
-			sBufferAppend(&state->end_buffer, &end_buffer_i, *state->input);
-			break;
-		case 0x3B: // SEMICOLON
-			state->end.e.semicolon = true;
-			sBufferAppend(&state->end_buffer, &end_buffer_i, *state->input);
-			break;
-		case 0x22: // DOUBLE QUOTATION
-		case 0x27: // SIMPLE QUOTATION
-			state->end.e.quotation = true;
-			sBufferAppend(&state->end_buffer, &end_buffer_i, *state->input);
-			break;
-		case 0x2D: // HYPHEN MINUS
-			state->end.e.hyphen = true;
-			sBufferAppend(&state->end_buffer, &end_buffer_i, *state->input);
-			break;
 
-			// Character to form the token
+		// Character to form the token
 		default:
 			if (state->end.union_hack == 0)
 				sBufferAppend(&state->token_buffer, &token_buffer_i, *state->input);
@@ -384,7 +408,8 @@ static int sUTF8Tokenizer(struct jaTokenizer* state, struct jaToken* out_token)
 }
 
 
-static inline struct jaTokenizer* sTokenizerCreate(const uint8_t* string, size_t n, int (*callback)(struct jaTokenizer*, struct jaToken*))
+static inline struct jaTokenizer* sTokenizerCreate(const uint8_t* string, size_t n,
+                                                   int (*callback)(struct jaTokenizer*, struct jaToken*))
 {
 	struct jaTokenizer* state = NULL;
 
