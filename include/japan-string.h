@@ -21,6 +21,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "japan-status.h"
+
 struct jaTokenizer;
 
 struct jaTokenEnd
@@ -85,6 +87,6 @@ JA_EXPORT struct jaTokenizer* jaASCIITokenizerCreate(const uint8_t* string, size
 JA_EXPORT struct jaTokenizer* jaUTF8TokenizerCreate(const uint8_t* string, size_t n);
 JA_EXPORT void jaTokenizerDelete(struct jaTokenizer*);
 
-JA_EXPORT int jaTokenize(struct jaTokenizer*, struct jaToken* out_token);
+JA_EXPORT int jaTokenize(struct jaTokenizer*, struct jaToken* out_token, struct jaStatus* st);
 
 #endif

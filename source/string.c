@@ -257,8 +257,9 @@ struct jaTokenizer
 	// Set at creation:
 	int (*callback)(struct jaTokenizer*, struct jaToken*);
 	const uint8_t* input;
-	const uint8_t* input_start;
 	const uint8_t* input_end;
+
+	struct jaStatus st;
 
 	// Zero at creation:
 	struct jaBuffer token_buffer;
@@ -276,10 +277,16 @@ struct jaTokenizer
 };
 
 
-static inline int sBufferAppend(struct jaBuffer* buffer, size_t* index, uint8_t data)
+static inline int sBufferAppend(struct jaBuffer* buffer, size_t* index, uint8_t data, struct jaStatus* st)
 {
 	if (*index + 1 > buffer->size)
-		jaBufferResize(buffer, *index + 1); // TODO, check failure
+	{
+		if (jaBufferResize(buffer, *index + 1) == NULL)
+		{
+			jaStatusSet(st, "jaTokenize", JA_STATUS_MEMORY_ERROR, NULL);
+			return 1;
+		}
+	}
 
 	((uint8_t*)buffer->data)[*index] = data;
 	*index += 1;
@@ -304,8 +311,11 @@ static int sASCIITokenizer(struct jaTokenizer* state, struct jaToken* out_token)
 
 	for (; state->input < state->input_end; state->input += 1)
 	{
-		if (jaASCIIValidateUnit(*state->input) != 0) // TODO, return error
-			break;
+		if (jaASCIIValidateUnit(*state->input) != 0)
+		{
+			jaStatusSet(&state->st, "jaTokenize", JA_STATUS_ASCII_ERROR, "character \\%02X", *state->input);
+			return 1;
+		}
 
 		if (*state->input == 0x0D) // CR
 			continue;
@@ -318,7 +328,10 @@ static int sASCIITokenizer(struct jaTokenizer* state, struct jaToken* out_token)
 		if ((*state->input >= 0x21 && *state->input <= 0x2F) || (*state->input >= 0x3A && *state->input <= 0x40) ||
 		    (*state->input >= 0x5B && *state->input <= 0x5E) || (*state->input == 0x60) ||
 		    (*state->input >= 0x7B && *state->input <= 0x7E) || (*state->input == 0x0A))
-			sBufferAppend(&state->end_buffer, &end_buffer_i, *state->input);
+		{
+			if (sBufferAppend(&state->end_buffer, &end_buffer_i, *state->input, &state->st) != 0)
+				return 1;
+		}
 
 		// Choose which characters will form the token,
 		// and which ones mark his end
@@ -378,7 +391,7 @@ static int sASCIITokenizer(struct jaTokenizer* state, struct jaToken* out_token)
 		// Character to form the token
 		default:
 			if (state->end.union_hack == 0)
-				sBufferAppend(&state->token_buffer, &token_buffer_i, *state->input);
+				sBufferAppend(&state->token_buffer, &token_buffer_i, *state->input, &state->st);
 			else
 			{
 				state->unit_number -= 1; // This character never existed ;)
@@ -389,8 +402,8 @@ static int sASCIITokenizer(struct jaTokenizer* state, struct jaToken* out_token)
 	}
 
 outside_loop:
-	sBufferAppend(&state->token_buffer, &token_buffer_i, 0x00);
-	sBufferAppend(&state->end_buffer, &end_buffer_i, 0x00);
+	sBufferAppend(&state->token_buffer, &token_buffer_i, 0x00, &state->st);
+	sBufferAppend(&state->end_buffer, &end_buffer_i, 0x00, &state->st);
 
 	// Bye!
 	out_token->string = state->token_buffer.data;
@@ -416,9 +429,10 @@ static inline struct jaTokenizer* sTokenizerCreate(const uint8_t* string, size_t
 	if ((state = calloc(1, sizeof(struct jaTokenizer))) != NULL)
 	{
 		state->callback = callback;
-		state->input_start = string;
 		state->input_end = string + n;
 		state->input = string;
+
+		jaStatusSet(&state->st, "jaTokenize", JA_STATUS_SUCCESS, NULL);
 	}
 
 	return state;
@@ -445,10 +459,13 @@ inline void jaTokenizerDelete(struct jaTokenizer* state)
 	}
 }
 
-inline int jaTokenize(struct jaTokenizer* state, struct jaToken* out_token)
+inline int jaTokenize(struct jaTokenizer* state, struct jaToken* out_token, struct jaStatus* st)
 {
 	if (out_token != NULL)
+	{
+		jaStatusCopy(&state->st, st);
 		return state->callback(state, out_token);
+	}
 
 	return 1;
 }

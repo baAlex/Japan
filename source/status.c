@@ -86,6 +86,8 @@ int jaStatusPrint(const char* app_name, struct jaStatus st)
 	case JA_STATUS_NO_ASSIGNMENT: code_message = "Statement didn't have an assignment"; break;
 	case JA_STATUS_INTEGER_CAST_ERROR: code_message = "Can't cast into an integer"; break;
 	case JA_STATUS_DECIMAL_CAST_ERROR: code_message = "Can't cast into a decimal"; break;
+	case JA_STATUS_ASCII_ERROR: code_message = "Invalid ASCII encode"; break;
+	case JA_STATUS_UTF8_ERROR: code_message = "Invalid UTF8 encode"; break;
 
 	default: code_message = "Unknown status";
 	}
