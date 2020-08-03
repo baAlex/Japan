@@ -463,8 +463,9 @@ inline int jaTokenize(struct jaTokenizer* state, struct jaToken* out_token, stru
 {
 	if (out_token != NULL)
 	{
+		int ret = state->callback(state, out_token);
 		jaStatusCopy(&state->st, st);
-		return state->callback(state, out_token);
+		return ret;
 	}
 
 	return 1;

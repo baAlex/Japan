@@ -204,7 +204,7 @@ void StringTokenizerTest1_ASCIISimple(void** cmocka_state)
 
 	// Simple valid tokens, inside an infinite loop
 	{
-		printf("\n\n");
+		printf("\n");
 
 		t = jaASCIITokenizerCreate((uint8_t*)"cat, dog, bunny, parrot, alpaca, etc.", 38);
 		assert_true(t != NULL);
@@ -239,7 +239,7 @@ void StringTokenizerTest1_ASCIISimple(void** cmocka_state)
 
 	// With different words, separators, lot of whitespaces and a wrong end
 	{
-		printf("\n\n");
+		printf("\n");
 
 		t = jaASCIITokenizerCreate((uint8_t*)"cat!? dog# @,bunny-parrot[\t\n  \talpaca]llama;love_etc\t   \t\n", 255);
 		assert_true(t != NULL);
@@ -304,6 +304,29 @@ void StringTokenizerTest1_ASCIISimple(void** cmocka_state)
 			jaStatusPrint(NULL, st);
 
 		assert_true(st.code == JA_STATUS_SUCCESS);
+		jaTokenizerDelete(t);
+	}
+
+	// Invalid characters
+	{
+		printf("\n");
+
+		uint8_t string[] = {128, 129, 255, 0x00};
+		t = jaASCIITokenizerCreate(string, 255);
+		assert_true(t != NULL);
+
+		for (int i = 0;; i++)
+		{
+			if (jaTokenize(t, &token, &st) != 0)
+				break;
+
+			assert_true(i < 1);
+		}
+
+		if (st.code != JA_STATUS_SUCCESS)
+			jaStatusPrint(NULL, st);
+
+		assert_true(st.code != JA_STATUS_SUCCESS);
 		jaTokenizerDelete(t);
 	}
 }
