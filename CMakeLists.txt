@@ -34,6 +34,7 @@ set(SOURCES
 	"./source/matrix.c"
 	"./source/status.c"
 	"./source/string.c"
+	"./source/token.c"
 	"./source/tree.c"
 	"./source/utilities.c"
 	"./source/vector.c"
@@ -74,6 +75,7 @@ if (JA_BUILD_TEST)
 			"./tests/images.c"
 			"./tests/lists.c"
 			"./tests/strings.c"
+			"./tests/tokens.c"
 			"./tests/test-suite.c")
 
 		add_executable("test-suite" ${TEST_SUITE_SOURCES})
