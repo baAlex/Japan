@@ -28,9 +28,6 @@ void TokenizerTest1_ASCIISimple(void** cmocka_state)
 	struct jaToken token;
 	struct jaTokenizer* t = NULL;
 
-	printf("sizeof(struct jaTokenEnd) = %zu\n", sizeof(struct jaTokenEnd)); // I'm paranoid :/
-	printf("sizeof(struct jaToken) = %zu\n", sizeof(struct jaToken));
-
 	// Simple valid tokens, inside an infinite loop
 	{
 		printf("\n");
