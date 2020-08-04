@@ -40,32 +40,34 @@ extern void StringEncodeTest1_Coherency(void** cmocka_state);
 
 extern void TokenizerTest1_ASCIISimple(void** cmocka_state);
 extern void TokenizerTest2_ASCIIRockafeller(void** cmocka_state);
+extern void TokenizerTest2_ASCIIUwU(void** cmocka_state);
 
 int main()
 {
 
 	mkdir("./tests/out/", 0777); // Deprecated on Windows...
 
-	const struct CMUnitTest tests[] = {cmocka_unit_test(ListTest1_Iteration),
-	                                   cmocka_unit_test(ListTest2_RemovalAtIteration),
-	                                   cmocka_unit_test(ListTest3_BeforeAfterAddition),
+	struct CMUnitTest tests[] = {cmocka_unit_test(ListTest1_Iteration),
+	                             cmocka_unit_test(ListTest2_RemovalAtIteration),
+	                             cmocka_unit_test(ListTest3_BeforeAfterAddition),
 
-	                                   cmocka_unit_test(DictionaryTest1_FNV1Hash),
-	                                   cmocka_unit_test(DictionaryTest2_SimpleUsage),
+	                             cmocka_unit_test(DictionaryTest1_FNV1Hash),
+	                             cmocka_unit_test(DictionaryTest2_SimpleUsage),
 
-	                                   cmocka_unit_test(ImageTest1_Sgi),
+	                             cmocka_unit_test(ImageTest1_Sgi),
 
-	                                   cmocka_unit_test(ConfigTest1),
-	                                   cmocka_unit_test(ConfigTest2_TokenizeFile),
-	                                   cmocka_unit_test(ConfigTest3_ParseFile),
+	                             cmocka_unit_test(ConfigTest1),
+	                             cmocka_unit_test(ConfigTest2_TokenizeFile),
+	                             cmocka_unit_test(ConfigTest3_ParseFile),
 
-	                                   cmocka_unit_test(StringEncodeTest1_KuhnBigBuffer),
-	                                   cmocka_unit_test(StringEncodeTest1_KuhnLittleBuffer),
-	                                   cmocka_unit_test(StringEncodeTest1_KuhnOneShot),
-	                                   cmocka_unit_test(StringEncodeTest1_Coherency),
+	                             cmocka_unit_test(StringEncodeTest1_KuhnBigBuffer),
+	                             cmocka_unit_test(StringEncodeTest1_KuhnLittleBuffer),
+	                             cmocka_unit_test(StringEncodeTest1_KuhnOneShot),
+	                             cmocka_unit_test(StringEncodeTest1_Coherency),
 
-	                                   cmocka_unit_test(TokenizerTest1_ASCIISimple),
-	                                   cmocka_unit_test(TokenizerTest2_ASCIIRockafeller)};
+	                             cmocka_unit_test(TokenizerTest1_ASCIISimple),
+	                             cmocka_unit_test(TokenizerTest2_ASCIIRockafeller),
+	                             cmocka_unit_test(TokenizerTest2_ASCIIUwU)};
 
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

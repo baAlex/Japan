@@ -45,7 +45,7 @@ TODO: Investigate how handle CRLF correctly?
 struct jaTokenizer
 {
 	// Set at creation:
-	int (*callback)(struct jaTokenizer*, struct jaToken*);
+	int (*callback)(struct jaTokenizer*);
 	const uint8_t* input;
 	const uint8_t* input_end;
 
@@ -55,11 +55,12 @@ struct jaTokenizer
 	struct jaBuffer token_buffer;
 	struct jaBuffer end_buffer;
 
-	size_t line_number;
-	size_t unit_number;
-	size_t byte_offset;
+	size_t line_number; // A internal copy of what the user receives
+	size_t unit_number; // "
+	size_t byte_offset; // "
+	uint64_t end;       // "
 
-	uint64_t end; // A internal copy of what the user receives
+	struct jaToken user;
 };
 
 
@@ -68,43 +69,43 @@ static inline uint64_t sTranslateEnds(uint32_t code)
 	switch (code)
 	{
 	// Old ASCII
-	case 0x00: return JA_TOKEN_END_NULL;
-	case 0x0A: return JA_TOKEN_END_NEW_LINE;
+	case 0x00: return JA_END_NULL;
+	case 0x0A: return JA_END_NEW_LINE;
 
-	case 0x09: return JA_TOKEN_END_WHITESPACE; // Space
-	case 0x20: return JA_TOKEN_END_WHITESPACE; // Horizontal Tab
+	case 0x09: return JA_END_WHITESPACE; // Space
+	case 0x20: return JA_END_WHITESPACE; // Horizontal Tab
 
-	case 0x21: return JA_TOKEN_END_EXCLAMATION;
-	case 0x22: return JA_TOKEN_END_QUOTATION;
-	case 0x23: return JA_TOKEN_END_HASH;
-	case 0x24: return JA_TOKEN_END_DOLLAR;
-	case 0x25: return JA_TOKEN_END_PERCENT;
-	case 0x26: return JA_TOKEN_END_AMPERSAND;
-	case 0x27: return JA_TOKEN_END_APOSTHOPHE;
-	case 0x28: return JA_TOKEN_END_PARENTHESIS_L;
-	case 0x29: return JA_TOKEN_END_PARENTHESIS_R;
-	case 0x2A: return JA_TOKEN_END_ASTERISK;
-	case 0x2B: return JA_TOKEN_END_PLUS;
-	case 0x2C: return JA_TOKEN_END_COMMA;
-	case 0x2D: return JA_TOKEN_END_MINUS;
-	case 0x2E: return JA_TOKEN_END_FULL_STOP;
-	case 0x2F: return JA_TOKEN_END_SLASH;
-	case 0x3A: return JA_TOKEN_END_COLON;
-	case 0x3B: return JA_TOKEN_END_SEMICOLON;
-	case 0x3C: return JA_TOKEN_END_LESS_THAN;
-	case 0x3D: return JA_TOKEN_END_EQUALS;
-	case 0x3E: return JA_TOKEN_END_GREATER_THAN;
-	case 0x3F: return JA_TOKEN_END_QUESTION;
-	case 0x40: return JA_TOKEN_END_AT;
-	case 0x5B: return JA_TOKEN_END_SQUARE_BRACKET_L;
-	case 0x5C: return JA_TOKEN_END_BACKSLASH;
-	case 0x5D: return JA_TOKEN_END_SQUARE_BRACKET_R;
-	case 0x5E: return JA_TOKEN_END_ACCENT;
-	case 0x60: return JA_TOKEN_END_GRAVE_ACCENT;
-	case 0x7B: return JA_TOKEN_END_CURLY_BRACKET_L;
-	case 0x7C: return JA_TOKEN_END_VERTICAL_LINE;
-	case 0x7D: return JA_TOKEN_END_CURLY_BRACKET_R;
-	case 0x7E: return JA_TOKEN_END_TILDE;
+	case 0x21: return JA_END_EXCLAMATION;
+	case 0x22: return JA_END_QUOTATION;
+	case 0x23: return JA_END_HASH;
+	case 0x24: return JA_END_DOLLAR;
+	case 0x25: return JA_END_PERCENT;
+	case 0x26: return JA_END_AMPERSAND;
+	case 0x27: return JA_END_APOSTHOPHE;
+	case 0x28: return JA_END_PARENTHESIS_L;
+	case 0x29: return JA_END_PARENTHESIS_R;
+	case 0x2A: return JA_END_ASTERISK;
+	case 0x2B: return JA_END_PLUS;
+	case 0x2C: return JA_END_COMMA;
+	case 0x2D: return JA_END_MINUS;
+	case 0x2E: return JA_END_FULL_STOP;
+	case 0x2F: return JA_END_SLASH;
+	case 0x3A: return JA_END_COLON;
+	case 0x3B: return JA_END_SEMICOLON;
+	case 0x3C: return JA_END_LESS_THAN;
+	case 0x3D: return JA_END_EQUALS;
+	case 0x3E: return JA_END_GREATER_THAN;
+	case 0x3F: return JA_END_QUESTION;
+	case 0x40: return JA_END_AT;
+	case 0x5B: return JA_END_SQUARE_BRACKET_L;
+	case 0x5C: return JA_END_BACKSLASH;
+	case 0x5D: return JA_END_SQUARE_BRACKET_R;
+	case 0x5E: return JA_END_ACCENT;
+	case 0x60: return JA_END_GRAVE_ACCENT;
+	case 0x7B: return JA_END_CURLY_BRACKET_L;
+	case 0x7C: return JA_END_VERTICAL_LINE;
+	case 0x7D: return JA_END_CURLY_BRACKET_R;
+	case 0x7E: return JA_END_TILDE;
 	default: break;
 	}
 
@@ -130,7 +131,7 @@ static inline int sBufferAppend(struct jaBuffer* buffer, size_t* index, uint8_t 
 }
 
 
-static int sASCIITokenizer(struct jaTokenizer* state, struct jaToken* out_token)
+static int sASCIITokenizer(struct jaTokenizer* state)
 {
 	size_t token_buffer_i = 0;
 	size_t end_buffer_i = 0;
@@ -141,9 +142,9 @@ static int sASCIITokenizer(struct jaTokenizer* state, struct jaToken* out_token)
 	if (state->input >= state->input_end)
 		return 2;
 
-	out_token->line_number = state->line_number;
-	out_token->unit_number = state->unit_number;
-	out_token->byte_offset = state->byte_offset;
+	state->user.line_number = state->line_number;
+	state->user.unit_number = state->unit_number;
+	state->user.byte_offset = state->byte_offset;
 
 	for (; state->input < state->input_end; state->input += 1)
 	{
@@ -207,17 +208,16 @@ outside_loop:
 	sBufferAppend(&state->end_buffer, &end_buffer_i, 0x00, &state->st);
 
 	// Bye!
-	out_token->string = state->token_buffer.data;
-	out_token->end_string = state->end_buffer.data;
-	out_token->end = state->end;
+	state->user.string = state->token_buffer.data;
+	state->user.end_string = state->end_buffer.data;
+	state->user.end = state->end;
 	return 0;
 }
 
 
-static int sUTF8Tokenizer(struct jaTokenizer* state, struct jaToken* out_token)
+static int sUTF8Tokenizer(struct jaTokenizer* state)
 {
 	(void)state;
-	(void)out_token;
 	return 1;
 }
 
@@ -267,14 +267,10 @@ inline void jaTokenizerDelete(struct jaTokenizer* state)
 	}
 }
 
-inline int jaTokenize(struct jaTokenizer* state, struct jaToken* out_token, struct jaStatus* st)
+inline struct jaToken* jaTokenize(struct jaTokenizer* state, struct jaStatus* st)
 {
-	if (out_token != NULL)
-	{
-		int ret = state->callback(state, out_token);
-		jaStatusCopy(&state->st, st);
-		return ret;
-	}
+	int ret = state->callback(state);
+	jaStatusCopy(&state->st, st);
 
-	return 1;
+	return (ret == 0) ? &state->user : NULL;
 }

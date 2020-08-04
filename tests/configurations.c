@@ -41,14 +41,15 @@ void ConfigTest1(void** cmocka_state)
 	jaCvarCreateInt(cfg, "render.fullscreen", 0, 0, 1, NULL);
 
 	// Read arguments, that includes whitespaces, out
-	// of range and incorrecty typed values
-	const char* v[] = {"", "-render.height", " X3  ", "-render.width", "   200.2  ", "-sound.volume",
-	                   "  +0.4 6", "-render.fullscreen", "2  ", "-name", "OwO", "UwU"};
+	// of range and incorrectly typed values
+	const char* v[] = {"",         "-render.height",     " X3  ", "-render.width", "   200.2  ", "-sound.volume",
+	                   "  +0.4 6", "-render.fullscreen", "2  ",   "-name",         "OwO",        "UwU"};
 
 	jaConfigurationArguments(cfg, 12, v);
 
 	// And check
-	union {
+	union
+	{
 		int i;
 		float f;
 		const char* s;
@@ -81,17 +82,6 @@ void ConfigTest1(void** cmocka_state)
 void ConfigTest2_TokenizeFile(void** cmocka_state)
 {
 	(void)cmocka_state;
-	struct jaStatus st = {0};
-
-	struct jaConfiguration* cfg = jaConfigurationCreate();
-	FILE* fp = fopen("./tests/tokenize-test.jcfg", "rb");
-
-	if (jaConfigurationFileEx(cfg, fp, JA_FILE_TOKENIZE_ONLY, NULL, NULL, &st) != 0)
-		jaStatusPrint("", st);
-
-	// Bye!
-	fclose(fp);
-	jaConfigurationDelete(cfg);
 }
 
 
@@ -105,7 +95,7 @@ void sTokenizerCallback(int line_no, struct jaTokenDelimiter delimiter, const ch
 	(void)delimiter;
 	(void)token;
 
-	//printf("(b:%s%s%s) %04i: \"%s\"\n", (delimiter.ws) ? "ws" : "--", (delimiter.nl) ? "nl" : "--",
+	// printf("(b:%s%s%s) %04i: \"%s\"\n", (delimiter.ws) ? "ws" : "--", (delimiter.nl) ? "nl" : "--",
 	//       (delimiter.sc) ? "sc" : "--", line_no, token);
 }
 
@@ -122,10 +112,10 @@ void sWarningsCallback(enum jaStatusCode code, int line_no, const char* token, c
 		       token);
 		break;
 	case JA_STATUS_STATEMENT_OPEN:
-		printf("[Warning] Statement in line %i isn't properly closed, '%s' assignament ignored\n", line_no, key);
+		printf("[Warning] Statement in line %i isn't properly closed, '%s' assignment ignored\n", line_no, key);
 		break;
 	case JA_STATUS_NO_ASSIGNMENT:
-		printf("[Warning] Configuration '%s' in line %i did't have a value assigned\n", key, line_no);
+		printf("[Warning] Configuration '%s' in line %i didn't have a value assigned\n", key, line_no);
 		break;
 	default: break;
 	}
