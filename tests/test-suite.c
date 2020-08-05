@@ -40,7 +40,8 @@ extern void StringEncodeTest1_Coherency(void** cmocka_state);
 
 extern void TokenizerTest1_ASCIISimple(void** cmocka_state);
 extern void TokenizerTest2_ASCIIRockafeller(void** cmocka_state);
-extern void TokenizerTest2_ASCIIUwU(void** cmocka_state);
+extern void TokenizerTest3_ASCIIUwU(void** cmocka_state);
+extern void TokenizerTest4_UTF8Simple(void** cmocka_state);
 
 int main()
 {
@@ -67,7 +68,8 @@ int main()
 
 	                             cmocka_unit_test(TokenizerTest1_ASCIISimple),
 	                             cmocka_unit_test(TokenizerTest2_ASCIIRockafeller),
-	                             cmocka_unit_test(TokenizerTest2_ASCIIUwU)};
+	                             cmocka_unit_test(TokenizerTest3_ASCIIUwU),
+	                             cmocka_unit_test(TokenizerTest4_UTF8Simple)};
 
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

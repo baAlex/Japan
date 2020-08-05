@@ -113,19 +113,38 @@ static inline uint64_t sTranslateEnds(uint32_t code)
 }
 
 
-static inline int sBufferAppend(struct jaBuffer* buffer, size_t* index, uint8_t data, struct jaStatus* st)
+static inline int sBufferAppendByte(struct jaBuffer* buffer, size_t* cursor, uint8_t data, struct jaStatus* st)
 {
-	if (*index + 1 > buffer->size)
+	if (*cursor + 1 > buffer->size)
 	{
-		if (jaBufferResize(buffer, *index + 1) == NULL)
+		if (jaBufferResize(buffer, *cursor + 1) == NULL)
 		{
 			jaStatusSet(st, "jaTokenize", JA_STATUS_MEMORY_ERROR, NULL);
 			return 1;
 		}
 	}
 
-	((uint8_t*)buffer->data)[*index] = data;
-	*index += 1;
+	((uint8_t*)buffer->data)[*cursor] = data;
+	*cursor += 1;
+
+	return 0;
+}
+
+
+static inline int sBufferAppend(struct jaBuffer* buffer, size_t* cursor, const void* data, size_t n,
+                                struct jaStatus* st)
+{
+	if (*cursor + n > buffer->size)
+	{
+		if (jaBufferResize(buffer, *cursor + n) == NULL)
+		{
+			jaStatusSet(st, "jaTokenize", JA_STATUS_MEMORY_ERROR, NULL);
+			return 1;
+		}
+	}
+
+	memcpy((uint8_t*)buffer->data + *cursor, data, n);
+	*cursor += n;
 
 	return 0;
 }
@@ -133,8 +152,8 @@ static inline int sBufferAppend(struct jaBuffer* buffer, size_t* index, uint8_t 
 
 static int sASCIITokenizer(struct jaTokenizer* state)
 {
-	size_t token_buffer_i = 0;
-	size_t end_buffer_i = 0;
+	size_t token_buffer_cursor = 0;
+	size_t end_buffer_cursor = 0;
 
 	uint64_t end_bit = 0;
 	state->end = 0;
@@ -182,7 +201,7 @@ static int sASCIITokenizer(struct jaTokenizer* state)
 			}
 
 			// Append end to respective buffer
-			if (sBufferAppend(&state->end_buffer, &end_buffer_i, *state->input, &state->st) != 0)
+			if (sBufferAppendByte(&state->end_buffer, &end_buffer_cursor, *state->input, &state->st) != 0)
 				return 1;
 
 			state->end |= end_bit;
@@ -191,7 +210,7 @@ static int sASCIITokenizer(struct jaTokenizer* state)
 		{
 			// Byte to form the token
 			if (state->end == 0)
-				sBufferAppend(&state->token_buffer, &token_buffer_i, *state->input, &state->st);
+				sBufferAppendByte(&state->token_buffer, &token_buffer_cursor, *state->input, &state->st);
 			else
 			{
 				state->unit_number -= 1; // This byte never existed ;)
@@ -204,8 +223,8 @@ static int sASCIITokenizer(struct jaTokenizer* state)
 	}
 
 outside_loop:
-	sBufferAppend(&state->token_buffer, &token_buffer_i, 0x00, &state->st);
-	sBufferAppend(&state->end_buffer, &end_buffer_i, 0x00, &state->st);
+	sBufferAppendByte(&state->token_buffer, &token_buffer_cursor, 0x00, &state->st);
+	sBufferAppendByte(&state->end_buffer, &end_buffer_cursor, 0x00, &state->st);
 
 	// Bye!
 	state->user.string = state->token_buffer.data;
@@ -217,8 +236,88 @@ outside_loop:
 
 static int sUTF8Tokenizer(struct jaTokenizer* state)
 {
-	(void)state;
-	return 1;
+	size_t token_buffer_cursor = 0;
+	size_t end_buffer_cursor = 0;
+
+	uint64_t end_bit = 0;
+	state->end = 0;
+
+	size_t unit_len = 0;
+	uint32_t code = 0;
+
+	if (state->input >= state->input_end)
+		return 2;
+
+	state->user.line_number = state->line_number;
+	state->user.unit_number = state->unit_number;
+	state->user.byte_offset = state->byte_offset;
+
+	for (; state->input < state->input_end; state->input += unit_len)
+	{
+		if (jaUTF8ValidateUnit(state->input, (size_t)(state->input_end - state->input), &unit_len, &code) != 0)
+		{
+			jaStatusSet(&state->st, "jaTokenize", JA_STATUS_UTF8_ERROR, "character \\%02X", *state->input);
+			return 1;
+		}
+
+		if (*state->input == 0x0D) // CR
+			continue;
+
+		state->unit_number += 1;
+		state->byte_offset += unit_len;
+
+		// Choose which bytes mark the token end, and which ones forms it
+		if ((end_bit = sTranslateEnds(code)) != 0)
+		{
+			// Following ends require some fine grinding
+			switch (code)
+			{
+			case 0x0A: // LF
+				state->line_number += 1;
+				break;
+
+			case 0x20: // Space
+			case 0x09: // Horizontal Tab
+				state->end |= end_bit;
+				goto next_character; // Do not append
+
+			case 0x00: // NULL
+				state->end |= end_bit;
+				state->input_end = state->input; // User gave us a wrong end
+				goto outside_loop;               // Stop the world
+			}
+
+			// Append end to respective buffer
+			if (sBufferAppend(&state->end_buffer, &end_buffer_cursor, state->input, unit_len, &state->st) != 0)
+				return 1;
+
+			state->end |= end_bit;
+		}
+		else
+		{
+			// Bytes to form the token
+			if (state->end == 0)
+				sBufferAppend(&state->token_buffer, &token_buffer_cursor, state->input, unit_len, &state->st);
+			else
+			{
+				state->unit_number -= 1; // This byte never existed ;)
+				state->byte_offset -= unit_len;
+				goto outside_loop;
+			}
+		}
+
+	next_character:;
+	}
+
+outside_loop:
+	sBufferAppendByte(&state->token_buffer, &token_buffer_cursor, 0x00, &state->st);
+	sBufferAppendByte(&state->end_buffer, &end_buffer_cursor, 0x00, &state->st);
+
+	// Bye!
+	state->user.string = state->token_buffer.data;
+	state->user.end_string = state->end_buffer.data;
+	state->user.end = state->end;
+	return 0;
 }
 
 

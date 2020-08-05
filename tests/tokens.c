@@ -228,7 +228,7 @@ void TokenizerTest2_ASCIIRockafeller(void** cmocka_state)
 }
 
 
-void TokenizerTest2_ASCIIUwU(void** cmocka_state)
+void TokenizerTest3_ASCIIUwU(void** cmocka_state)
 {
 	(void)cmocka_state;
 
@@ -309,4 +309,122 @@ void TokenizerTest2_ASCIIUwU(void** cmocka_state)
 
 	jaTokenizerDelete(tokenizer);
 	fclose(fp);
+}
+
+
+void TokenizerTest4_UTF8Simple(void** cmocka_state)
+{
+	(void)cmocka_state;
+
+	struct jaStatus st;
+	struct jaToken* token;
+	struct jaTokenizer* tokenizer;
+
+	// Simple valid tokens, inside an infinite loop
+	// Plain Google output, using ASCII commas...
+	{
+		printf("\n");
+
+		tokenizer = jaUTF8TokenizerCreate((uint8_t*)"猫,犬,ウサギ,オウム,アルパカ,など.", 255);
+		assert_true(tokenizer != NULL);
+
+		for (int i = 0;; i++)
+		{
+			if ((token = jaTokenize(tokenizer, &st)) == NULL)
+				break;
+
+			printf("Token '%s', ending with: '%s' (offset: %zu, line: %zu)\n", token->string, token->end_string,
+			       token->byte_offset, token->line_number);
+
+			assert_true(i < 6); // Break at six tokens
+
+			switch (i)
+			{
+			case 0: assert_true(strcmp((char*)token->string, "猫") == 0); break;
+			case 1: assert_true(strcmp((char*)token->string, "犬") == 0); break;
+			case 2: assert_true(strcmp((char*)token->string, "ウサギ") == 0); break;
+			case 3: assert_true(strcmp((char*)token->string, "オウム") == 0); break;
+			case 4: assert_true(strcmp((char*)token->string, "アルパカ") == 0); break;
+			case 5: assert_true(strcmp((char*)token->string, "など") == 0); break;
+			}
+		}
+
+		if (st.code != JA_STATUS_SUCCESS)
+			jaStatusPrint(NULL, st);
+
+		assert_true(st.code == JA_STATUS_SUCCESS);
+		jaTokenizerDelete(tokenizer);
+	}
+
+	// With different words, separators, lot of whitespaces and a wrong end
+	// Same as before, except the full width 'ｌｌａｍａ'
+	{
+		printf("\n");
+
+		tokenizer = jaUTF8TokenizerCreate(
+		    (uint8_t*)"猫!? 犬# @,ウサギ-オウム[\t\n  \tアルパカ]ｌｌａｍａ;愛_etc\t   \t\n", 255);
+		assert_true(tokenizer != NULL);
+
+		for (int i = 0;; i++)
+		{
+			if ((token = jaTokenize(tokenizer, &st)) == NULL)
+				break;
+
+			printf("Token '%s' (offset: %zu, line: %zu)\n", token->string, token->byte_offset, token->line_number);
+
+			assert_true(i < 7); // Break at seven tokens
+
+			switch (i)
+			{
+			case 0:
+				assert_true(strcmp((char*)token->string, "猫") == 0);
+				assert_true(strcmp((char*)token->end_string, "!?") == 0);
+				assert_true(token->line_number == 0);
+				assert_true(token->unit_number == 0); // The idea of UTF8 is to count units
+				break;
+			case 1:
+				assert_true(strcmp((char*)token->string, "犬") == 0);
+				assert_true(strcmp((char*)token->end_string, "#@,") == 0);
+				assert_true(token->line_number == 0);
+				assert_true(token->unit_number == 4);
+				break;
+			case 2:
+				assert_true(strcmp((char*)token->string, "ウサギ") == 0);
+				assert_true(strcmp((char*)token->end_string, "-") == 0);
+				assert_true(token->line_number == 0);
+				assert_true(token->unit_number == 9);
+				break;
+			case 3:
+				assert_true(strcmp((char*)token->string, "オウム") == 0);
+				assert_true(strcmp((char*)token->end_string, "[\n") == 0);
+				assert_true(token->line_number == 0);
+				assert_true(token->unit_number == 13);
+				break;
+			case 4:
+				assert_true(strcmp((char*)token->string, "アルパカ") == 0);
+				assert_true(strcmp((char*)token->end_string, "]") == 0);
+				assert_true(token->line_number == 1);
+				assert_true(token->unit_number == 22);
+				break;
+			case 5:
+				assert_true(strcmp((char*)token->string, "ｌｌａｍａ") == 0);
+				assert_true(strcmp((char*)token->end_string, ";") == 0);
+				assert_true(token->line_number == 1);
+				assert_true(token->unit_number == 27);
+				break;
+			case 6:
+				assert_true(strcmp((char*)token->string, "愛_etc") == 0);
+				assert_true(strcmp((char*)token->end_string, "\n") == 0);
+				assert_true(token->line_number == 1);
+				assert_true(token->unit_number == 33);
+				break; // Underscore don't break!
+			}
+		}
+
+		if (st.code != JA_STATUS_SUCCESS)
+			jaStatusPrint(NULL, st);
+
+		assert_true(st.code == JA_STATUS_SUCCESS);
+		jaTokenizerDelete(tokenizer);
+	}
 }
