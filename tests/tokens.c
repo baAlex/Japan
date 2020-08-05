@@ -199,9 +199,9 @@ void TokenizerTest2_ASCIIRockafeller(void** cmocka_state)
 			occurrences_now += 1;
 		else if (strcmp((char*)token->string, "Rockafeller") == 0)
 		{
-			if (token->line_number != 14 && token->line_number != 32 &&
-			    token->line_number != 34 & token->line_number != 36 &&
-			    token->line_number != 38 & token->line_number != 40 & token->line_number != 42)
+			if (token->line_number != 14 && token->line_number != 32 && token->line_number != 34 &&
+			    token->line_number != 36 && token->line_number != 38 && token->line_number != 40 &&
+			    token->line_number != 42)
 			{
 				printf("[Error] Rockafeller at line %zu\n", token->line_number);
 				assert_true(false);
