@@ -21,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "japan-string.h"
 #include "japan-status.h"
 
 #define JA_END_NULL ((uint64_t)1)
@@ -72,8 +73,8 @@ struct jaToken
 	uint64_t end; // JA_END_X
 };
 
-JA_EXPORT struct jaTokenizer* jaASCIITokenizerCreate(const uint8_t* string, size_t n);
-JA_EXPORT struct jaTokenizer* jaUTF8TokenizerCreate(const uint8_t* string, size_t n);
+JA_EXPORT struct jaTokenizer* jaTokenizerCreateString(enum jaStringEncode, const uint8_t* string, size_t n);
+JA_EXPORT struct jaTokenizer* jaTokenizerCreateFile(enum jaStringEncode, const char* filename);
 JA_EXPORT void jaTokenizerDelete(struct jaTokenizer*);
 
 JA_EXPORT struct jaToken* jaTokenize(struct jaTokenizer*, struct jaStatus* st);

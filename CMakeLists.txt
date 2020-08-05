@@ -34,7 +34,6 @@ set(SOURCES
 	"./source/matrix.c"
 	"./source/status.c"
 	"./source/string.c"
-	"./source/token.c"
 	"./source/tree.c"
 	"./source/utilities.c"
 	"./source/vector.c"
@@ -47,7 +46,10 @@ set(SOURCES
 	"./source/sound/format-au.c"
 	"./source/sound/format-wav.c"
 	"./source/sound/laws.c"
-	"./source/sound/sound.c")
+	"./source/sound/sound.c"
+	"./source/token/encode-ascii.c"
+	"./source/token/encode-utf8.c"
+	"./source/token/token.c")
 
 if (JA_BUILD_SHARED)
 	add_library("japan" SHARED ${SOURCES})

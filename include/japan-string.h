@@ -20,6 +20,12 @@
 #include <stddef.h>
 #include <stdint.h>
 
+enum jaStringEncode
+{
+	JA_ASCII,
+	JA_UTF8
+};
+
 JA_EXPORT int jaASCIIValidateUnit(uint8_t byte);
 JA_EXPORT int jaASCIIValidateString(const uint8_t* string, size_t n, size_t* out_bytes);
 

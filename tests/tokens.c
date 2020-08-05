@@ -32,7 +32,7 @@ void TokenizerTest1_ASCIISimple(void** cmocka_state)
 	{
 		printf("\n");
 
-		tokenizer = jaASCIITokenizerCreate((uint8_t*)"cat, dog, bunny, parrot, alpaca, etc.", 38);
+		tokenizer = jaTokenizerCreateString(JA_ASCII, (uint8_t*)"cat, dog, bunny, parrot, alpaca, etc.", 38);
 		assert_true(tokenizer != NULL);
 
 		for (int i = 0;; i++)
@@ -67,8 +67,8 @@ void TokenizerTest1_ASCIISimple(void** cmocka_state)
 	{
 		printf("\n");
 
-		tokenizer =
-		    jaASCIITokenizerCreate((uint8_t*)"cat!? dog# @,bunny-parrot[\t\n  \talpaca]llama;love_etc\t   \t\n", 255);
+		tokenizer = jaTokenizerCreateString(
+		    JA_ASCII, (uint8_t*)"cat!? dog# @,bunny-parrot[\t\n  \talpaca]llama;love_etc\t   \t\n", 255);
 		assert_true(tokenizer != NULL);
 
 		for (int i = 0;; i++)
@@ -139,7 +139,7 @@ void TokenizerTest1_ASCIISimple(void** cmocka_state)
 		printf("\n");
 
 		uint8_t string[] = {128, 129, 255, 0x00};
-		tokenizer = jaASCIITokenizerCreate(string, 255);
+		tokenizer = jaTokenizerCreateString(JA_ASCII, string, 255);
 		assert_true(tokenizer != NULL);
 
 		for (int i = 0;; i++)
@@ -173,7 +173,7 @@ void TokenizerTest2_ASCIIRockafeller(void** cmocka_state)
 	uint8_t buffer[ONE_SHOT_BUFFER_LEN];
 	size_t buffer_len = fread(buffer, 1, ONE_SHOT_BUFFER_LEN, fp);
 
-	tokenizer = jaASCIITokenizerCreate(buffer, buffer_len);
+	tokenizer = jaTokenizerCreateString(JA_ASCII, buffer, buffer_len);
 	assert_true(tokenizer != NULL);
 
 	int occurrences_right = 0;
@@ -242,7 +242,7 @@ void TokenizerTest3_ASCIIUwU(void** cmocka_state)
 	uint8_t buffer[ONE_SHOT_BUFFER_LEN];
 	size_t buffer_len = fread(buffer, 1, ONE_SHOT_BUFFER_LEN, fp);
 
-	tokenizer = jaASCIITokenizerCreate(buffer, buffer_len);
+	tokenizer = jaTokenizerCreateString(JA_ASCII, buffer, buffer_len);
 	assert_true(tokenizer != NULL);
 
 	printf("\n");
@@ -325,7 +325,7 @@ void TokenizerTest4_UTF8Simple(void** cmocka_state)
 	{
 		printf("\n");
 
-		tokenizer = jaUTF8TokenizerCreate((uint8_t*)"猫,犬,ウサギ,オウム,アルパカ,など.", 255);
+		tokenizer = jaTokenizerCreateString(JA_UTF8, (uint8_t*)"猫,犬,ウサギ,オウム,アルパカ,など.", 255);
 		assert_true(tokenizer != NULL);
 
 		for (int i = 0;; i++)
@@ -361,8 +361,8 @@ void TokenizerTest4_UTF8Simple(void** cmocka_state)
 	{
 		printf("\n");
 
-		tokenizer = jaUTF8TokenizerCreate(
-		    (uint8_t*)"猫!? 犬# @,ウサギ-オウム[\t\n  \tアルパカ]ｌｌａｍａ;愛_etc\t   \t\n", 255);
+		tokenizer = jaTokenizerCreateString(
+		    JA_UTF8, (uint8_t*)"猫!? 犬# @,ウサギ-オウム[\t\n  \tアルパカ]ｌｌａｍａ;愛_etc\t   \t\n", 255);
 		assert_true(tokenizer != NULL);
 
 		for (int i = 0;; i++)
