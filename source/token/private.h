@@ -8,8 +8,8 @@
 #define JA_TOKEN_PRIVATE_H
 
 #include <stdint.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "japan-token.h"
 
@@ -17,12 +17,18 @@
 #include "japan-status.h"
 #include "japan-string.h"
 
+
+#define FILE_BUFFER_LEN 256
+
+
 struct jaTokenizer
 {
 	// Set at creation:
 	int (*callback)(struct jaTokenizer*);
 	const uint8_t* input;
 	const uint8_t* input_end;
+
+	FILE* file;
 
 	struct jaStatus st;
 
@@ -44,5 +50,8 @@ int BufferAppend(struct jaBuffer* buffer, size_t* cursor, const void* data, size
 
 int UTF8Tokenizer(struct jaTokenizer* state);
 int ASCIITokenizer(struct jaTokenizer* state);
+
+int UTF8FileTokenizer(struct jaTokenizer* state);
+int ASCIIFileTokenizer(struct jaTokenizer* state);
 
 #endif

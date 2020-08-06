@@ -54,11 +54,11 @@ int ASCIITokenizer(struct jaTokenizer* state)
 			return 1;
 		}
 
-		if (*state->input == 0x0D) // CR
-			continue;
-
 		state->unit_number += 1;
 		state->byte_offset += 1;
+
+		if (*state->input == 0x0D) // CR
+			continue;
 
 		// Choose which bytes mark the token end, and which ones forms it
 		if ((end_bit = TranslateEnds((uint32_t)*state->input)) != 0)
@@ -112,4 +112,28 @@ outside_loop:
 	state->user.end_string = state->end_buffer.data;
 	state->user.end = state->end;
 	return 0;
+}
+
+
+int ASCIIFileTokenizer(struct jaTokenizer* state)
+{
+	if (state->input == NULL || state->input >= state->input_end)
+	{
+		size_t n = fread(((struct jaTokenizer*)state + 1), 1, FILE_BUFFER_LEN, state->file);
+
+		if (n == 0)
+		{
+			if (feof(state->file) != 0) // End reached?
+				return 2;
+
+			// Nope, an error
+			jaStatusSet(&state->st, "jaTokenize", JA_STATUS_IO_ERROR, NULL);
+			return 1;
+		}
+
+		state->input = (uint8_t*)((struct jaTokenizer*)state + 1);
+		state->input_end = state->input + n;
+	}
+
+	return ASCIITokenizer(state);
 }

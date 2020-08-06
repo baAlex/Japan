@@ -57,11 +57,11 @@ int UTF8Tokenizer(struct jaTokenizer* state)
 			return 1;
 		}
 
-		if (*state->input == 0x0D) // CR
-			continue;
-
 		state->unit_number += 1;
 		state->byte_offset += unit_len;
+
+		if (*state->input == 0x0D) // CR
+			continue;
 
 		// Choose which bytes mark the token end, and which ones forms it
 		if ((end_bit = TranslateEnds(code)) != 0)
@@ -115,4 +115,11 @@ outside_loop:
 	state->user.end_string = state->end_buffer.data;
 	state->user.end = state->end;
 	return 0;
+}
+
+
+int UTF8FileTokenizer(struct jaTokenizer* state)
+{
+	(void)state;
+	return 1;
 }

@@ -254,8 +254,6 @@ void TokenizerTest3_ASCIIUwU(void** cmocka_state)
 		if ((token = jaTokenize(tokenizer, &st)) == NULL)
 			break;
 
-		printf("%s ", token->string);
-
 		if (strcmp((char*)token->string, "wemains") == 0)
 		{
 			occurrences += 1;
@@ -427,4 +425,33 @@ void TokenizerTest4_UTF8Simple(void** cmocka_state)
 		assert_true(st.code == JA_STATUS_SUCCESS);
 		jaTokenizerDelete(tokenizer);
 	}
+}
+
+
+void TokenizerTest5_ASCIIFile(void** cmocka_state)
+{
+	(void)cmocka_state;
+
+	struct jaStatus st;
+	struct jaToken* token;
+
+	FILE* fp = fopen("./tests/uwu.txt", "rb");
+	struct jaTokenizer* tokenizer = jaTokenizerCreateFile(JA_ASCII, fp);
+	printf("\n");
+
+	while (1)
+	{
+		if ((token = jaTokenize(tokenizer, &st)) == NULL)
+			break;
+
+		printf("%s ", token->string);
+	}
+
+	printf("\n");
+
+	if (st.code != JA_STATUS_SUCCESS)
+		jaStatusPrint(NULL, st);
+
+	jaTokenizerDelete(tokenizer);
+	fclose(fp);
 }

@@ -20,9 +20,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 
-#include "japan-string.h"
 #include "japan-status.h"
+#include "japan-string.h"
 
 #define JA_END_NULL ((uint64_t)1)
 #define JA_END_WHITESPACE ((uint64_t)1 << 1) // Spaces and tab
@@ -74,7 +75,7 @@ struct jaToken
 };
 
 JA_EXPORT struct jaTokenizer* jaTokenizerCreateString(enum jaStringEncode, const uint8_t* string, size_t n);
-JA_EXPORT struct jaTokenizer* jaTokenizerCreateFile(enum jaStringEncode, const char* filename);
+JA_EXPORT struct jaTokenizer* jaTokenizerCreateFile(enum jaStringEncode, FILE* file);
 JA_EXPORT void jaTokenizerDelete(struct jaTokenizer*);
 
 JA_EXPORT struct jaToken* jaTokenize(struct jaTokenizer*, struct jaStatus* st);

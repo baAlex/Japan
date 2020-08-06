@@ -37,7 +37,7 @@ TODO: Investigate how handle CRLF correctly?
 #include "private.h"
 
 
-inline uint64_t TranslateEnds(uint32_t code)
+uint64_t TranslateEnds(uint32_t code)
 {
 	switch (code)
 	{
@@ -86,7 +86,7 @@ inline uint64_t TranslateEnds(uint32_t code)
 }
 
 
-inline int BufferAppendByte(struct jaBuffer* buffer, size_t* cursor, uint8_t data, struct jaStatus* st)
+int BufferAppendByte(struct jaBuffer* buffer, size_t* cursor, uint8_t data, struct jaStatus* st)
 {
 	if (*cursor + 1 > buffer->size)
 	{
@@ -104,7 +104,7 @@ inline int BufferAppendByte(struct jaBuffer* buffer, size_t* cursor, uint8_t dat
 }
 
 
-inline int BufferAppend(struct jaBuffer* buffer, size_t* cursor, const void* data, size_t n, struct jaStatus* st)
+int BufferAppend(struct jaBuffer* buffer, size_t* cursor, const void* data, size_t n, struct jaStatus* st)
 {
 	if (*cursor + n > buffer->size)
 	{
@@ -129,8 +129,27 @@ struct jaTokenizer* jaTokenizerCreateString(enum jaStringEncode encode, const ui
 	if ((state = calloc(1, sizeof(struct jaTokenizer))) != NULL)
 	{
 		state->callback = (encode == JA_ASCII) ? ASCIITokenizer : UTF8Tokenizer;
-		state->input_end = string + n;
 		state->input = string;
+		state->input_end = string + n;
+
+		jaStatusSet(&state->st, "jaTokenize", JA_STATUS_SUCCESS, NULL);
+	}
+
+	return state;
+}
+
+
+struct jaTokenizer* jaTokenizerCreateFile(enum jaStringEncode encode, FILE* file)
+{
+	struct jaTokenizer* state = NULL;
+
+	if ((state = calloc(1, sizeof(struct jaTokenizer) + FILE_BUFFER_LEN)) != NULL)
+	{
+		state->callback = (encode == JA_ASCII) ? ASCIIFileTokenizer : UTF8FileTokenizer;
+		state->file = file;
+
+		state->input = NULL;
+		state->input_end = NULL;
 
 		jaStatusSet(&state->st, "jaTokenize", JA_STATUS_SUCCESS, NULL);
 	}
