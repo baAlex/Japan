@@ -18,36 +18,35 @@
 
 #include "japan-configuration.h"
 
-// TODO, check errors
-// TODO, check errors status
-// TODO, this test isn't really trying to break anything!
-
-
-/*-----------------------------
-
- ConfigTest1()
------------------------------*/
 void ConfigTest1(void** cmocka_state)
 {
 	(void)cmocka_state;
 
-	// Create a configuration
 	struct jaConfiguration* cfg = jaConfigurationCreate();
 
-	jaCvarCreateInt(cfg, "render.width", 640, 0, INT_MAX, NULL);
-	jaCvarCreateFloat(cfg, "sound.volume", 0.8f, 0.0f, 1.0f, NULL);
-	jaCvarCreateInt(cfg, "render.height", 320, 0, INT_MAX, NULL);
-	jaCvarCreateString(cfg, "name", "Ranger", NULL, NULL, NULL);
-	jaCvarCreateInt(cfg, "render.fullscreen", 0, 0, 1, NULL);
+	// Valid ones
+	assert_true(jaCvarCreateInt(cfg, "render.width", 640, 0, INT_MAX, NULL) != NULL);
+	assert_true(jaCvarCreateFloat(cfg, "sound.volume", 0.8f, 0.0f, 1.0f, NULL) != NULL);
+	assert_true(jaCvarCreateInt(cfg, "render.height", 320, 0, INT_MAX, NULL) != NULL);
+	assert_true(jaCvarCreateString(cfg, "name", "Ranger", NULL, NULL, NULL) != NULL);
+	assert_true(jaCvarCreateInt(cfg, "render.fullscreen", 0, 0, 1, NULL) != NULL);
+
+	// Invalid names, arguments, etc
+	assert_true(jaCvarCreateInt(cfg, "1render.width", 640, 0, INT_MAX, NULL) == NULL);
+	assert_true(jaCvarCreateFloat(cfg, "sound..volume", 0.8f, 0.0f, 1.0f, NULL) == NULL);
+	assert_true(jaCvarCreateFloat(cfg, "sound.volume..", 0.8f, 0.0f, 1.0f, NULL) == NULL);
+	assert_true(jaCvarCreateInt(NULL, "render.height", 320, 0, INT_MAX, NULL) == NULL);
+	assert_true(jaCvarCreateInt(cfg, ".render.height", 320, 0, INT_MAX, NULL) == NULL);
+	assert_true(jaCvarCreateString(cfg, NULL, "Ranger", NULL, NULL, NULL) == NULL);
+	assert_true(jaCvarCreateInt(cfg, "オウム", 0, 0, 1, NULL) == NULL);
 
 	// Read arguments, that includes whitespaces, out
 	// of range and incorrectly typed values
-	const char* v[] = {"",         "-render.height",     " X3  ", "-render.width", "   200.2  ", "-sound.volume",
-	                   "  +0.4 6", "-render.fullscreen", "2  ",   "-name",         "OwO",        "UwU"};
+	const char* arg[] = {"",         "-render.height",     " X3  ", "-render.width", "   200.2  ", "-sound.volume",
+	                     "  +0.4 6", "-render.fullscreen", "2  ",   "-name",         "OwO",        "UwU"};
 
-	jaConfigurationArguments(cfg, 12, v);
+	jaConfigurationArguments(cfg, 12, arg);
 
-	// And check
 	union
 	{
 		int i;
@@ -77,28 +76,9 @@ void ConfigTest1(void** cmocka_state)
 
 /*-----------------------------
 
- ConfigTest2_TokenizeFile()
+ ConfigTest2_ParseFile()
 -----------------------------*/
-void ConfigTest2_TokenizeFile(void** cmocka_state)
-{
-	(void)cmocka_state;
-}
-
-
-/*-----------------------------
-
- ConfigTest3_ParseFile()
------------------------------*/
-void sTokenizerCallback(int line_no, struct jaTokenDelimiter delimiter, const char* token)
-{
-	(void)line_no;
-	(void)delimiter;
-	(void)token;
-
-	// printf("(b:%s%s%s) %04i: \"%s\"\n", (delimiter.ws) ? "ws" : "--", (delimiter.nl) ? "nl" : "--",
-	//       (delimiter.sc) ? "sc" : "--", line_no, token);
-}
-
+#if 0
 void sWarningsCallback(enum jaStatusCode code, int line_no, const char* token, const char* key)
 {
 	switch (code)
@@ -120,10 +100,13 @@ void sWarningsCallback(enum jaStatusCode code, int line_no, const char* token, c
 	default: break;
 	}
 }
+#endif
 
-void ConfigTest3_ParseFile(void** cmocka_state)
+void ConfigTest2_ParseFile(void** cmocka_state)
 {
 	(void)cmocka_state;
+
+#if 0
 	struct jaStatus st = {0};
 
 	struct jaConfiguration* cfg = jaConfigurationCreate();
@@ -145,4 +128,5 @@ void ConfigTest3_ParseFile(void** cmocka_state)
 	// Bye!
 	fclose(fp);
 	jaConfigurationDelete(cfg);
+#endif
 }

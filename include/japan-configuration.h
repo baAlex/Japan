@@ -26,22 +26,7 @@
 enum jaArgumentsFlags
 {
 	JA_ARGUMENTS_DEFAULT = 0,
-	JA_ARGUMENTS_INCLUDE_FIRST_ONE,
-	JA_ARGUMENTS_TOKENIZE_ONLY
-};
-
-enum jaFileFlags
-{
-	JA_FILE_DEFAULT = 0,
-	JA_FILE_TOKENIZE_ONLY
-};
-
-struct jaTokenDelimiter
-{
-	bool eof : 1;
-	bool ws : 1;
-	bool nl : 1;
-	bool sc : 1;
+	JA_ARGUMENTS_INCLUDE_FIRST_ONE
 };
 
 struct jaConfiguration;
@@ -83,10 +68,9 @@ JA_EXPORT void jaCvarDelete(struct jaCvar* cvar); // TODO
 JA_EXPORT void jaConfigurationArgumentsEx(struct jaConfiguration*, int argc, const char* argv[], enum jaArgumentsFlags,
                                           void (*warnings_callback)(enum jaStatusCode, int, const char*, const char*));
 
-JA_EXPORT int jaConfigurationFileEx(struct jaConfiguration*, FILE* fp, enum jaFileFlags,
-                                    void (*tokenizer_callback)(int, struct jaTokenDelimiter, const char*),
+JA_EXPORT int jaConfigurationFileEx(struct jaConfiguration*, FILE* fp,
                                     void (*warnings_callback)(enum jaStatusCode, int, const char*, const char*),
-                                    struct jaStatus*);
+                                    struct jaStatus* st);
 
 JA_EXPORT struct jaCvar* jaCvarCreateInt(struct jaConfiguration*, const char* name, int default_value, int min, int max,
                                          struct jaStatus*);
