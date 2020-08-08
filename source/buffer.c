@@ -25,7 +25,7 @@ SOFTWARE.
 -------------------------------
 
  [buffer.c]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 -----------------------------*/
 
 #include <stdint.h>
@@ -43,6 +43,22 @@ inline void jaBufferClean(struct jaBuffer* buffer)
 
 	buffer->data = NULL;
 	buffer->size = 0;
+}
+
+
+int jaBufferCopy(struct jaBuffer* dest, const struct jaBuffer* org)
+{
+	if (org->size == 0)
+		return 0;
+
+	if (dest->size < org->size)
+	{
+		if (jaBufferResize(dest, org->size) == NULL)
+			return 1;
+	}
+
+	memcpy(dest->data, org->data, org->size);
+	return 0;
 }
 
 

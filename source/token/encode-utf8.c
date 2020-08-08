@@ -37,7 +37,7 @@ int UTF8Tokenizer(struct jaTokenizer* state)
 	size_t end_buffer_cursor = 0;
 
 	uint64_t end_bit = 0;
-	state->end = 0;
+	state->end_delimiters = 0;
 
 	size_t unit_len = 0;
 	uint32_t code = 0;
@@ -45,10 +45,22 @@ int UTF8Tokenizer(struct jaTokenizer* state)
 	if (state->input >= state->input_end)
 		return 2;
 
-	state->user.line_number = state->line_number;
-	state->user.unit_number = state->unit_number;
-	state->user.byte_offset = state->byte_offset;
+	// Some bits that the user receives,
+	// most of them from the previous iteration
+	{
+		state->user.line_number = state->line_number;
+		state->user.unit_number = state->unit_number;
+		state->user.byte_offset = state->byte_offset;
+		state->user.start_delimiters = state->end_delimiters;
 
+		if (jaBufferCopy(&state->start_buffer, &state->end_buffer) != 0)
+		{
+			jaStatusSet(&state->st, "jaTokenize", JA_STATUS_MEMORY_ERROR, NULL);
+			return 1;
+		}
+	}
+
+	// Cycle trough units
 	for (; state->input < state->input_end; state->input += unit_len)
 	{
 		if (jaUTF8ValidateUnit(state->input, (size_t)(state->input_end - state->input), &unit_len, &code) != 0)
@@ -75,11 +87,11 @@ int UTF8Tokenizer(struct jaTokenizer* state)
 
 			case 0x20: // Space
 			case 0x09: // Horizontal Tab
-				state->end |= end_bit;
+				state->end_delimiters |= end_bit;
 				goto next_character; // Do not append
 
 			case 0x00: // NULL
-				state->end |= end_bit;
+				state->end_delimiters |= end_bit;
 				state->input_end = state->input; // User gave us a wrong end
 				goto outside_loop;               // Stop the world
 			}
@@ -88,12 +100,12 @@ int UTF8Tokenizer(struct jaTokenizer* state)
 			if (BufferAppend(&state->end_buffer, &end_buffer_cursor, state->input, unit_len, &state->st) != 0)
 				return 1;
 
-			state->end |= end_bit;
+			state->end_delimiters |= end_bit;
 		}
 		else
 		{
 			// Bytes to form the token
-			if (state->end == 0)
+			if (state->end_delimiters == 0)
 				BufferAppend(&state->token_buffer, &token_buffer_cursor, state->input, unit_len, &state->st);
 			else
 			{
@@ -110,10 +122,13 @@ outside_loop:
 	BufferAppendByte(&state->token_buffer, &token_buffer_cursor, 0x00, &state->st);
 	BufferAppendByte(&state->end_buffer, &end_buffer_cursor, 0x00, &state->st);
 
-	// Bye!
-	state->user.string = state->token_buffer.data;
-	state->user.end_string = state->end_buffer.data;
-	state->user.end = state->end;
+	// Bye!, remaining information for the user
+	{
+		state->user.string = state->token_buffer.data;
+		state->user.start_string = state->start_buffer.data;
+		state->user.end_string = state->end_buffer.data;
+		state->user.end_delimiters = state->end_delimiters;
+	}
 	return 0;
 }
 

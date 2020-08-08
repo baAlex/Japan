@@ -34,12 +34,14 @@ struct jaTokenizer
 
 	// Zero at creation:
 	struct jaBuffer token_buffer;
+	struct jaBuffer start_buffer;
 	struct jaBuffer end_buffer;
 
-	size_t line_number; // A internal copy of what the user receives
-	size_t unit_number; // "
-	size_t byte_offset; // "
-	uint64_t end;       // "
+	size_t line_number;        // A internal copy of what the user receives
+	size_t unit_number;        // "
+	size_t byte_offset;        // "
+	uint64_t end_delimiters;   // "
+	uint64_t start_delimiters; // "
 
 	struct jaToken user;
 };

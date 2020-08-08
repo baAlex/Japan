@@ -42,43 +42,43 @@ uint64_t TranslateEnds(uint32_t code)
 	switch (code)
 	{
 	// Old ASCII
-	case 0x00: return JA_END_NULL;
-	case 0x0A: return JA_END_NEW_LINE;
+	case 0x00: return JA_DELIMITER_NULL;
+	case 0x0A: return JA_DELIMITER_NEW_LINE;
 
-	case 0x09: return JA_END_WHITESPACE; // Space
-	case 0x20: return JA_END_WHITESPACE; // Horizontal Tab
+	case 0x09: return JA_DELIMITER_WHITESPACE; // Space
+	case 0x20: return JA_DELIMITER_WHITESPACE; // Horizontal Tab
 
-	case 0x21: return JA_END_EXCLAMATION;
-	case 0x22: return JA_END_QUOTATION;
-	case 0x23: return JA_END_HASH;
-	case 0x24: return JA_END_DOLLAR;
-	case 0x25: return JA_END_PERCENT;
-	case 0x26: return JA_END_AMPERSAND;
-	case 0x27: return JA_END_APOSTHOPHE;
-	case 0x28: return JA_END_PARENTHESIS_L;
-	case 0x29: return JA_END_PARENTHESIS_R;
-	case 0x2A: return JA_END_ASTERISK;
-	case 0x2B: return JA_END_PLUS;
-	case 0x2C: return JA_END_COMMA;
-	case 0x2D: return JA_END_MINUS;
-	case 0x2E: return JA_END_FULL_STOP;
-	case 0x2F: return JA_END_SLASH;
-	case 0x3A: return JA_END_COLON;
-	case 0x3B: return JA_END_SEMICOLON;
-	case 0x3C: return JA_END_LESS_THAN;
-	case 0x3D: return JA_END_EQUALS;
-	case 0x3E: return JA_END_GREATER_THAN;
-	case 0x3F: return JA_END_QUESTION;
-	case 0x40: return JA_END_AT;
-	case 0x5B: return JA_END_SQUARE_BRACKET_L;
-	case 0x5C: return JA_END_BACKSLASH;
-	case 0x5D: return JA_END_SQUARE_BRACKET_R;
-	case 0x5E: return JA_END_ACCENT;
-	case 0x60: return JA_END_GRAVE_ACCENT;
-	case 0x7B: return JA_END_CURLY_BRACKET_L;
-	case 0x7C: return JA_END_VERTICAL_LINE;
-	case 0x7D: return JA_END_CURLY_BRACKET_R;
-	case 0x7E: return JA_END_TILDE;
+	case 0x21: return JA_DELIMITER_EXCLAMATION;
+	case 0x22: return JA_DELIMITER_QUOTATION;
+	case 0x23: return JA_DELIMITER_HASH;
+	case 0x24: return JA_DELIMITER_DOLLAR;
+	case 0x25: return JA_DELIMITER_PERCENT;
+	case 0x26: return JA_DELIMITER_AMPERSAND;
+	case 0x27: return JA_DELIMITER_APOSTHOPHE;
+	case 0x28: return JA_DELIMITER_PARENTHESIS_L;
+	case 0x29: return JA_DELIMITER_PARENTHESIS_R;
+	case 0x2A: return JA_DELIMITER_ASTERISK;
+	case 0x2B: return JA_DELIMITER_PLUS;
+	case 0x2C: return JA_DELIMITER_COMMA;
+	case 0x2D: return JA_DELIMITER_MINUS;
+	case 0x2E: return JA_DELIMITER_FULL_STOP;
+	case 0x2F: return JA_DELIMITER_SLASH;
+	case 0x3A: return JA_DELIMITER_COLON;
+	case 0x3B: return JA_DELIMITER_SEMICOLON;
+	case 0x3C: return JA_DELIMITER_LESS_THAN;
+	case 0x3D: return JA_DELIMITER_EQUALS;
+	case 0x3E: return JA_DELIMITER_GREATER_THAN;
+	case 0x3F: return JA_DELIMITER_QUESTION;
+	case 0x40: return JA_DELIMITER_AT;
+	case 0x5B: return JA_DELIMITER_SQUARE_BRACKET_L;
+	case 0x5C: return JA_DELIMITER_BACKSLASH;
+	case 0x5D: return JA_DELIMITER_SQUARE_BRACKET_R;
+	case 0x5E: return JA_DELIMITER_ACCENT;
+	case 0x60: return JA_DELIMITER_GRAVE_ACCENT;
+	case 0x7B: return JA_DELIMITER_CURLY_BRACKET_L;
+	case 0x7C: return JA_DELIMITER_VERTICAL_LINE;
+	case 0x7D: return JA_DELIMITER_CURLY_BRACKET_R;
+	case 0x7E: return JA_DELIMITER_TILDE;
 	default: break;
 	}
 
@@ -164,6 +164,7 @@ inline void jaTokenizerDelete(struct jaTokenizer* state)
 	{
 		jaBufferClean(&state->token_buffer);
 		jaBufferClean(&state->end_buffer);
+		jaBufferClean(&state->start_buffer);
 		free(state);
 	}
 }

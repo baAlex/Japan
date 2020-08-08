@@ -89,36 +89,42 @@ void TokenizerTest1_ASCIISimple(void** cmocka_state)
 				assert_true(token->byte_offset == 0 && token->byte_offset == token->unit_number);
 				break;
 			case 1:
+				assert_true(strcmp((char*)token->start_string, "!?") == 0);
 				assert_true(strcmp((char*)token->string, "dog") == 0);
 				assert_true(strcmp((char*)token->end_string, "#@,") == 0);
 				assert_true(token->line_number == 0);
 				assert_true(token->byte_offset == 6 && token->byte_offset == token->unit_number);
 				break;
 			case 2:
+				assert_true(strcmp((char*)token->start_string, "#@,") == 0);
 				assert_true(strcmp((char*)token->string, "bunny") == 0);
 				assert_true(strcmp((char*)token->end_string, "-") == 0);
 				assert_true(token->line_number == 0);
 				assert_true(token->byte_offset == 13 && token->byte_offset == token->unit_number);
 				break;
 			case 3:
+				assert_true(strcmp((char*)token->start_string, "-") == 0);
 				assert_true(strcmp((char*)token->string, "parrot") == 0);
 				assert_true(strcmp((char*)token->end_string, "[\n") == 0);
 				assert_true(token->line_number == 0);
 				assert_true(token->byte_offset == 19 && token->byte_offset == token->unit_number);
 				break;
 			case 4:
+				assert_true(strcmp((char*)token->start_string, "[\n") == 0);
 				assert_true(strcmp((char*)token->string, "alpaca") == 0);
 				assert_true(strcmp((char*)token->end_string, "]") == 0);
 				assert_true(token->line_number == 1);
 				assert_true(token->byte_offset == 31 && token->byte_offset == token->unit_number);
 				break;
 			case 5:
+				assert_true(strcmp((char*)token->start_string, "]") == 0);
 				assert_true(strcmp((char*)token->string, "llama") == 0);
 				assert_true(strcmp((char*)token->end_string, ";") == 0);
 				assert_true(token->line_number == 1);
 				assert_true(token->byte_offset == 38 && token->byte_offset == token->unit_number);
 				break;
 			case 6:
+				assert_true(strcmp((char*)token->start_string, ";") == 0);
 				assert_true(strcmp((char*)token->string, "love_etc") == 0);
 				assert_true(strcmp((char*)token->end_string, "\n") == 0);
 				assert_true(token->line_number == 1);
@@ -258,43 +264,45 @@ void TokenizerTest3_ASCIIUwU(void** cmocka_state)
 		{
 			occurrences += 1;
 			assert_true(token->line_number == 0);
-			assert_true(token->end == (JA_END_WHITESPACE | JA_END_EQUALS));
+			assert_true(token->end_delimiters == (JA_DELIMITER_WHITESPACE | JA_DELIMITER_EQUALS));
 		}
 		else if (strcmp((char*)token->string, "ded") == 0)
 		{
 			occurrences += 1;
 			assert_true(token->line_number == 0);
-			assert_true(token->end == (JA_END_WHITESPACE | JA_END_FULL_STOP | JA_END_EXCLAMATION | JA_END_NEW_LINE));
+			assert_true(token->end_delimiters == (JA_DELIMITER_WHITESPACE | JA_DELIMITER_FULL_STOP |
+			                                      JA_DELIMITER_EXCLAMATION | JA_DELIMITER_NEW_LINE));
 		}
 		else if (strcmp((char*)token->string, "him") == 0)
 		{
 			occurrences += 1;
 			assert_true(token->line_number == 1);
-			assert_true(token->end == (JA_END_FULL_STOP | JA_END_NEW_LINE));
+			assert_true(token->end_delimiters == (JA_DELIMITER_FULL_STOP | JA_DELIMITER_NEW_LINE));
 		}
 		else if (strcmp((char*)token->string, "knives") == 0)
 		{
 			occurrences += 1;
 			assert_true(token->line_number == 3);
-			assert_true(token->end == (JA_END_WHITESPACE | JA_END_COLON));
+			assert_true(token->end_delimiters == (JA_DELIMITER_WHITESPACE | JA_DELIMITER_COLON));
 		}
 		else if (strcmp((char*)token->string, "invent") == 0)
 		{
 			occurrences += 1;
 			assert_true(token->line_number == 3);
-			assert_true(token->end == (JA_END_QUESTION | JA_END_NEW_LINE));
+			assert_true(token->end_delimiters == (JA_DELIMITER_QUESTION | JA_DELIMITER_NEW_LINE));
 		}
 		else if (strcmp((char*)token->string, "Must") == 0)
 		{
 			occurrences += 1;
 			assert_true(token->line_number == 5);
-			assert_true(token->end == (JA_END_EXCLAMATION));
+			assert_true(token->end_delimiters == (JA_DELIMITER_EXCLAMATION));
 		}
 		else if (strcmp((char*)token->string, "it") == 0)
 		{
 			occurrences += 1;
 			assert_true(token->line_number == 5);
-			assert_true(token->end == (JA_END_QUESTION) || token->end == (JA_END_QUESTION | JA_END_NEW_LINE));
+			assert_true(token->end_delimiters == (JA_DELIMITER_QUESTION) ||
+			            token->end_delimiters == (JA_DELIMITER_QUESTION | JA_DELIMITER_NEW_LINE));
 		}
 	}
 
@@ -381,36 +389,42 @@ void TokenizerTest4_UTF8Simple(void** cmocka_state)
 				assert_true(token->unit_number == 0); // The idea of UTF8 is to count units
 				break;
 			case 1:
+				assert_true(strcmp((char*)token->start_string, "!?") == 0);
 				assert_true(strcmp((char*)token->string, "犬") == 0);
 				assert_true(strcmp((char*)token->end_string, "#@,") == 0);
 				assert_true(token->line_number == 0);
 				assert_true(token->unit_number == 4);
 				break;
 			case 2:
+				assert_true(strcmp((char*)token->start_string, "#@,") == 0);
 				assert_true(strcmp((char*)token->string, "ウサギ") == 0);
 				assert_true(strcmp((char*)token->end_string, "-") == 0);
 				assert_true(token->line_number == 0);
 				assert_true(token->unit_number == 9);
 				break;
 			case 3:
+				assert_true(strcmp((char*)token->start_string, "-") == 0);
 				assert_true(strcmp((char*)token->string, "オウム") == 0);
 				assert_true(strcmp((char*)token->end_string, "[\n") == 0);
 				assert_true(token->line_number == 0);
 				assert_true(token->unit_number == 13);
 				break;
 			case 4:
+				assert_true(strcmp((char*)token->start_string, "[\n") == 0);
 				assert_true(strcmp((char*)token->string, "アルパカ") == 0);
 				assert_true(strcmp((char*)token->end_string, "]") == 0);
 				assert_true(token->line_number == 1);
 				assert_true(token->unit_number == 22);
 				break;
 			case 5:
+				assert_true(strcmp((char*)token->start_string, "]") == 0);
 				assert_true(strcmp((char*)token->string, "ｌｌａｍａ") == 0);
 				assert_true(strcmp((char*)token->end_string, ";") == 0);
 				assert_true(token->line_number == 1);
 				assert_true(token->unit_number == 27);
 				break;
 			case 6:
+				assert_true(strcmp((char*)token->start_string, ";") == 0);
 				assert_true(strcmp((char*)token->string, "愛_etc") == 0);
 				assert_true(strcmp((char*)token->end_string, "\n") == 0);
 				assert_true(token->line_number == 1);

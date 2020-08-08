@@ -26,6 +26,7 @@ struct jaBuffer
 };
 
 JA_EXPORT void jaBufferClean(struct jaBuffer* buffer);
+JA_EXPORT int jaBufferCopy(struct jaBuffer* dest, const struct jaBuffer* org);
 JA_EXPORT void* jaBufferResize(struct jaBuffer* buffer, size_t new_size);
 JA_EXPORT void* jaBufferResizeZero(struct jaBuffer* buffer, size_t new_size);
 
