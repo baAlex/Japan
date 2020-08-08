@@ -220,7 +220,8 @@ inline void jaConfigurationDelete(struct jaConfiguration* config)
 
 inline struct jaCvar* jaCvarGet(const struct jaConfiguration* config, const char* key)
 {
-	return (jaDictionaryGet((struct jaDictionary*)config, key))->data;
+	struct jaDictionaryItem* item = jaDictionaryGet((struct jaDictionary*)config, key);
+	return (item != NULL) ? (struct jaCvar*)item->data : NULL;
 }
 
 

@@ -105,28 +105,21 @@ void sWarningsCallback(enum jaStatusCode code, int line_no, const char* token, c
 void ConfigTest2_ParseFile(void** cmocka_state)
 {
 	(void)cmocka_state;
-
-#if 0
-	struct jaStatus st = {0};
+	struct jaStatus st;
 
 	struct jaConfiguration* cfg = jaConfigurationCreate();
-	FILE* fp = fopen("./tests/parse-test.jcfg", "rb");
 
-	jaCvarCreateString(cfg, "osc.shape", "square", NULL, NULL, NULL);
-	jaCvarCreateInt(cfg, "osc.frequency", 220, INT_MIN, INT_MAX, NULL);
-	jaCvarCreateFloat(cfg, "osc.sub_volume", 0.5f, 0.0f, 1.0f, NULL);
+	assert_true(jaCvarCreateString(cfg, "osc.shape", "square", NULL, NULL, NULL) != NULL);
+	assert_true(jaCvarCreateInt(cfg, "osc.frequency", 220, INT_MIN, INT_MAX, NULL) != NULL);
+	assert_true(jaCvarCreateFloat(cfg, "osc.sub_volume", 0.5f, 0.0f, 1.0f, NULL) != NULL);
+	assert_true(jaCvarCreateFloat(cfg, "env.attack", 50.0f, 0.0f, 1000.0f, NULL) != NULL);
+	assert_true(jaCvarCreateFloat(cfg, "env.decay", 0.0f, 0.0f, 1000.0f, NULL) != NULL);
+	assert_true(jaCvarCreateFloat(cfg, "env.sustain", 1.0f, 0.0f, 1.0f, NULL) != NULL);
+	assert_true(jaCvarCreateFloat(cfg, "env.hold", 0.0f, 0.0f, 1000.0f, NULL) != NULL);
+	assert_true(jaCvarCreateFloat(cfg, "env.release", 200.0f, 0.0f, 1000.0f, NULL) != NULL);
 
-	jaCvarCreateFloat(cfg, "env.attack", 50.0f, 0.0f, 1000.0f, NULL);
-	jaCvarCreateFloat(cfg, "env.decay", 0.0f, 0.0f, 1000.0f, NULL);
-	jaCvarCreateFloat(cfg, "env.sustain", 1.0f, 0.0f, 1.0f, NULL);
-	jaCvarCreateFloat(cfg, "env.hold", 0.0f, 0.0f, 1000.0f, NULL);
-	jaCvarCreateFloat(cfg, "env.release", 200.0f, 0.0f, 1000.0f, NULL);
-
-	if (jaConfigurationFileEx(cfg, fp, JA_FILE_DEFAULT, sTokenizerCallback, sWarningsCallback, &st) != 0)
+	if (jaConfigurationFile(cfg, "tests/config1.cfg", &st) != 0)
 		jaStatusPrint("", st);
 
-	// Bye!
-	fclose(fp);
 	jaConfigurationDelete(cfg);
-#endif
 }

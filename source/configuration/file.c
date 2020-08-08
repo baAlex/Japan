@@ -28,13 +28,69 @@ SOFTWARE.
  - Alexander Brandt 2019-2020
 -----------------------------*/
 
+#include "japan-token.h"
 #include "private.h"
+
+
+#define CVAR_MAX_NAME 64
+
+
+static int sParse(struct jaTokenizer* tknzr, struct jaConfiguration* config, FILE* fp,
+                  void (*warnings_callback)(enum jaStatusCode, int, const char*, const char*), struct jaStatus* st)
+{
+	struct jaToken* t = NULL;
+	struct jaCvar* cvar = NULL;
+
+	char name[CVAR_MAX_NAME] = {0};
+	int stage = 0;
+
+	jaStatusSet(st, "jaConfigurationFile", JA_STATUS_SUCCESS, NULL);
+
+	while (1)
+	{
+		if ((t = jaTokenize(tknzr, st)) == NULL)
+			break;
+
+		// Retrieve variable name
+		if (stage == 0)
+		{
+			strcat(name, (char*)t->string);
+
+			// If the token ends with a single dot, concatenate
+			// it with the previous one... and nothing more
+			if (t->end == JA_END_FULL_STOP)
+			{
+				strcat(name, ".");
+				continue;
+			}
+
+			// After all the concatenations, here, we should have the
+			// entire variable name
+			if ((cvar = jaCvarGet(config, name)) != NULL)
+			{
+				printf("[Yay!!] cvar '%s' found!, line %zu\n", name, t->line_number + 1);
+				memset(name, 0, CVAR_MAX_NAME);
+			}
+			else
+			{
+				printf("[Error] '%s' is not a cvar, line %zu\n", name, t->line_number + 1);
+				memset(name, 0, CVAR_MAX_NAME);
+			}
+		}
+	}
+
+	if (st->code != JA_STATUS_SUCCESS)
+		return 1;
+
+	// Bye!
+	return 0;
+}
 
 
 int jaConfigurationFile(struct jaConfiguration* config, const char* filename, struct jaStatus* st)
 {
 	FILE* fp = NULL;
-	int ret_value = 0;
+	int ret = 0;
 
 	if ((fp = fopen(filename, "rb")) == NULL)
 	{
@@ -42,10 +98,10 @@ int jaConfigurationFile(struct jaConfiguration* config, const char* filename, st
 		return 1;
 	}
 
-	ret_value = jaConfigurationFileEx(config, fp, NULL, st);
+	ret = jaConfigurationFileEx(config, fp, NULL, st);
 	fclose(fp);
 
-	return ret_value;
+	return ret;
 }
 
 
@@ -53,10 +109,17 @@ int jaConfigurationFileEx(struct jaConfiguration* config, FILE* fp,
                           void (*warnings_callback)(enum jaStatusCode, int, const char*, const char*),
                           struct jaStatus* st)
 {
-	(void)config;
-	(void)fp;
-	(void)warnings_callback;
+	struct jaTokenizer* tknzr = NULL;
+	int ret = 0;
 
-	jaStatusSet(st, "jaConfigurationFile", JA_STATUS_ERROR, NULL);
-	return 1;
+	if ((tknzr = jaTokenizerCreateFile(JA_ASCII, fp)) == NULL)
+	{
+		jaStatusSet(st, "jaConfigurationFile", JA_STATUS_IO_ERROR, NULL);
+		return 1;
+	}
+
+	ret = sParse(tknzr, config, fp, warnings_callback, st);
+	jaTokenizerDelete(tknzr);
+
+	return ret;
 }

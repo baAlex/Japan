@@ -86,6 +86,7 @@ inline size_t jaUTF8UnitLength(uint8_t head_byte)
 	return 255;
 }
 
+
 int jaUTF8ValidateUnit(const uint8_t* byte, size_t n, size_t* out_unit_len, uint32_t* out_unit_code)
 {
 	size_t unit_len = jaUTF8UnitLength(*byte);
@@ -162,6 +163,7 @@ int jaUTF8ValidateUnit(const uint8_t* byte, size_t n, size_t* out_unit_len, uint
 	return 0;
 }
 
+
 static inline int sUTF8ValidateUnitSimple(const uint8_t* byte, const uint8_t* end, size_t* unit_len)
 {
 	*unit_len = jaUTF8UnitLength(*byte);
@@ -207,6 +209,7 @@ static inline int sUTF8ValidateUnitSimple(const uint8_t* byte, const uint8_t* en
 
 	return 0;
 }
+
 
 int jaUTF8ValidateString(const uint8_t* string, size_t n, size_t* out_bytes, size_t* out_units)
 {
