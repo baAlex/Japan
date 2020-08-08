@@ -37,7 +37,6 @@ int ASCIITokenizer(struct jaTokenizer* state)
 	size_t end_buffer_cursor = 0;
 
 	uint64_t end_bit = 0;
-	state->end_delimiters = 0;
 
 	if (state->input >= state->input_end)
 		return 2;
@@ -56,6 +55,8 @@ int ASCIITokenizer(struct jaTokenizer* state)
 			return 1;
 		}
 	}
+
+	state->end_delimiters = 0;
 
 	// Cycle trough units
 	for (; state->input < state->input_end; state->input += 1)

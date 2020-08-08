@@ -35,7 +35,36 @@ SOFTWARE.
 #define CVAR_MAX_NAME 64
 
 
-static int sParse(struct jaTokenizer* tknzr, struct jaConfiguration* config, FILE* fp,
+static inline void sStageZeroFailure(struct jaToken* t, const char* name)
+{
+	if ((t->end_delimiters & JA_DELIMITER_NEW_LINE))
+	{
+		if ((t->end_delimiters &
+		     ~(JA_DELIMITER_WHITESPACE | JA_DELIMITER_NEW_LINE | JA_DELIMITER_EQUALS | JA_DELIMITER_QUOTATION)) != 0)
+		{
+			printf("[Error] Unexpected characters after '%s', line %zu\n", name, t->line_number + 1);
+		}
+		else if ((t->end_delimiters & JA_DELIMITER_EQUALS))
+		{
+			printf("[Error] Assignment for '%s' should take place in the same line, line %zu\n", name,
+			       t->line_number + 1);
+		}
+		else if (!(t->end_delimiters & JA_DELIMITER_EQUALS))
+			printf("[Error] No assignment after '%s', line %zu\n", name, t->line_number + 1);
+		else
+			printf("[Error] Line ends before the assignment of '%s', line %zu\n", name, t->line_number + 1);
+	}
+	else
+	{
+		if (t->end_delimiters == JA_DELIMITER_WHITESPACE)
+			printf("[Error] No assignment after '%s', line %zu\n", name, t->line_number + 1);
+		else
+			printf("[Error] Unexpected characters after '%s', line %zu\n", name, t->line_number + 1);
+	}
+}
+
+
+static int sParse(struct jaTokenizer* tknzr, struct jaConfiguration* config,
                   void (*warnings_callback)(enum jaStatusCode, int, const char*, const char*), struct jaStatus* st)
 {
 	struct jaToken* t = NULL;
@@ -54,28 +83,53 @@ static int sParse(struct jaTokenizer* tknzr, struct jaConfiguration* config, FIL
 		// Retrieve variable name
 		if (stage == 0)
 		{
-			strcat(name, (char*)t->string);
+			strcat(name, (char*)t->string); // FIXME, a bomb ready to explode!
 
-			// If the token ends with a single dot, concatenate
-			// it with the previous one... and nothing more
-			if (t->end == JA_END_FULL_STOP)
+			if (t->end_delimiters == JA_DELIMITER_FULL_STOP)
 			{
 				strcat(name, ".");
 				continue;
 			}
 
-			// After all the concatenations, here, we should have the
-			// entire variable name
-			if ((cvar = jaCvarGet(config, name)) != NULL)
+			// Only a combination of WHITESPACE, EQUALS and QUOTE, in the correct
+			// order, is considered a valid assignment
+			if (t->end_string[0] == '=' &&
+			    (t->end_delimiters == (JA_DELIMITER_WHITESPACE | JA_DELIMITER_EQUALS) ||
+			     t->end_delimiters == (JA_DELIMITER_WHITESPACE | JA_DELIMITER_EQUALS | JA_DELIMITER_QUOTATION)))
 			{
-				printf("[Yay!!] cvar '%s' found!, line %zu\n", name, t->line_number + 1);
-				memset(name, 0, CVAR_MAX_NAME);
+				if ((cvar = jaCvarGet(config, name)) == NULL)
+				{
+					printf("[Error] Unknown variable '%s', line %zu\n", name, t->line_number + 1);
+					stage = -1;
+				}
+				else
+					stage = 1;
 			}
+
+			// Nope, an incorrect assignment
 			else
 			{
-				printf("[Error] '%s' is not a cvar, line %zu\n", name, t->line_number + 1);
-				memset(name, 0, CVAR_MAX_NAME);
+				sStageZeroFailure(t, name);
+				stage = -1;
 			}
+		}
+
+		// Retrieve value
+		else if (stage == 1)
+		{
+			memset(name, 0, CVAR_MAX_NAME);
+			stage = 0;
+		}
+
+		// Whatever stage, if the token ends with NEW_LINE this marks
+		// the end of the statement (a new start if some error happened)
+		if ((t->end_delimiters & JA_DELIMITER_NEW_LINE))
+		{
+			if (stage != -1) // A previous stage set this and already printed a message
+				printf("[Error] Statement incomplete, line %zu\n", t->line_number + 1);
+
+			memset(name, 0, CVAR_MAX_NAME);
+			stage = 0;
 		}
 	}
 
@@ -118,7 +172,7 @@ int jaConfigurationFileEx(struct jaConfiguration* config, FILE* fp,
 		return 1;
 	}
 
-	ret = sParse(tknzr, config, fp, warnings_callback, st);
+	ret = sParse(tknzr, config, warnings_callback, st);
 	jaTokenizerDelete(tknzr);
 
 	return ret;

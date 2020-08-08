@@ -37,7 +37,6 @@ int UTF8Tokenizer(struct jaTokenizer* state)
 	size_t end_buffer_cursor = 0;
 
 	uint64_t end_bit = 0;
-	state->end_delimiters = 0;
 
 	size_t unit_len = 0;
 	uint32_t code = 0;
@@ -59,6 +58,8 @@ int UTF8Tokenizer(struct jaTokenizer* state)
 			return 1;
 		}
 	}
+
+	state->end_delimiters = 0;
 
 	// Cycle trough units
 	for (; state->input < state->input_end; state->input += unit_len)

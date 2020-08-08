@@ -79,10 +79,6 @@ void* jaBufferResize(struct jaBuffer* buffer, size_t new_size)
 		}
 	}
 
-	if (old_size != buffer->size)
-		JA_DEBUG_PRINT("(jaBufferResize) required %zu bytes, buffer size: %zu -> %zu bytes\n", new_size, old_size,
-		               buffer->size);
-
 	return buffer->data;
 }
 
