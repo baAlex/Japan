@@ -118,8 +118,15 @@ void ConfigTest2_ParseFile(void** cmocka_state)
 	assert_true(jaCvarCreateFloat(cfg, "env.hold", 0.0f, 0.0f, 1000.0f, NULL) != NULL);
 	assert_true(jaCvarCreateFloat(cfg, "env.release", 200.0f, 0.0f, 1000.0f, NULL) != NULL);
 
+	printf("\nconfig1.cfg\n\n");
+
 	if (jaConfigurationFile(cfg, "tests/config1.cfg", &st) != 0)
-		jaStatusPrint("", st);
+		jaStatusPrint("Config1", st);
+
+	printf("\nconfig1a.cfg\n\n");
+
+	if (jaConfigurationFile(cfg, "tests/config1a.cfg", &st) != 0)
+		jaStatusPrint("Config1A", st);
 
 	jaConfigurationDelete(cfg);
 }

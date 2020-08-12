@@ -35,7 +35,7 @@ SOFTWARE.
 #define CVAR_MAX_NAME 64
 
 
-static inline void sStageZeroFailure(struct jaToken* t, const char* name)
+static inline void sS0EndsFailure(struct jaToken* t, const char* name)
 {
 	if ((t->end_delimiters & JA_DELIMITER_NEW_LINE))
 	{
@@ -72,6 +72,7 @@ static int sParse(struct jaTokenizer* tknzr, struct jaConfiguration* config,
 
 	char name[CVAR_MAX_NAME] = {0};
 	int stage = 0;
+	int statement_token_no = 0;
 
 	jaStatusSet(st, "jaConfigurationFile", JA_STATUS_SUCCESS, NULL);
 
@@ -80,56 +81,76 @@ static int sParse(struct jaTokenizer* tknzr, struct jaConfiguration* config,
 		if ((t = jaTokenize(tknzr, st)) == NULL)
 			break;
 
-		// Retrieve variable name
+		statement_token_no += 1;
+
+		// Stage 0: Retrieve variable name
 		if (stage == 0)
 		{
 			strcat(name, (char*)t->string); // FIXME, a bomb ready to explode!
 
+			// The first token in a line can only start with NEWLINE as delimiter,
+			// so we need to check that the start-delimiter do not include other
+			// symbols (having caution of the symbols carried from the previous token/line)
+			if (statement_token_no == 1 && t->start_string != NULL)
+			{
+				size_t i = 0;
+				for (i = 0; t->start_string[i] != 0x00; i++) {}
+
+				// TIP: the tokenizer don't include whitespaces on the string
+				if (t->start_string[i - 1] != 0x0A)
+				{
+					printf("[Error] Unexpected symbols before '%s', line %zu\n", name, t->line_number + 1);
+					stage = -1;
+					goto outside_stages;
+				}
+			}
+
+			// Variable name includes dots and the tokenizer consider those
+			// as delimiters, so we do a manual concatenation here
 			if (t->end_delimiters == JA_DELIMITER_FULL_STOP)
 			{
 				strcat(name, ".");
 				continue;
 			}
 
-			// Only a combination of WHITESPACE, EQUALS and QUOTE, in the correct
-			// order, is considered a valid assignment
+			// Only a combination of WHITESPACE, EQUALS and QUOTE, in the correct order,
+			// is considered a valid end-delimiter in this first stage
 			if (t->end_string[0] == '=' &&
 			    (t->end_delimiters == (JA_DELIMITER_WHITESPACE | JA_DELIMITER_EQUALS) ||
 			     t->end_delimiters == (JA_DELIMITER_WHITESPACE | JA_DELIMITER_EQUALS | JA_DELIMITER_QUOTATION)))
 			{
-				if ((cvar = jaCvarGet(config, name)) == NULL)
+				if ((cvar = jaCvarGet(config, name)) != NULL)
 				{
-					printf("[Error] Unknown variable '%s', line %zu\n", name, t->line_number + 1);
-					stage = -1;
+					stage = 1;
+					goto outside_stages;
 				}
 				else
-					stage = 1;
+					printf("[Error] Unknown variable '%s', line %zu\n", name, t->line_number + 1);
 			}
-
-			// Nope, an incorrect assignment
 			else
-			{
-				sStageZeroFailure(t, name);
-				stage = -1;
-			}
+				sS0EndsFailure(t, name);
+
+			// Default exit for this stage, an error
+			stage = -1;
 		}
 
-		// Retrieve value
+		// Stage 1: Retrieve value
 		else if (stage == 1)
 		{
+			printf("- '%s'!\n", cvar->item->key);
 			memset(name, 0, CVAR_MAX_NAME);
 			stage = 0;
 		}
 
-		// Whatever stage, if the token ends with NEW_LINE this marks
-		// the end of the statement (a new start if some error happened)
+	outside_stages:
+
+		// Whatever stage, if the token ends with a NEW_LINE delimiter this
+		// marks the end of the statement (a new start if some error happened)
 		if ((t->end_delimiters & JA_DELIMITER_NEW_LINE))
 		{
-			if (stage != -1) // A previous stage set this and already printed a message
-				printf("[Error] Statement incomplete, line %zu\n", t->line_number + 1);
-
 			memset(name, 0, CVAR_MAX_NAME);
 			stage = 0;
+			statement_token_no = 0;
 		}
 	}
 
