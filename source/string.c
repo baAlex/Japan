@@ -125,13 +125,13 @@ int jaUTF8ValidateUnit(const uint8_t* byte, size_t n, size_t* out_unit_len, uint
 				code = (code << 6) | (uint32_t)(*byte & 0x3F); // 0x3F = 0b00111111
 			else
 				return 1;
-			byte += 1;
+			byte += 1; // fall through
 		case 2:
 			if ((*byte >> 6) == 0x02)                          // 0x02 = 0b00000010
 				code = (code << 6) | (uint32_t)(*byte & 0x3F); // 0x3F = 0b00111111
 			else
 				return 1;
-			byte += 1;
+			byte += 1; // fall through
 		case 1:
 			if ((*byte >> 6) == 0x02)                          // 0x02 = 0b00000010
 				code = (code << 6) | (uint32_t)(*byte & 0x3F); // 0x3F = 0b00111111
@@ -185,13 +185,13 @@ static inline int sUTF8ValidateUnitSimple(const uint8_t* byte, const uint8_t* en
 				code = (code << 6) | (uint32_t)(*byte & 0x3F); // 0x3F = 0b00111111
 			else
 				return 1;
-			byte += 1;
+			byte += 1; // fall through
 		case 2:
 			if ((*byte >> 6) == 0x02)                          // 0x02 = 0b00000010
 				code = (code << 6) | (uint32_t)(*byte & 0x3F); // 0x3F = 0b00111111
 			else
 				return 1;
-			byte += 1;
+			byte += 1; // fall through
 		case 1:
 			if ((*byte >> 6) == 0x02)                          // 0x02 = 0b00000010
 				code = (code << 6) | (uint32_t)(*byte & 0x3F); // 0x3F = 0b00111111
