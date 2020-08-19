@@ -39,4 +39,9 @@ JA_EXPORT struct jaMatrix4 jaMatrix4RotateY(struct jaMatrix4 mat, float angle);
 JA_EXPORT struct jaMatrix4 jaMatrix4RotateZ(struct jaMatrix4 mat, float angle);
 JA_EXPORT struct jaMatrix4 jaMatrix4Rotate(struct jaMatrix4 mat, struct jaVector3 v, float angle);
 
+JA_EXPORT struct jaMatrix4 jaMatrix4ScaleAnsio(struct jaMatrix4 mat, struct jaVector3 factor);
+JA_EXPORT struct jaMatrix4 jaMatrix4Scale(struct jaMatrix4 mat, float factor);
+
+JA_EXPORT struct jaMatrix4 jaMatrix4Invert(struct jaMatrix4 mat);
+
 #endif

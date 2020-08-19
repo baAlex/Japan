@@ -18,7 +18,7 @@ Overview
 | [endianness.h][5] | Runtime functions to convert between little and big endianness.
 | [image.h][6]      | Support for the unknown SGI format, up to 4 channels of 8 or 16 bits, optionally with RLE compression.
 | [list.h][7]       | Double linked list. Friendly with the "fat pointer" technique.
-| [matrix.h][8]     | 4x4 matrix operations.
+| [matrix.h][8]     | 4x4 matrix operations. Based on [linmath.h][20].
 | [sound.h][9]      | Support for WAV and AU formats, with integer-samples of 8, 16, 32 bits or float-samples of 32, 64 bits. Handles U-Law and A-Law compression.
 | [status.h][10]    | A method to pass error values between functions.
 | [string.h][11]    | UTF8 and ASCII validation. Distinguishes between UTF8 units and bytes, can be used to count them.
@@ -75,7 +75,7 @@ License
 Under [MIT License](LICENSE).
 
 ### Optional notes
-- File 'matrix.c' is licensed under the WTFPL license. Copyright (c) 2013 by Wolfgang 'datenwolf' Draxinger. Based on the library [linmath.h][20].
+- File 'matrix.c' is licensed under the WTFPL license. Copyright (c) 2013 by Wolfgang 'datenwolf' Draxinger. Based on [linmath.h][20].
 - File 'laws.c' is released under public domain. Based on code written by Steve Underwood (steveu@coppice.org): *g711.h - In line A-law and u-law conversion routines*.
 
 As these terms can be problematic[(a)][18][(b)][19], if desired it is safe to assume that listed files are re-licensed under the MIT License as specified in the file [LICENSE](LICENSE). Is not a requirement expose the previous list or this paragraph, here was done as a gratitude gesture.

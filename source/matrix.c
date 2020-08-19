@@ -17,7 +17,7 @@ TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 -------------------------------
 
  [matrix.c]
- - Alexander Brandt 2019
+ - Alexander Brandt 2019-2020
 -----------------------------*/
 
 #include "japan-matrix.h"
@@ -295,4 +295,96 @@ inline struct jaMatrix4 jaMatrix4Rotate(struct jaMatrix4 mat, struct jaVector3 v
 	r.e[3][3] = 1.0f;
 
 	return jaMatrix4Multiply(mat, r);
+}
+
+
+inline struct jaMatrix4 jaMatrix4ScaleAnsio(struct jaMatrix4 mat, struct jaVector3 f)
+{
+	return (struct jaMatrix4){.e[0][0] = mat.e[0][0] * f.x,
+	                          .e[0][1] = mat.e[0][1] * f.x,
+	                          .e[0][2] = mat.e[0][2] * f.x,
+	                          .e[0][3] = mat.e[0][3] * f.x,
+
+	                          .e[1][0] = mat.e[1][0] * f.y,
+	                          .e[1][1] = mat.e[1][1] * f.y,
+	                          .e[1][2] = mat.e[1][2] * f.y,
+	                          .e[1][3] = mat.e[1][3] * f.y,
+
+	                          .e[2][0] = mat.e[2][0] * f.z,
+	                          .e[2][1] = mat.e[2][1] * f.z,
+	                          .e[2][2] = mat.e[2][2] * f.z,
+	                          .e[2][3] = mat.e[2][3] * f.z,
+
+	                          .e[3][0] = mat.e[3][0],
+	                          .e[3][1] = mat.e[3][1],
+	                          .e[3][2] = mat.e[3][2],
+	                          .e[3][3] = mat.e[3][3]};
+}
+
+
+inline struct jaMatrix4 jaMatrix4Scale(struct jaMatrix4 mat, float f)
+{
+	return (struct jaMatrix4){.e[0][0] = mat.e[0][0] * f,
+	                          .e[0][1] = mat.e[0][1] * f,
+	                          .e[0][2] = mat.e[0][2] * f,
+	                          .e[0][3] = mat.e[0][3] * f,
+
+	                          .e[1][0] = mat.e[1][0] * f,
+	                          .e[1][1] = mat.e[1][1] * f,
+	                          .e[1][2] = mat.e[1][2] * f,
+	                          .e[1][3] = mat.e[1][3] * f,
+
+	                          .e[2][0] = mat.e[2][0] * f,
+	                          .e[2][1] = mat.e[2][1] * f,
+	                          .e[2][2] = mat.e[2][2] * f,
+	                          .e[2][3] = mat.e[2][3] * f,
+
+	                          .e[3][0] = mat.e[3][0] * f,
+	                          .e[3][1] = mat.e[3][1] * f,
+	                          .e[3][2] = mat.e[3][2] * f,
+	                          .e[3][3] = mat.e[3][3] * f};
+}
+
+
+struct jaMatrix4 jaMatrix4Invert(struct jaMatrix4 mat)
+{
+	float s[6];
+	float c[6];
+
+	s[0] = mat.e[0][0] * mat.e[1][1] - mat.e[1][0] * mat.e[0][1];
+	s[1] = mat.e[0][0] * mat.e[1][2] - mat.e[1][0] * mat.e[0][2];
+	s[2] = mat.e[0][0] * mat.e[1][3] - mat.e[1][0] * mat.e[0][3];
+	s[3] = mat.e[0][1] * mat.e[1][2] - mat.e[1][1] * mat.e[0][2];
+	s[4] = mat.e[0][1] * mat.e[1][3] - mat.e[1][1] * mat.e[0][3];
+	s[5] = mat.e[0][2] * mat.e[1][3] - mat.e[1][2] * mat.e[0][3];
+
+	c[0] = mat.e[2][0] * mat.e[3][1] - mat.e[3][0] * mat.e[2][1];
+	c[1] = mat.e[2][0] * mat.e[3][2] - mat.e[3][0] * mat.e[2][2];
+	c[2] = mat.e[2][0] * mat.e[3][3] - mat.e[3][0] * mat.e[2][3];
+	c[3] = mat.e[2][1] * mat.e[3][2] - mat.e[3][1] * mat.e[2][2];
+	c[4] = mat.e[2][1] * mat.e[3][3] - mat.e[3][1] * mat.e[2][3];
+	c[5] = mat.e[2][2] * mat.e[3][3] - mat.e[3][2] * mat.e[2][3];
+
+	// Assumes it is invertible
+	float idet = 1.0f / (s[0] * c[5] - s[1] * c[4] + s[2] * c[3] + s[3] * c[2] - s[4] * c[1] + s[5] * c[0]);
+
+	return (struct jaMatrix4){.e[0][0] = (+mat.e[1][1] * c[5] - mat.e[1][2] * c[4] + mat.e[1][3] * c[3]) * idet,
+	                          .e[0][1] = (-mat.e[0][1] * c[5] + mat.e[0][2] * c[4] - mat.e[0][3] * c[3]) * idet,
+	                          .e[0][2] = (+mat.e[3][1] * s[5] - mat.e[3][2] * s[4] + mat.e[3][3] * s[3]) * idet,
+	                          .e[0][3] = (-mat.e[2][1] * s[5] + mat.e[2][2] * s[4] - mat.e[2][3] * s[3]) * idet,
+
+	                          .e[1][0] = (-mat.e[1][0] * c[5] + mat.e[1][2] * c[2] - mat.e[1][3] * c[1]) * idet,
+	                          .e[1][1] = (+mat.e[0][0] * c[5] - mat.e[0][2] * c[2] + mat.e[0][3] * c[1]) * idet,
+	                          .e[1][2] = (-mat.e[3][0] * s[5] + mat.e[3][2] * s[2] - mat.e[3][3] * s[1]) * idet,
+	                          .e[1][3] = (+mat.e[2][0] * s[5] - mat.e[2][2] * s[2] + mat.e[2][3] * s[1]) * idet,
+
+	                          .e[2][0] = (+mat.e[1][0] * c[4] - mat.e[1][1] * c[2] + mat.e[1][3] * c[0]) * idet,
+	                          .e[2][1] = (-mat.e[0][0] * c[4] + mat.e[0][1] * c[2] - mat.e[0][3] * c[0]) * idet,
+	                          .e[2][2] = (+mat.e[3][0] * s[4] - mat.e[3][1] * s[2] + mat.e[3][3] * s[0]) * idet,
+	                          .e[2][3] = (-mat.e[2][0] * s[4] + mat.e[2][1] * s[2] - mat.e[2][3] * s[0]) * idet,
+
+	                          .e[3][0] = (-mat.e[1][0] * c[3] + mat.e[1][1] * c[1] - mat.e[1][2] * c[0]) * idet,
+	                          .e[3][1] = (+mat.e[0][0] * c[3] - mat.e[0][1] * c[1] + mat.e[0][2] * c[0]) * idet,
+	                          .e[3][2] = (-mat.e[3][0] * s[3] + mat.e[3][1] * s[1] - mat.e[3][2] * s[0]) * idet,
+	                          .e[3][3] = (+mat.e[2][0] * s[3] - mat.e[2][1] * s[1] + mat.e[2][2] * s[0]) * idet};
 }
