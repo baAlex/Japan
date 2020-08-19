@@ -126,9 +126,14 @@ struct jaTokenizer* jaTokenizerCreateString(enum jaStringEncode encode, const ui
 {
 	struct jaTokenizer* state = NULL;
 
+	if (string == NULL)
+		return NULL;
+
 	if ((state = calloc(1, sizeof(struct jaTokenizer))) != NULL)
 	{
-		state->callback = (encode == JA_ASCII) ? ASCIITokenizer : UTF8Tokenizer;
+		state->encode = encode;
+		state->file = NULL;
+
 		state->input = string;
 		state->input_end = string + n;
 
@@ -143,9 +148,12 @@ struct jaTokenizer* jaTokenizerCreateFile(enum jaStringEncode encode, FILE* file
 {
 	struct jaTokenizer* state = NULL;
 
+	if (file == NULL)
+		return NULL;
+
 	if ((state = calloc(1, sizeof(struct jaTokenizer) + FILE_BUFFER_LEN)) != NULL)
 	{
-		state->callback = (encode == JA_ASCII) ? ASCIIFileTokenizer : UTF8FileTokenizer;
+		state->encode = encode;
 		state->file = file;
 
 		state->input = NULL;
@@ -172,8 +180,13 @@ inline void jaTokenizerDelete(struct jaTokenizer* state)
 
 inline struct jaToken* jaTokenize(struct jaTokenizer* state, struct jaStatus* st)
 {
-	int ret = state->callback(state);
-	jaStatusCopy(&state->st, st);
+	int ret = 1;
 
+	if (state->encode == JA_UTF8)
+		ret = (state->file == NULL) ? UTF8Tokenizer(state) : UTF8FileTokenizer(state);
+	else
+		ret = (state->file == NULL) ? ASCIITokenizer(state) : ASCIIFileTokenizer(state);
+
+	jaStatusCopy(&state->st, st);
 	return (ret == 0) ? &state->user : NULL;
 }

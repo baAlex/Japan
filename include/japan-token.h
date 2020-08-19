@@ -70,6 +70,8 @@ struct jaToken
 	size_t unit_number;
 	size_t byte_offset;
 
+	// Delimiters:
+
 	uint8_t* start_string;
 	uint8_t* end_string;
 

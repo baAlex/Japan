@@ -7,7 +7,6 @@
 #ifndef JA_TOKEN_PRIVATE_H
 #define JA_TOKEN_PRIVATE_H
 
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -24,7 +23,8 @@
 struct jaTokenizer
 {
 	// Set at creation:
-	int (*callback)(struct jaTokenizer*);
+	enum jaStringEncode encode;
+
 	const uint8_t* input;
 	const uint8_t* input_end;
 
@@ -50,10 +50,10 @@ uint64_t TranslateEnds(uint32_t code);
 int BufferAppendByte(struct jaBuffer* buffer, size_t* cursor, uint8_t data, struct jaStatus* st);
 int BufferAppend(struct jaBuffer* buffer, size_t* cursor, const void* data, size_t n, struct jaStatus* st);
 
-int UTF8Tokenizer(struct jaTokenizer* state);
 int ASCIITokenizer(struct jaTokenizer* state);
-
-int UTF8FileTokenizer(struct jaTokenizer* state);
 int ASCIIFileTokenizer(struct jaTokenizer* state);
+
+int UTF8Tokenizer(struct jaTokenizer* state);
+int UTF8FileTokenizer(struct jaTokenizer* state);
 
 #endif

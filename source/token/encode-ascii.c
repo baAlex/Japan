@@ -43,27 +43,25 @@ int ASCIITokenizer(struct jaTokenizer* state)
 
 	// Some bits that the user receives,
 	// most of them from the previous iteration
-	{
-		state->user.line_number = state->line_number;
-		state->user.unit_number = state->unit_number;
-		state->user.byte_offset = state->byte_offset;
-		state->user.start_delimiters = state->end_delimiters;
+	state->user.line_number = state->line_number;
+	state->user.unit_number = state->unit_number;
+	state->user.byte_offset = state->byte_offset;
+	state->user.start_delimiters = state->end_delimiters;
 
-		if (jaBufferCopy(&state->start_buffer, &state->end_buffer) != 0)
-		{
-			jaStatusSet(&state->st, "jaTokenize", JA_STATUS_MEMORY_ERROR, NULL);
-			return 1;
-		}
+	if (jaBufferCopy(&state->start_buffer, &state->end_buffer) != 0)
+	{
+		jaStatusSet(&state->st, "ASCIITokenizer", JA_STATUS_MEMORY_ERROR, NULL);
+		return 1;
 	}
 
+	// Cycle trough units
 	state->end_delimiters = 0;
 
-	// Cycle trough units
 	for (; state->input < state->input_end; state->input += 1)
 	{
 		if (jaASCIIValidateUnit(*state->input) != 0)
 		{
-			jaStatusSet(&state->st, "jaTokenize", JA_STATUS_ASCII_ERROR, "character \\%02X", *state->input);
+			jaStatusSet(&state->st, "ASCIITokenizer", JA_STATUS_ASCII_ERROR, "character \\%02X", *state->input);
 			return 1;
 		}
 
@@ -121,12 +119,11 @@ outside_loop:
 	BufferAppendByte(&state->end_buffer, &end_buffer_cursor, 0x00, &state->st);
 
 	// Bye!, remaining information for the user
-	{
-		state->user.string = state->token_buffer.data;
-		state->user.start_string = state->start_buffer.data;
-		state->user.end_string = state->end_buffer.data;
-		state->user.end_delimiters = state->end_delimiters;
-	}
+	state->user.string = state->token_buffer.data;
+	state->user.start_string = state->start_buffer.data;
+	state->user.end_string = state->end_buffer.data;
+	state->user.end_delimiters = state->end_delimiters;
+
 	return 0;
 }
 
@@ -143,7 +140,7 @@ int ASCIIFileTokenizer(struct jaTokenizer* state)
 				return 2;
 
 			// Nope, an error
-			jaStatusSet(&state->st, "jaTokenize", JA_STATUS_IO_ERROR, NULL);
+			jaStatusSet(&state->st, "ASCIIFileTokenizer", JA_STATUS_IO_ERROR, NULL);
 			return 1;
 		}
 
