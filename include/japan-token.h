@@ -8,7 +8,7 @@
 #define JAPAN_TOKEN_H
 
 #ifndef JA_WIP
-#warning "LibJapan here!, be caution this module is unstable"
+#warning "LibJapan here!, be caution, this module is unstable"
 #endif
 
 #ifdef JA_EXPORT_SYMBOLS
