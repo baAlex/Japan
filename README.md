@@ -27,7 +27,7 @@ Overview
 | [vector.h][14]    | 2, 3, and 4 dimensions vectors.
 
 
-### Incomplete modules:
+### Work-in-progress modules:
 | Header                | -
 | --------------------- | -
 | [token.h][15]         | A tokenizer, as C makes string manipulation particularly hard.
@@ -41,7 +41,7 @@ Compiles lovely with Clang, GCC and MSVC ❤️.
 
 To clone and compile the repository with:
 ```
-git clone https://github.com/baAlex/libjapan.git
+git clone https://github.com/baAlex/libjapan.git libjapan
 cd libjapan
 
 mkdir build
