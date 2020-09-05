@@ -84,6 +84,12 @@ if (JA_BUILD_TEST)
 		target_include_directories("test-suite" PRIVATE ${CMOCKA_INCLUDE_DIR})
 
 		target_link_libraries("test-suite" PRIVATE "japan-static")
-		target_link_libraries("test-suite" PRIVATE ${CMOCKA_LIBRARIES})
+
+		if (DEFINED VCPKG_TOOLCHAIN)
+			target_link_libraries("test-suite" PRIVATE cmocka::cmocka)
+		else()
+			target_link_libraries("test-suite" PRIVATE ${CMOCKA_LIBRARIES})
+		endif()
+
 	endif ()
 endif ()
