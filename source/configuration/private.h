@@ -18,10 +18,13 @@
 	#include "japan-buffer.h"
 	#include "japan-dictionary.h"
 	#include "japan-utilities.h"
-	#include "japan-configuration.h"
 	#include "japan-status.h"
 
 	#include "../common.h"
+
+	#define JA_WIP
+	#include "japan-token.h"
+	#include "japan-configuration.h"
 
 	enum SetBy
 	{

@@ -7,6 +7,10 @@
 #ifndef JAPAN_CONFIGURATION_H
 #define JAPAN_CONFIGURATION_H
 
+#ifndef JA_WIP
+#warning "LibJapan here!, be caution this module is unstable"
+#endif
+
 #ifdef JA_EXPORT_SYMBOLS
 	#if defined(__clang__) || defined(__GNUC__)
 	#define JA_EXPORT __attribute__((visibility("default")))

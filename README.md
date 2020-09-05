@@ -14,6 +14,7 @@ Overview
 --------
 | Header            | -
 | ----------------- | -
+| [buffer.h][17]    | Tiny fix over realloc().
 | [dictionary.h][4] | Linear hash map, grows dynamically between a threshold. By default uses FNV1 as hash function.
 | [endianness.h][5] | Runtime functions to convert between little and big endianness.
 | [image.h][6]      | Support for the unknown SGI format, up to 4 channels of 8 or 16 bits, optionally with RLE compression.
@@ -32,7 +33,6 @@ Overview
 | --------------------- | -
 | [token.h][15]         | A tokenizer, as C makes string manipulation particularly hard.
 | [configuration.h][16] | Configuration variables (cvar) a la Quake.
-| [buffer.h][17]        | I'm thinking on delete it...
 
 
 Compilation

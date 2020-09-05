@@ -10,12 +10,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "japan-token.h"
-
 #include "japan-buffer.h"
 #include "japan-status.h"
 #include "japan-string.h"
 
+#define JA_WIP
+#include "japan-token.h"
 
 #define FILE_BUFFER_LEN 256
 

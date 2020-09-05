@@ -16,6 +16,7 @@
 
 #include <cmocka.h>
 
+#define JA_WIP
 #include "japan-configuration.h"
 
 void ConfigTest1(void** cmocka_state)

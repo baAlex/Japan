@@ -28,7 +28,6 @@ SOFTWARE.
  - Alexander Brandt 2019-2020
 -----------------------------*/
 
-#include "japan-token.h"
 #include "private.h"
 
 

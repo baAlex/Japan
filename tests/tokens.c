@@ -16,6 +16,7 @@
 
 #include <cmocka.h>
 
+#define JA_WIP
 #include "japan-token.h"
 
 #define ONE_SHOT_BUFFER_LEN (512 * 1024)
