@@ -45,11 +45,11 @@ inline int jaVersionMinor()
 
 inline int jaVersionPatch()
 {
-	return 4;
+	return 5;
 }
 
 
 inline char* jaVersionString()
 {
-	return "LibJapan v0.2.4";
+	return "LibJapan v0.2.5";
 }

@@ -1,32 +1,21 @@
+
 cmake_minimum_required(VERSION 3.10)
-
 project("LibJapan" C)
-option(JA_EXPORT_SYMBOLS "Export symbols" ON)
-option(JA_BUILD_SHARED   "Build shared library" ON)
-option(JA_BUILD_STATIC   "Build static library" ON)
-option(JA_BUILD_TEST     "Build test suite" ON)
 
-include_directories("./include/")
+option(JAPAN_EXPORT_SYMBOLS "Export symbols" ON)
+option(JAPAN_SHARED "Build shared library"   ON)
+option(JAPAN_STATIC "Build static library"   ON)
+option(JAPAN_BUILD_TEST "Build test suite"   ON)
 
-if ((CMAKE_C_COMPILER_ID MATCHES "Clang") OR (CMAKE_C_COMPILER_ID MATCHES "GNU"))
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
-	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -g -std=c99 -Wall -Wextra -Wconversion -pedantic -DJA_DEBUG")
-	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -mtune=generic")
-elseif (CMAKE_C_COMPILER_ID MATCHES "MSVC")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /utf-8")
-	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Od /Zi /DJA_DEBUG /D_CRT_SECURE_NO_WARNINGS")
-	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /O2 /D_CRT_SECURE_NO_WARNINGS")
-endif()
-
-if (JA_EXPORT_SYMBOLS)
-	if ((CMAKE_C_COMPILER_ID MATCHES "Clang") OR (CMAKE_C_COMPILER_ID MATCHES "GNU"))
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DJA_EXPORT_SYMBOLS")
-	elseif (CMAKE_C_COMPILER_ID MATCHES "MSVC")
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /DJA_EXPORT_SYMBOLS")
-	endif()
+if (MSVC)
+	add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif ()
 
-set(SOURCES
+if (JAPAN_EXPORT_SYMBOLS)
+	add_compile_definitions(JA_EXPORT_SYMBOLS)
+endif ()
+
+set(JAPAN_SOURCES
 	"./source/buffer.c"
 	"./source/dictionary.c"
 	"./source/endianness.c"
@@ -51,27 +40,23 @@ set(SOURCES
 	"./source/token/encode-utf8.c"
 	"./source/token/token.c")
 
-if (JA_BUILD_SHARED)
-	add_library("japan" SHARED ${SOURCES})
-
-	if (NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
-	target_link_libraries("japan" "m")
-	endif()
+if (JAPAN_SHARED)
+	add_library("japan" SHARED ${JAPAN_SOURCES})
+	target_include_directories("japan" PUBLIC "./include/")
+	target_link_libraries("japan" PRIVATE "m")
 endif ()
 
-if (JA_BUILD_STATIC)
-	add_library("japan-static" STATIC ${SOURCES})
-
-	if (NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
-	target_link_libraries("japan-static" "m")
-	endif()
+if (JAPAN_STATIC)
+	add_library("japan-static" STATIC ${JAPAN_SOURCES})
+	target_include_directories("japan-static" PUBLIC "./include/")
+	target_link_libraries("japan-static" PRIVATE "m")
 endif ()
 
-if (JA_BUILD_TEST)
+if (JAPAN_BUILD_TEST)
 	find_package(cmocka CONFIG)
 	if (cmocka_FOUND)
 
-		set(TEST_SUITE_SOURCES
+		add_executable("test-suite"
 			"./tests/configurations.c"
 			"./tests/dictionaries.c"
 			"./tests/images.c"
@@ -80,10 +65,8 @@ if (JA_BUILD_TEST)
 			"./tests/tokens.c"
 			"./tests/test-suite.c")
 
-		add_executable("test-suite" ${TEST_SUITE_SOURCES})
-		target_include_directories("test-suite" PRIVATE ${CMOCKA_INCLUDE_DIR})
-
 		target_link_libraries("test-suite" PRIVATE "japan-static")
+		target_include_directories("test-suite" PRIVATE ${CMOCKA_INCLUDE_DIR})
 
 		if (DEFINED VCPKG_TOOLCHAIN)
 			target_link_libraries("test-suite" PRIVATE cmocka::cmocka)
@@ -91,5 +74,5 @@ if (JA_BUILD_TEST)
 			target_link_libraries("test-suite" PRIVATE ${CMOCKA_LIBRARIES})
 		endif()
 
-	endif ()
-endif ()
+	endif (cmocka_FOUND)
+endif (JAPAN_BUILD_TEST)
