@@ -43,13 +43,19 @@ set(JAPAN_SOURCES
 if (JAPAN_SHARED)
 	add_library("japan" SHARED ${JAPAN_SOURCES})
 	target_include_directories("japan" PUBLIC "./include/")
-	target_link_libraries("japan" PRIVATE "m")
+
+	if (NOT MSVC)
+		target_link_libraries("japan" PRIVATE "m")
+	endif ()
 endif ()
 
 if (JAPAN_STATIC)
 	add_library("japan-static" STATIC ${JAPAN_SOURCES})
 	target_include_directories("japan-static" PUBLIC "./include/")
-	target_link_libraries("japan-static" PRIVATE "m")
+
+	if (NOT MSVC)
+		target_link_libraries("japan-static" PRIVATE "m")
+	endif ()
 endif ()
 
 if (JAPAN_BUILD_TEST)
