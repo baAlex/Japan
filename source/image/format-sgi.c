@@ -266,7 +266,10 @@ struct jaImage* ImageLoadSgi(FILE* file, const char* filename, struct jaStatus* 
 	}
 
 	if ((image = jaImageCreate(ex.format, ex.width, ex.height, ex.channels)) == NULL)
+	{
+		jaStatusSet(st, "ImageLoadSgi", JA_STATUS_MEMORY_ERROR, NULL);
 		goto return_failure;
+	}
 
 	if (ex.storage == JA_IMAGE_SGI_RLE)
 	{

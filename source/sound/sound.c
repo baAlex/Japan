@@ -194,7 +194,10 @@ struct jaSound* jaSoundLoad(const char* filename, struct jaStatus* st)
 	}
 
 	if ((sound = jaSoundCreate(ex.format, ex.length, ex.channels, ex.frequency)) == NULL)
+	{
+		jaStatusSet(st, "jaSoundLoad", JA_STATUS_MEMORY_ERROR, NULL);
 		goto return_failure;
+	}
 
 	if (jaSoundExRead(file, ex, sound->size, sound->data, st) != sound->size)
 		goto return_failure;
