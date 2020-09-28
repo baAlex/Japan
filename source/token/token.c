@@ -34,6 +34,8 @@ TODO: Investigate how handle CRLF correctly?
       discard CR seems so wrong...
 -----------------------------*/
 
+#if 0
+
 #include "private.h"
 
 
@@ -190,3 +192,5 @@ inline struct jaToken* jaTokenize(struct jaTokenizer* state, struct jaStatus* st
 	jaStatusCopy(&state->st, st);
 	return (ret == 0) ? &state->user : NULL;
 }
+
+#endif

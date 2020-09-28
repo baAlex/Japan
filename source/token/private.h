@@ -4,6 +4,8 @@
  - Alexander Brandt 2020
 -----------------------------*/
 
+#if 0
+
 #ifndef JA_TOKEN_PRIVATE_H
 #define JA_TOKEN_PRIVATE_H
 
@@ -55,5 +57,7 @@ int ASCIIFileTokenizer(struct jaTokenizer* state);
 
 int UTF8Tokenizer(struct jaTokenizer* state);
 int UTF8FileTokenizer(struct jaTokenizer* state);
+
+#endif
 
 #endif

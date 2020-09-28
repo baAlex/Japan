@@ -4,6 +4,8 @@
  - Alexander Brandt 2020
 -----------------------------*/
 
+#if 0
+
 #include <math.h>
 #include <setjmp.h>
 #include <stdarg.h>
@@ -470,3 +472,5 @@ void TokenizerTest5_ASCIIFile(void** cmocka_state)
 	jaTokenizerDelete(tokenizer);
 	fclose(fp);
 }
+
+#endif

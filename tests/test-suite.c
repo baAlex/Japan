@@ -27,21 +27,12 @@ extern void ListTest3_BeforeAfterAddition(void** cmocka_state);
 extern void DictionaryTest1_FNV1Hash(void** cmocka_state);
 extern void DictionaryTest2_SimpleUsage(void** cmocka_state);
 
-extern void ConfigTest1(void** cmocka_state);
-extern void ConfigTest2_ParseFile(void** cmocka_state);
-
 extern void ImageTest1_Sgi(void** cmocka_state);
 
 extern void StringEncodeTest1_KuhnBigBuffer(void** cmocka_state);
 extern void StringEncodeTest1_KuhnLittleBuffer(void** cmocka_state);
 extern void StringEncodeTest1_KuhnOneShot(void** cmocka_state);
 extern void StringEncodeTest1_Coherency(void** cmocka_state);
-
-extern void TokenizerTest1_ASCIISimple(void** cmocka_state);
-extern void TokenizerTest2_ASCIIRockafeller(void** cmocka_state);
-extern void TokenizerTest3_ASCIIUwU(void** cmocka_state);
-extern void TokenizerTest4_UTF8Simple(void** cmocka_state);
-extern void TokenizerTest5_ASCIIFile(void** cmocka_state);
 
 
 int main()
@@ -58,20 +49,10 @@ int main()
 
 	                             cmocka_unit_test(ImageTest1_Sgi),
 
-	                             cmocka_unit_test(ConfigTest1),
-	                             cmocka_unit_test(ConfigTest2_ParseFile),
-
 	                             cmocka_unit_test(StringEncodeTest1_KuhnBigBuffer),
 	                             cmocka_unit_test(StringEncodeTest1_KuhnLittleBuffer),
 	                             cmocka_unit_test(StringEncodeTest1_KuhnOneShot),
-	                             cmocka_unit_test(StringEncodeTest1_Coherency),
-
-	                             cmocka_unit_test(TokenizerTest1_ASCIISimple),
-	                             cmocka_unit_test(TokenizerTest2_ASCIIRockafeller),
-	                             cmocka_unit_test(TokenizerTest3_ASCIIUwU),
-	                             cmocka_unit_test(TokenizerTest4_UTF8Simple),
-
-	                             cmocka_unit_test(TokenizerTest5_ASCIIFile)};
+	                             cmocka_unit_test(StringEncodeTest1_Coherency)};
 
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

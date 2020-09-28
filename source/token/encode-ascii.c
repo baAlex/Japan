@@ -28,6 +28,8 @@ SOFTWARE.
  - Alexander Brandt 2020
 -----------------------------*/
 
+#if 0
+
 #include "private.h"
 
 
@@ -150,3 +152,5 @@ int ASCIIFileTokenizer(struct jaTokenizer* state)
 
 	return ASCIITokenizer(state);
 }
+
+#endif

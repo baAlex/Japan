@@ -4,6 +4,8 @@
  - Alexander Brandt 2019-2020
 -----------------------------*/
 
+#if 0
+
 #include <math.h>
 #include <setjmp.h>
 #include <stdarg.h>
@@ -131,3 +133,5 @@ void ConfigTest2_ParseFile(void** cmocka_state)
 
 	jaConfigurationDelete(cfg);
 }
+
+#endif

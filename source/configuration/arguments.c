@@ -31,23 +31,18 @@ SOFTWARE.
 #include "private.h"
 
 
-/*-----------------------------
-
- jaConfigurationArguments()
------------------------------*/
-void jaConfigurationArguments(struct jaConfiguration* config, int argc, const char* argv[])
+inline void jaConfigurationArguments(struct jaConfiguration* config, enum jaEncode encode, int argc, const char* argv[])
 {
-	jaConfigurationArgumentsEx(config, argc, argv, JA_ARGUMENTS_DEFAULT, NULL);
+	jaConfigurationArgumentsEx(config, encode, JA_SKIP_FIRST, NULL, argc, argv);
 }
 
-void jaConfigurationArgumentsEx(struct jaConfiguration* config, int argc, const char* argv[],
-                                enum jaArgumentsFlags flags,
-                                void (*warnings_callback)(enum jaStatusCode, int, const char*, const char*))
+void jaConfigurationArgumentsEx(struct jaConfiguration* config, enum jaEncode encode, enum jaArgumentsFlags flags,
+                                void (*warnings_callback)(enum jaStatusCode, int, const char*, const char*), int argc,
+                                const char* argv[])
 {
 	struct jaDictionaryItem* item = NULL;
-	enum jaStatusCode code;
 
-	for (int i = (flags == JA_ARGUMENTS_INCLUDE_FIRST_ONE) ? 0 : 1; i < argc; i++)
+	for (int i = (flags == JA_PARSE_FIRST) ? 0 : 1; i < argc; i++)
 	{
 		// Check key
 		if (argv[i][0] != '-')
@@ -66,7 +61,7 @@ void jaConfigurationArgumentsEx(struct jaConfiguration* config, int argc, const 
 			continue;
 		}
 
-		// Check value following
+		// Retrieve value
 		if ((i + 1) == argc)
 		{
 			if (warnings_callback != NULL)
@@ -75,8 +70,8 @@ void jaConfigurationArgumentsEx(struct jaConfiguration* config, int argc, const 
 			break;
 		}
 
-		// Store!
-		code = Store(item->data, argv[i + 1], SET_BY_ARGUMENTS);
+		// Store
+		enum jaStatusCode code = Store(item->data, argv[i + 1], SET_BY_ARGUMENTS);
 
 		if (code != JA_STATUS_SUCCESS)
 		{
@@ -86,8 +81,4 @@ void jaConfigurationArgumentsEx(struct jaConfiguration* config, int argc, const 
 
 		i++; // Important!
 	}
-
-#ifdef JA_DEBUG
-	jaDictionaryIterate((struct jaDictionary*)config, PrintCallback, NULL);
-#endif
 }

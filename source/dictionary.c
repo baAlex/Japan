@@ -344,11 +344,13 @@ struct jaDictionary* jaDictionaryCreate(uint64_t (*hash_function)(const char*, s
 		dictionary->items_no = 0;
 		dictionary->hash_function = hash_function;
 
-		if ((dictionary->buckets = calloc(dictionary->buckets_no, sizeof(struct Bucket))) == NULL)
+		if ((dictionary->buckets = malloc(INITIAL_BUCKETS * sizeof(struct Bucket))) == NULL)
 		{
 			free(dictionary);
 			dictionary = NULL;
 		}
+
+		memset(dictionary->buckets, 0, INITIAL_BUCKETS * sizeof(struct Bucket));
 	}
 
 	return dictionary;

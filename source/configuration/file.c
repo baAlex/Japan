@@ -28,6 +28,8 @@ SOFTWARE.
  - Alexander Brandt 2019-2020
 -----------------------------*/
 
+#if 0
+
 #include "private.h"
 
 
@@ -197,3 +199,5 @@ int jaConfigurationFileEx(struct jaConfiguration* config, FILE* fp,
 
 	return ret;
 }
+
+#endif

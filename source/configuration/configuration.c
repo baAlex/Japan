@@ -52,43 +52,44 @@ static inline const char* sBufferGetString(const struct jaBuffer* b)
 }
 
 
-#ifdef JA_DEBUG
-void PrintCallback(struct jaDictionaryItem* item, void* data)
+inline struct jaConfiguration* jaConfigurationCreate()
 {
-	(void)data;
-	struct jaCvar* cvar = (struct jaCvar*)item->data;
-
-	switch (cvar->type)
-	{
-	case TYPE_INT:
-		JA_DEBUG_PRINT(" - %s = %i [i%s]\n", item->key, cvar->value.i, (cvar->set_by == SET_DEFAULT) ? "" : ", (*)");
-		break;
-	case TYPE_FLOAT:
-		JA_DEBUG_PRINT(" - %s = %f [f%s]\n", item->key, cvar->value.f, (cvar->set_by == SET_DEFAULT) ? "" : ", (*)");
-		break;
-	case TYPE_STRING:
-		JA_DEBUG_PRINT(" - %s = '%s' [s%s]\n", item->key, sBufferGetString(&cvar->value.s),
-		               (cvar->set_by == SET_DEFAULT) ? "" : ", (*)");
-	}
+	return (struct jaConfiguration*)jaDictionaryCreate(NULL);
 }
-#endif
 
 
-static inline int sValidateKey(const char* string)
+inline void jaConfigurationDelete(struct jaConfiguration* config)
+{
+	jaDictionaryDelete((struct jaDictionary*)config);
+}
+
+
+static void sCvarDeleteCallback(struct jaDictionaryItem* item)
+{
+	struct jaCvar* cvar = item->data;
+
+	if (cvar->type == TYPE_STRING)
+		jaBufferClean(&cvar->value.s);
+}
+
+
+static int sValidateKey(const char* string)
 {
 	size_t i = 0;
 	int last_is_dot = 0;
 
-	// Ensure that the first two characters are a letter
+	// Plain old printable-ASCII
+
+	// Ensure that the first character is a letter
 	if (!(string[0] >= 0x41 && string[0] <= 0x5A) && // A-Z
 	    !(string[0] >= 0x61 && string[0] <= 0x7A))   // a-z
 		return 1;
 
 	// For the remain characters, letters, numbers, non consecutive
-	// dots, and underscores
+	// dots and underscores, allowed
 	for (i = 0;; i++)
 	{
-		if (string[i] == 0x00)
+		if (string[i] == 0x00) // NULL
 			break;
 
 		if (!(string[i] >= 0x41 && string[i] <= 0x5A) && // A-Z
@@ -100,9 +101,10 @@ static inline int sValidateKey(const char* string)
 
 		if (string[i] == 0x2E) // Full stop (dot)
 		{
-			last_is_dot = 1;
-			if (string[i - 1] == 0x2E) // Consecutive dots
+			if (last_is_dot == 1) // Consecutive dots
 				break;
+
+			last_is_dot = 1;
 		}
 		else
 			last_is_dot = 0;
@@ -110,6 +112,36 @@ static inline int sValidateKey(const char* string)
 
 	// The key can't end in a dot!
 	return (string[i] == 0x00) ? last_is_dot : 1;
+}
+
+
+static struct jaCvar* sCvarCreate(struct jaConfiguration* config, const char* key, enum Type type, struct jaStatus* st)
+{
+	struct jaDictionaryItem* item = NULL;
+	struct jaCvar* cvar = NULL;
+
+	jaStatusSet(st, "jaCvarCreate", JA_STATUS_SUCCESS, NULL);
+
+	if (key == NULL || sValidateKey(key) != 0)
+	{
+		jaStatusSet(st, "jaCvarCreate", JA_STATUS_INVALID_ARGUMENT, "Invalid key");
+		return NULL;
+	}
+
+	if ((item = jaDictionaryAdd((struct jaDictionary*)config, key, NULL, sizeof(struct jaCvar))) == NULL)
+	{
+		jaStatusSet(st, "jaCvarCreate", JA_STATUS_MEMORY_ERROR, NULL);
+		return NULL;
+	}
+
+	item->callback_delete = sCvarDeleteCallback;
+	cvar = item->data;
+
+	memset(cvar, 0, sizeof(struct jaCvar));
+	cvar->type = type;
+	cvar->item = item;
+
+	return cvar;
 }
 
 
@@ -197,24 +229,50 @@ enum jaStatusCode Store(struct jaCvar* cvar, const char* to_store, enum SetBy by
 }
 
 
-inline struct jaConfiguration* jaConfigurationCreate()
+struct jaCvar* jaCvarCreateInt(struct jaConfiguration* config, const char* name, int default_value, int min, int max,
+                               struct jaStatus* st)
 {
-	return (struct jaConfiguration*)jaDictionaryCreate(NULL);
+	struct jaCvar* cvar = sCvarCreate(config, name, TYPE_INT, st);
+
+	if (cvar != NULL)
+	{
+		cvar->value.i = jaClampInt(default_value, min, max);
+		cvar->min.i = min;
+		cvar->max.i = max;
+	}
+
+	return cvar;
 }
 
 
-static void sDeleteCallback(struct jaDictionaryItem* item)
+struct jaCvar* jaCvarCreateFloat(struct jaConfiguration* config, const char* name, float default_value, float min,
+                                 float max, struct jaStatus* st)
 {
-	struct jaCvar* cvar = item->data;
+	struct jaCvar* cvar = sCvarCreate(config, name, TYPE_FLOAT, st);
 
-	if (cvar->type == TYPE_STRING)
-		jaBufferClean(&cvar->value.s);
+	if (cvar != NULL)
+	{
+		cvar->value.f = jaClampFloat(default_value, min, max);
+		cvar->min.f = min;
+		cvar->max.f = max;
+	}
+
+	return cvar;
 }
 
 
-inline void jaConfigurationDelete(struct jaConfiguration* config)
+struct jaCvar* jaCvarCreateString(struct jaConfiguration* config, const char* name, const char* default_value,
+                                  const char* allowed_values[], const char* prohibited_values[], struct jaStatus* st)
 {
-	jaDictionaryDelete((struct jaDictionary*)config);
+	(void)allowed_values;
+	(void)prohibited_values;
+
+	struct jaCvar* cvar = sCvarCreate(config, name, TYPE_STRING, st);
+
+	if (cvar != NULL)
+		sBufferSaveString(&cvar->value.s, default_value);
+
+	return cvar;
 }
 
 
@@ -225,90 +283,19 @@ inline struct jaCvar* jaCvarGet(const struct jaConfiguration* config, const char
 }
 
 
-static struct jaCvar* sCreate(struct jaConfiguration* config, const char* key, enum Type type, struct jaStatus* st)
+inline void jaCvarDelete(struct jaCvar* cvar)
 {
-	struct jaDictionaryItem* item = NULL;
-	struct jaCvar* cvar = NULL;
-
-	jaStatusSet(st, "jaCvarCreate", JA_STATUS_SUCCESS, NULL);
-
-	if (key == NULL || sValidateKey(key) != 0)
-	{
-		jaStatusSet(st, "jaCvarCreate", JA_STATUS_INVALID_ARGUMENT, "Invalid key");
-		return NULL;
-	}
-
-	if ((item = jaDictionaryAdd((struct jaDictionary*)config, key, NULL, sizeof(struct jaCvar))) == NULL)
-	{
-		jaStatusSet(st, "jaCvarCreate", JA_STATUS_MEMORY_ERROR, NULL);
-		return NULL;
-	}
-
-	item->callback_delete = sDeleteCallback;
-	cvar = item->data;
-
-	memset(cvar, 0, sizeof(struct jaCvar));
-	cvar->type = type;
-	cvar->item = item;
-
-	return cvar;
+	jaDictionaryRemove(cvar->item); // Calls sCvarDeleteCallback()
 }
 
 
-struct jaCvar* jaCvarCreateInt(struct jaConfiguration* config, const char* key, int default_value, int min, int max,
-                               struct jaStatus* st)
+int jaCvarGetValueInt(const struct jaCvar* cvar, int* dest, struct jaStatus* st)
 {
-	struct jaCvar* cvar = sCreate(config, key, TYPE_INT, st);
-
-	if (cvar == NULL)
-		return NULL;
-
-	cvar->value.i = jaClampInt(default_value, min, max);
-	cvar->min.i = min;
-	cvar->max.i = max;
-
-	return cvar;
-}
-
-
-struct jaCvar* jaCvarCreateFloat(struct jaConfiguration* config, const char* key, float default_value, float min,
-                                 float max, struct jaStatus* st)
-{
-	struct jaCvar* cvar = sCreate(config, key, TYPE_FLOAT, st);
-
-	if (cvar == NULL)
-		return NULL;
-
-	cvar->value.f = jaClampFloat(default_value, min, max);
-	cvar->min.f = min;
-	cvar->max.f = max;
-
-	return cvar;
-}
-
-
-struct jaCvar* jaCvarCreateString(struct jaConfiguration* config, const char* key, const char* default_value,
-                                  const char* allowed_values, const char* prohibited_values, struct jaStatus* st)
-{
-	(void)allowed_values;
-	(void)prohibited_values;
-
-	struct jaCvar* cvar = sCreate(config, key, TYPE_STRING, st);
-
-	if (cvar != NULL)
-		sBufferSaveString(&cvar->value.s, default_value);
-
-	return cvar;
-}
-
-
-int jaCvarValueInt(const struct jaCvar* cvar, int* dest, struct jaStatus* st)
-{
-	jaStatusSet(st, "jaCvarValueInt", JA_STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaGetCvarValueInt", JA_STATUS_SUCCESS, NULL);
 
 	if (cvar == NULL)
 	{
-		jaStatusSet(st, "jaCvarValueInt", JA_STATUS_INVALID_ARGUMENT, NULL);
+		jaStatusSet(st, "jaGetCvarValueInt", JA_STATUS_INVALID_ARGUMENT, NULL);
 		return 1;
 	}
 
@@ -318,7 +305,7 @@ int jaCvarValueInt(const struct jaCvar* cvar, int* dest, struct jaStatus* st)
 		*dest = (int)roundf(cvar->value.f);
 	else
 	{
-		jaStatusSet(st, "jaCvarValueInt", JA_STATUS_ERROR, "Can't cast cvar '%s' into a string", cvar->item->key);
+		jaStatusSet(st, "jaGetCvarValueInt", JA_STATUS_ERROR, "Can't cast '%s' into a integer", cvar->item->key);
 		return 1;
 	}
 
@@ -326,13 +313,13 @@ int jaCvarValueInt(const struct jaCvar* cvar, int* dest, struct jaStatus* st)
 }
 
 
-int jaCvarValueFloat(const struct jaCvar* cvar, float* dest, struct jaStatus* st)
+int jaCvarGetValueFloat(const struct jaCvar* cvar, float* dest, struct jaStatus* st)
 {
-	jaStatusSet(st, "jaCvarValueFloat", JA_STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaCvarGetValueFloat", JA_STATUS_SUCCESS, NULL);
 
 	if (cvar == NULL)
 	{
-		jaStatusSet(st, "jaCvarValueFloat", JA_STATUS_INVALID_ARGUMENT, NULL);
+		jaStatusSet(st, "jaCvarGetValueFloat", JA_STATUS_INVALID_ARGUMENT, NULL);
 		return 1;
 	}
 
@@ -342,7 +329,7 @@ int jaCvarValueFloat(const struct jaCvar* cvar, float* dest, struct jaStatus* st
 		*dest = (float)cvar->value.i;
 	else
 	{
-		jaStatusSet(st, "jaCvarValueFloat", JA_STATUS_ERROR, "Can't cast cvar '%s' into a string", cvar->item->key);
+		jaStatusSet(st, "jaCvarGetValueFloat", JA_STATUS_ERROR, "Can't cast '%s' into a float", cvar->item->key);
 		return 1;
 	}
 
@@ -350,19 +337,19 @@ int jaCvarValueFloat(const struct jaCvar* cvar, float* dest, struct jaStatus* st
 }
 
 
-int jaCvarValueString(const struct jaCvar* cvar, const char** dest, struct jaStatus* st)
+int jaCvarGetValueString(const struct jaCvar* cvar, const char** dest, struct jaStatus* st)
 {
-	jaStatusSet(st, "jaCvarValueString", JA_STATUS_SUCCESS, NULL);
+	jaStatusSet(st, "jaCvarGetValueString", JA_STATUS_SUCCESS, NULL);
 
 	if (cvar == NULL)
 	{
-		jaStatusSet(st, "jaCvarValueString", JA_STATUS_INVALID_ARGUMENT, NULL);
+		jaStatusSet(st, "jaCvarGetValueString", JA_STATUS_INVALID_ARGUMENT, NULL);
 		return 1;
 	}
 
 	if (cvar->type != TYPE_STRING)
 	{
-		jaStatusSet(st, "jaCvarValueString", JA_STATUS_ERROR, "Can't cast cvar '%s' int a string", cvar->item->key);
+		jaStatusSet(st, "jaCvarGetValueString", JA_STATUS_ERROR, "Can't cast '%s' into a string", cvar->item->key);
 		return 1;
 	}
 
