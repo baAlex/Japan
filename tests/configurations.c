@@ -4,8 +4,8 @@
  - Alexander Brandt 2019-2020
 -----------------------------*/
 
-#if 0
 
+#include <limits.h>
 #include <math.h>
 #include <setjmp.h>
 #include <stdarg.h>
@@ -21,35 +21,88 @@
 #define JA_WIP
 #include "japan-configuration.h"
 
+
+static void sWarningCallback(enum jaStatusCode code, int i, const char* key, const char* value)
+{
+	switch (i)
+	{
+	case 1: // "\trender.render" = "Yes"
+		assert_true((code == JA_STATUS_INVALID_KEY_TOKEN));
+		break;
+	case 3: // "render.width" = "No"
+		assert_true((code == JA_STATUS_INVALID_KEY_TOKEN));
+		break;
+	case 5: // "  -render.width " = "UwU"
+		assert_true((code == JA_STATUS_INTEGER_CAST_ERROR));
+		break;
+	case 7: // "-render.width" = "X3"
+		assert_true((code == JA_STATUS_INTEGER_CAST_ERROR));
+		break;
+	case 11: // "-sound.volume" = " +0.4 / 6"
+		assert_true((code == JA_STATUS_DECIMAL_CAST_ERROR));
+		break;
+	case 19: // "-name" = No assignment
+		assert_true((code == JA_STATUS_NO_ASSIGNMENT));
+		break;
+	default: break;
+	}
+
+	printf("[Intended error] Token %i: '%s' = '%s', %s\n", i, key, value, jaStatusCodeMessage(code));
+}
+
+
 void ConfigTest1(void** cmocka_state)
 {
 	(void)cmocka_state;
 
 	struct jaConfiguration* cfg = jaConfigurationCreate();
 
+	struct jaCvar* a;
+	struct jaCvar* b;
+	struct jaCvar* c;
+
 	// Valid ones
 	assert_true(jaCvarCreateInt(cfg, "render.width", 640, 0, INT_MAX, NULL) != NULL);
 	assert_true(jaCvarCreateFloat(cfg, "sound.volume", 0.8f, 0.0f, 1.0f, NULL) != NULL);
-	assert_true(jaCvarCreateInt(cfg, "render.height", 320, 0, INT_MAX, NULL) != NULL);
-	assert_true(jaCvarCreateString(cfg, "name", "Ranger", NULL, NULL, NULL) != NULL);
-	assert_true(jaCvarCreateInt(cfg, "render.fullscreen", 0, 0, 1, NULL) != NULL);
+	assert_true((a = jaCvarCreateInt(cfg, "render.height", 480, 0, INT_MAX, NULL)) != NULL);
+	assert_true((b = jaCvarCreateString(cfg, "name", "Ranger", NULL, NULL, NULL)) != NULL);
+	assert_true((c = jaCvarCreateInt(cfg, "render.fullscreen", 0, 0, 1, NULL)) != NULL);
 
 	// Invalid names, arguments, etc
 	assert_true(jaCvarCreateInt(cfg, "1render.width", 640, 0, INT_MAX, NULL) == NULL);
-	assert_true(jaCvarCreateFloat(cfg, "sound..volume", 0.8f, 0.0f, 1.0f, NULL) == NULL);
-	assert_true(jaCvarCreateFloat(cfg, "sound.volume..", 0.8f, 0.0f, 1.0f, NULL) == NULL);
-	assert_true(jaCvarCreateInt(NULL, "render.height", 320, 0, INT_MAX, NULL) == NULL);
-	assert_true(jaCvarCreateInt(cfg, ".render.height", 320, 0, INT_MAX, NULL) == NULL);
+	assert_true(jaCvarCreateFloat(cfg, " sound..volume", 0.8f, 0.0f, 1.0f, NULL) == NULL);
+	assert_true(jaCvarCreateFloat(cfg, "\tsound.volume..", 0.8f, 0.0f, 1.0f, NULL) == NULL);
+	assert_true(jaCvarCreateInt(NULL, "render.height", 480, 0, INT_MAX, NULL) == NULL);
+	assert_true(jaCvarCreateInt(cfg, ".render.height", 480, 0, INT_MAX, NULL) == NULL);
 	assert_true(jaCvarCreateString(cfg, NULL, "Ranger", NULL, NULL, NULL) == NULL);
 	assert_true(jaCvarCreateInt(cfg, "オウム", 0, 0, 1, NULL) == NULL);
 
-	// Read arguments, that includes whitespaces, out
-	// of range and incorrectly typed values
-	const char* arg[] = {"",         "-render.height",     " X3  ", "-render.width", "   200.2  ", "-sound.volume",
-	                     "  +0.4 6", "-render.fullscreen", "2  ",   "-name",         "OwO",        "UwU"};
+	// Read arguments
+	// includes whitespaces, out of range and incorrectly typed values
+	const char* arg[] = {"<program_name>",
+	                     "\trender.render",
+	                     "Yes",
+	                     "render.width",
+	                     "No",
+	                     "  -render.width  ",
+	                     "UwU",
+	                     "-render.width",
+	                     "X3",
+	                     "-render.height",
+	                     "   240.2",
+	                     "-sound.volume",
+	                     " +0.4 / 6",
+	                     "  -sound.volume  ",
+	                     "-0.4",
+	                     " \t-render.fullscreen\t ",
+	                     "2",
+	                     "-name",
+	                     "OwO",
+	                     "-name"};
 
-	jaConfigurationArguments(cfg, 12, arg);
+	jaConfigurationArgumentsEx(cfg, JA_UTF8, JA_SKIP_FIRST, sWarningCallback, 20, arg);
 
+	// Retrieve values
 	union
 	{
 		int i;
@@ -57,26 +110,29 @@ void ConfigTest1(void** cmocka_state)
 		const char* s;
 	} value;
 
-	jaCvarValueFloat(jaCvarGet(cfg, "sound.volume"), &value.f, NULL);
-	assert_true((value.f == 0.8f)); // Value of "  +0.4 6" can't be cast into a float
+	jaCvarGetValueInt(jaCvarGet(cfg, "render.height"), &value.i, NULL);
+	assert_true((value.i == 240)); // Value of "   240.2" rounded
 
-	jaCvarValueString(jaCvarGet(cfg, "name"), &value.s, NULL);
-	assert_string_equal(value.s, "OwO");
+	jaCvarGetValueFloat(jaCvarGet(cfg, "sound.volume"), &value.f, NULL);
+	assert_true((value.f == 0.0f)); // Value of "-0.4" clamped
 
-	jaCvarValueInt(jaCvarGet(cfg, "render.width"), &value.i, NULL);
-	assert_int_equal(value.i, 200); // Round of value "   200.2  "
+	jaCvarGetValueInt(jaCvarGet(cfg, "render.fullscreen"), &value.i, NULL);
+	assert_true((value.i == 1)); // Value of "2" clamped
 
-	jaCvarValueInt(jaCvarGet(cfg, "render.height"), &value.i, NULL);
-	assert_int_equal(value.i, 320); // Value of " UwU  " can't be cast into a integer
+	jaCvarGetValueString(jaCvarGet(cfg, "name"), &value.s, NULL);
+	assert_true((strcmp(value.s, "OwO") == 0));
 
-	jaCvarValueInt(jaCvarGet(cfg, "render.fullscreen"), &value.i, NULL);
-	assert_int_equal(value.i, 1); // Value of "2" gets clamp
+	// Delete some
+	jaCvarDelete(a);
+	jaCvarDelete(b);
+	jaCvarDelete(c);
 
 	// Bye!
 	jaConfigurationDelete(cfg);
 }
 
 
+#if 0
 /*-----------------------------
 
  ConfigTest2_ParseFile()

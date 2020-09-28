@@ -41,6 +41,7 @@ enum jaStatusCode
 
 	JA_STATUS_MEMORY_ERROR,
 
+	JA_STATUS_INVALID_KEY_TOKEN,
 	JA_STATUS_EXPECTED_KEY_TOKEN,
 	JA_STATUS_EXPECTED_EQUAL_TOKEN,
 	JA_STATUS_STATEMENT_OPEN,
@@ -63,5 +64,7 @@ JA_EXPORT void jaStatusSet(struct jaStatus* st, const char* function_name, enum 
                            const char* explanation_fmt, ...);
 JA_EXPORT void jaStatusCopy(const struct jaStatus* org, struct jaStatus* dest);
 JA_EXPORT int jaStatusPrint(const char* app_name, struct jaStatus st);
+
+JA_EXPORT const char* jaStatusCodeMessage(enum jaStatusCode);
 
 #endif

@@ -89,6 +89,9 @@ static int sValidateKey(const char* string)
 	// dots and underscores, allowed
 	for (i = 0;; i++)
 	{
+		if (i == JA_CVAR_KEY_MAX_LEN)
+			return 1;
+
 		if (string[i] == 0x00) // NULL
 			break;
 
@@ -151,8 +154,8 @@ static int sStoreFloat(float* dest, const char* to_store, float min, float max, 
 	char* end = NULL;
 	float value = strtof(to_store, &end); // "Past the last character interpreted"
 
-	if (*end != '\0')
-		for (; *end != '\0'; end++)
+	if (*end != 0x00)
+		for (; *end != 0x00; end++)
 		{
 			if (isspace((int)*end) == 0) // If not
 				return 1;
@@ -170,8 +173,8 @@ static int sStoreInt(int* dest, const char* to_store, int min, int max, bool* ch
 	char* end = NULL;
 	long value = strtol(to_store, &end, 0);
 
-	if (*end != '\0')
-		for (; *end != '\0'; end++)
+	if (*end != 0x00)
+		for (; *end != 0x00; end++)
 		{
 			if (isspace((int)*end) == 0)
 			{

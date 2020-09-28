@@ -31,32 +31,61 @@ SOFTWARE.
 #include "private.h"
 
 
+static inline void sTrimWhitespaces(const char* string, char* output)
+{
+	bool body_reached = false;
+	char* o = output;
+
+	for (; *string != 0x00 && (o - output) < JA_CVAR_KEY_MAX_LEN; string++)
+	{
+		if (*string != 0x20 && *string != 0x09) // SPACE, TAB
+		{
+			body_reached = true;
+
+			*o = *string;
+			o += 1;
+		}
+		else
+		{
+			if (body_reached == true)
+				break;
+		}
+	}
+
+	*o = 0x00;
+}
+
+
 inline void jaConfigurationArguments(struct jaConfiguration* config, enum jaEncode encode, int argc, const char* argv[])
 {
 	jaConfigurationArgumentsEx(config, encode, JA_SKIP_FIRST, NULL, argc, argv);
 }
+
 
 void jaConfigurationArgumentsEx(struct jaConfiguration* config, enum jaEncode encode, enum jaArgumentsFlags flags,
                                 void (*warnings_callback)(enum jaStatusCode, int, const char*, const char*), int argc,
                                 const char* argv[])
 {
 	struct jaDictionaryItem* item = NULL;
+	char trimmed_key[JA_CVAR_KEY_MAX_LEN];
 
 	for (int i = (flags == JA_PARSE_FIRST) ? 0 : 1; i < argc; i++)
 	{
 		// Check key
-		if (argv[i][0] != '-')
+		sTrimWhitespaces(argv[i], trimmed_key);
+
+		if (trimmed_key[0] != 0x2D) // HYPHEN
 		{
 			if (warnings_callback != NULL)
-				warnings_callback(JA_STATUS_EXPECTED_KEY_TOKEN, i, argv[i], NULL);
+				warnings_callback(JA_STATUS_INVALID_KEY_TOKEN, i, trimmed_key, NULL);
 
 			continue;
 		}
 
-		if ((item = jaDictionaryGet((struct jaDictionary*)config, (argv[i] + 1))) == NULL)
+		if ((item = jaDictionaryGet((struct jaDictionary*)config, (trimmed_key + 1))) == NULL)
 		{
 			if (warnings_callback != NULL)
-				warnings_callback(JA_STATUS_EXPECTED_KEY_TOKEN, i, argv[i], NULL);
+				warnings_callback(JA_STATUS_EXPECTED_KEY_TOKEN, i, trimmed_key + 1, NULL);
 
 			continue;
 		}
@@ -65,9 +94,33 @@ void jaConfigurationArgumentsEx(struct jaConfiguration* config, enum jaEncode en
 		if ((i + 1) == argc)
 		{
 			if (warnings_callback != NULL)
-				warnings_callback(JA_STATUS_NO_ASSIGNMENT, i, NULL, argv[i] + 1);
+				warnings_callback(JA_STATUS_NO_ASSIGNMENT, i, trimmed_key + 1, NULL);
 
 			break;
+		}
+
+		// Validate value
+		if (encode == JA_UTF8)
+		{
+			if (jaUTF8ValidateString((uint8_t*)argv[i + 1], UINT_MAX, NULL, NULL) != 0)
+			{
+				if (warnings_callback != NULL)
+					warnings_callback(JA_STATUS_UTF8_ERROR, i, trimmed_key + 1, argv[i + 1]);
+
+				continue;
+				i++; // Important!
+			}
+		}
+		else
+		{
+			if (jaASCIIValidateString((uint8_t*)argv[i + 1], UINT_MAX, NULL) != 0)
+			{
+				if (warnings_callback != NULL)
+					warnings_callback(JA_STATUS_ASCII_ERROR, i, trimmed_key + 1, argv[i + 1]);
+
+				continue;
+				i++; // Important!
+			}
 		}
 
 		// Store
@@ -76,7 +129,7 @@ void jaConfigurationArgumentsEx(struct jaConfiguration* config, enum jaEncode en
 		if (code != JA_STATUS_SUCCESS)
 		{
 			if (warnings_callback != NULL)
-				warnings_callback(code, i, argv[i + 1], argv[i] + 1);
+				warnings_callback(code, i, trimmed_key + 1, argv[i + 1]);
 		}
 
 		i++; // Important!

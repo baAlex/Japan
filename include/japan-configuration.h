@@ -26,6 +26,8 @@
 #include "japan-status.h"
 #include "japan-string.h"
 
+#define JA_CVAR_KEY_MAX_LEN 128
+
 enum jaArgumentsFlags
 {
 	JA_SKIP_FIRST = 0,

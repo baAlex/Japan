@@ -64,35 +64,42 @@ inline void jaStatusCopy(const struct jaStatus* org, struct jaStatus* dest)
 
 int jaStatusPrint(const char* app_name, struct jaStatus st)
 {
-	char* explanation = (st.explanation[0] != '\0') ? st.explanation : "";
-	char* code_message = NULL;
-
-	switch (st.code)
-	{
-	case JA_STATUS_SUCCESS: code_message = "Success"; break;
-	case JA_STATUS_ERROR: code_message = "Error"; break;
-	case JA_STATUS_FS_ERROR: code_message = "Filesystem error"; break;
-	case JA_STATUS_IO_ERROR: code_message = "File Input/Output error"; break;
-	case JA_STATUS_UNEXPECTED_EOF: code_message = "End of file prematurely reached"; break;
-	case JA_STATUS_UNEXPECTED_DATA: code_message = "Unexpected data"; break;
-	case JA_STATUS_UNKNOWN_FILE_FORMAT: code_message = "Unknown file format"; break;
-	case JA_STATUS_UNSUPPORTED_FEATURE: code_message = "Unsupported feature"; break;
-	case JA_STATUS_OBSOLETE_FEATURE: code_message = "Obsolete feature"; break;
-	case JA_STATUS_UNKNOWN_DATA_FORMAT: code_message = "Unknown data format"; break;
-	case JA_STATUS_INVALID_ARGUMENT: code_message = "Invalid argument"; break;
-	case JA_STATUS_MEMORY_ERROR: code_message = "Memory error"; break;
-	case JA_STATUS_EXPECTED_KEY_TOKEN: code_message = "Unknown token, expected a key name"; break;
-	case JA_STATUS_EXPECTED_EQUAL_TOKEN: code_message = "Unknown token, expected an equal sign"; break;
-	case JA_STATUS_STATEMENT_OPEN: code_message = "Statement remains open"; break;
-	case JA_STATUS_NO_ASSIGNMENT: code_message = "Statement didn't have an assignment"; break;
-	case JA_STATUS_INTEGER_CAST_ERROR: code_message = "Can't cast into an integer"; break;
-	case JA_STATUS_DECIMAL_CAST_ERROR: code_message = "Can't cast into a decimal"; break;
-	case JA_STATUS_ASCII_ERROR: code_message = "Invalid ASCII"; break;
-	case JA_STATUS_UTF8_ERROR: code_message = "Invalid UTF8"; break;
-
-	default: code_message = "Unknown status";
-	}
+	char* explanation = (st.explanation[0] != 0x00) ? st.explanation : "";
+	const char* code_message = jaStatusCodeMessage(st.code);
 
 	return fprintf(stderr, "[%s] %s : %s%s%s.\n", app_name, st.function_name, code_message,
-	               (st.explanation[0] != '\0') ? ", " : "", explanation);
+	               (st.explanation[0] != 0x00) ? ", " : "", explanation);
+}
+
+
+inline const char* jaStatusCodeMessage(enum jaStatusCode code)
+{
+	switch (code)
+	{
+	case JA_STATUS_SUCCESS: return "Success"; break;
+	case JA_STATUS_ERROR: return "Error"; break;
+	case JA_STATUS_FS_ERROR: return "Filesystem error"; break;
+	case JA_STATUS_IO_ERROR: return "File Input/Output error"; break;
+	case JA_STATUS_UNEXPECTED_EOF: return "End of file prematurely reached"; break;
+	case JA_STATUS_UNEXPECTED_DATA: return "Unexpected data"; break;
+	case JA_STATUS_UNKNOWN_FILE_FORMAT: return "Unknown file format"; break;
+	case JA_STATUS_UNSUPPORTED_FEATURE: return "Unsupported feature"; break;
+	case JA_STATUS_OBSOLETE_FEATURE: return "Obsolete feature"; break;
+	case JA_STATUS_UNKNOWN_DATA_FORMAT: return "Unknown data format"; break;
+	case JA_STATUS_INVALID_ARGUMENT: return "Invalid argument"; break;
+	case JA_STATUS_MEMORY_ERROR: return "Memory error"; break;
+	case JA_STATUS_INVALID_KEY_TOKEN: return "Invalid key token"; break;
+	case JA_STATUS_EXPECTED_KEY_TOKEN: return "Unknown token, expected a key name"; break;
+	case JA_STATUS_EXPECTED_EQUAL_TOKEN: return "Unknown token, expected an equal sign"; break;
+	case JA_STATUS_STATEMENT_OPEN: return "Statement remains open"; break;
+	case JA_STATUS_NO_ASSIGNMENT: return "Statement didn't have an assignment"; break;
+	case JA_STATUS_INTEGER_CAST_ERROR: return "Can't cast into an integer"; break;
+	case JA_STATUS_DECIMAL_CAST_ERROR: return "Can't cast into a decimal"; break;
+	case JA_STATUS_ASCII_ERROR: return "Invalid ASCII"; break;
+	case JA_STATUS_UTF8_ERROR: return "Invalid UTF8"; break;
+
+	default: return "Unknown status";
+	}
+
+	return NULL;
 }
