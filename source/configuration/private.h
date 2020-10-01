@@ -8,7 +8,6 @@
 #define JA_CONFIG_PRIVATE_H
 
 	#include <ctype.h>
-	#include <limits.h>
 	#include <stdbool.h>
 	#include <stdlib.h>
 	#include <string.h>

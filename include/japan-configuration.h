@@ -22,6 +22,7 @@
 #endif
 
 #include <stdio.h>
+#include <limits.h>
 
 #include "japan-status.h"
 #include "japan-string.h"
