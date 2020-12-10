@@ -28,20 +28,10 @@ SOFTWARE.
  - Alexander Brandt 2019-2020
 -----------------------------*/
 
-#include "japan-vector.h"
 #include <math.h>
 
-
-inline struct jaVector2 jaVector2Clean()
-{
-	return (struct jaVector2){0.0f, 0.0f};
-}
-
-
-inline struct jaVector2 jaVector2Set(float x, float y)
-{
-	return (struct jaVector2){x, y};
-}
+#include "japan-utilities.h"
+#include "japan-vector.h"
 
 
 inline struct jaVector2 jaVector2Add(struct jaVector2 a, struct jaVector2 b)
@@ -113,22 +103,10 @@ inline float jaVector2Dot(struct jaVector2 a, struct jaVector2 b)
 
 inline bool jaVector2Equals(struct jaVector2 a, struct jaVector2 b)
 {
-	if (a.x != b.x || a.y != b.y)
+	if (fabsf(a.x - b.x) > JA_EQUALS_EPSILON || fabsf(a.y - b.y) > JA_EQUALS_EPSILON)
 		return false;
 
 	return true;
-}
-
-
-inline struct jaVector3 jaVector3Clean()
-{
-	return (struct jaVector3){0.0f, 0.0f, 0.0f};
-}
-
-
-inline struct jaVector3 jaVector3Set(float x, float y, float z)
-{
-	return (struct jaVector3){x, y, z};
 }
 
 
@@ -201,22 +179,11 @@ inline float jaVector3Dot(struct jaVector3 a, struct jaVector3 b)
 
 inline bool jaVector3Equals(struct jaVector3 a, struct jaVector3 b)
 {
-	if (a.x != b.x || a.y != b.y || a.z != b.z)
+	if (fabsf(a.x - b.x) > JA_EQUALS_EPSILON || fabsf(a.y - b.y) > JA_EQUALS_EPSILON ||
+	    fabsf(a.z - b.z) > JA_EQUALS_EPSILON)
 		return false;
 
 	return true;
-}
-
-
-inline struct jaVector4 jaVector4Clean()
-{
-	return (struct jaVector4){0.0f, 0.0f, 0.0f, 0.0f};
-}
-
-
-inline struct jaVector4 jaVector4Set(float x, float y, float z, float u)
-{
-	return (struct jaVector4){x, y, z, u};
 }
 
 
@@ -283,7 +250,8 @@ inline float jaVector4Dot(struct jaVector4 a, struct jaVector4 b)
 
 inline bool jaVector4Equals(struct jaVector4 a, struct jaVector4 b)
 {
-	if (a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w)
+	if (fabsf(a.x - b.x) > JA_EQUALS_EPSILON || fabsf(a.y - b.y) > JA_EQUALS_EPSILON ||
+	    fabsf(a.z - b.z) > JA_EQUALS_EPSILON || fabsf(a.w - b.w) > JA_EQUALS_EPSILON)
 		return false;
 
 	return true;

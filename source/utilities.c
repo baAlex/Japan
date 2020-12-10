@@ -36,13 +36,13 @@ SOFTWARE.
 
 inline float jaDegToRad(float value)
 {
-	return value * M_PI / 180.0f;
+	return value * M_PI_F / 180.0f;
 }
 
 
 inline float jaRadToDeg(float value)
 {
-	return value * 180.0f / M_PI;
+	return value * 180.0f / M_PI_F;
 }
 
 

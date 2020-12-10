@@ -17,16 +17,31 @@
 	#define JA_EXPORT // Whitespace
 #endif
 
-#include <stddef.h>
 #include <math.h>
+#include <stddef.h>
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846264338327950288f
+
+// https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/math.h.html
+// https://github.com/llvm/llvm-project/blob/master/libclc/generic/include/clc/float/definitions.h
+
+#ifndef M_PI_F
+#define M_PI_F 0x1.921fb6p+1f
+#endif
+#ifndef M_PI_2_F
+#define M_PI_2_F 0x1.921fb6p+0f
+#endif
+#ifndef M_PI_4_F
+#define M_PI_4_F 0x1.921fb6p-1f
+#endif
+#ifndef M_1_PI_F
+#define M_1_PI_F 0x1.45f306p-2f
+#endif
+#ifndef M_2_PI_F
+#define M_2_PI_F 0x1.45f306p-1f
 #endif
 
-#ifndef M_2PI
-#define M_2PI (3.14159265358979323846264338327950288f * 2.0f)
-#endif
+#define JA_EQUALS_EPSILON 0.000015259f // 1 / (2^16 − 1)
+// #define JA_EQUALS_EPSILON 0.003921569f // 1 / (2^8 - 1)
 
 JA_EXPORT float jaDegToRad(float value);
 JA_EXPORT float jaRadToDeg(float value);
