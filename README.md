@@ -7,7 +7,7 @@ LibJapan
 
 A collection of frequently used features that the C language lacks: lists, hashes, trees, maths functions (vectors, matrices), between an etcetera of other utilities. My contribution to the constellation of existing general-purpose libraries.
 
-The project born as an exercise to learn the language, since then I've been updating/refactoring it according to my needs and experience. There are some flaws to fix, designs to polish, bugs to add, and probably the library is too game-development oriented, I'm working on those aspects... any help is welcomed.
+The project born as an exercise to learn the language, since then I've been updating/refactoring it according to my needs and experience. There are some flaws to fix, designs to polish, bugs to add, and probably the library is too game-development oriented, I'm working on those aspects... any help is welcome.
 
 
 Overview
@@ -78,7 +78,7 @@ Under [MIT License](LICENSE).
 - File 'matrix.c' is licensed under the WTFPL license. Copyright (c) 2013 by Wolfgang 'datenwolf' Draxinger. Based on [linmath.h][20].
 - File 'laws.c' is released under public domain. Based on code written by Steve Underwood (steveu@coppice.org): *g711.h - In line A-law and u-law conversion routines*.
 
-As these terms can be problematic[(a)][18][(b)][19], if desired it is safe to assume that listed files are re-licensed under the MIT License as specified in the file [LICENSE](LICENSE). Is not a requirement expose the previous list or this paragraph, here was done as a gratitude gesture.
+As those two files licenses/terms can be problematic[(a)][18][(b)][19], if desired it's safe to assume that they are re-licensed under the MIT License as specified in the file [LICENSE](LICENSE). Is not a requirement to expose this paragraph nor the original authors, here is done as a gratitude gesture.
 
 ____
 

@@ -251,11 +251,11 @@ struct jaImage* ImageLoadSgi(FILE* file, const char* filename, struct jaStatus* 
 		goto return_failure;
 
 	JA_DEBUG_PRINT("(Sgi) '%s':\n", filename);
-	JA_DEBUG_PRINT(" - Dimensions: %zux%zu px\n", ex.width, ex.height);
+	JA_DEBUG_PRINT(" - Dimensions: %zu x %zu px\n", ex.width, ex.height);
 	JA_DEBUG_PRINT(" - Channels: %zu\n", ex.channels);
 	JA_DEBUG_PRINT(" - Format: %i\n", ex.format);
-	JA_DEBUG_PRINT(" - jaEndianness: %s\n", (ex.endianness == JA_ENDIAN_LITTLE) ? "little" : "big");
-	JA_DEBUG_PRINT(" - Storage: %s (%u)\n", (ex.storage == JA_IMAGE_SGI_RLE) ? "sgi rle" : "planar", ex.storage);
+	JA_DEBUG_PRINT(" - Endianness: %s\n", (ex.endianness == JA_ENDIAN_LITTLE) ? "little" : "big");
+	JA_DEBUG_PRINT(" - Storage: %s (%u)\n", (ex.storage == JA_IMAGE_SGI_RLE) ? "'sgi rle'" : "'planar'", ex.storage);
 	JA_DEBUG_PRINT(" - Uncompressed size: %zu bytes\n", ex.uncompressed_size);
 	JA_DEBUG_PRINT(" - Data offset: 0x%zX\n", ex.data_offset);
 
@@ -323,6 +323,17 @@ int ImageExLoadSgi(FILE* file, struct jaImageEx* out, struct jaStatus* st)
 	out->channels = (size_t)jaEndianToU16(head.z_size, JA_ENDIAN_BIG, sys_endianness);
 	out->data_offset = 512;
 	out->endianness = JA_ENDIAN_BIG;
+
+	if (head.compression == 0)
+		out->storage = JA_IMAGE_UNCOMPRESSED_PLANAR;
+	else if (head.compression == 1)
+		out->storage = JA_IMAGE_SGI_RLE;
+	else
+	{
+		jaStatusSet(st, "ImageExLoadSgi", JA_STATUS_ERROR, "sgi compression (%i)", head.compression);
+		return 1;
+	}
+
 	out->storage = (head.compression == 0) ? JA_IMAGE_UNCOMPRESSED_PLANAR : JA_IMAGE_SGI_RLE;
 
 	switch (jaEndianToI32(head.pixel_type, JA_ENDIAN_BIG, sys_endianness))
