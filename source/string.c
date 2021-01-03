@@ -34,19 +34,19 @@ SOFTWARE.
 #include "japan-string.h"
 
 
-inline int jaASCIIValidateUnit(uint8_t byte)
+inline int jaUnitValidateASCII(uint8_t byte)
 {
 	return (byte <= 127) ? 0 : 1;
 }
 
 
-int jaASCIIValidateString(const uint8_t* string, size_t n, size_t* out_bytes)
+int jaStringValidateASCII(const uint8_t* string, size_t n, size_t* out_bytes)
 {
 	size_t lenght = 0;
 
 	for (const uint8_t* string_end = (string + n); string < string_end; string++)
 	{
-		if (jaASCIIValidateUnit(*string) != 0)
+		if (jaUnitValidateASCII(*string) != 0)
 			break;
 
 		lenght += 1;
@@ -70,7 +70,7 @@ int jaASCIIValidateString(const uint8_t* string, size_t n, size_t* out_bytes)
 // 🌏👨‍🚀 Wait, UTF8 is variable-width encoded? 🔫👩‍🚀 Always has ��
 
 
-inline size_t jaUTF8UnitLength(uint8_t head_byte)
+inline size_t jaUnitLengthUTF8(uint8_t head_byte)
 {
 	// High-bits indicates how many tails the unit uses
 
@@ -87,9 +87,9 @@ inline size_t jaUTF8UnitLength(uint8_t head_byte)
 }
 
 
-int jaUTF8ValidateUnit(const uint8_t* byte, size_t n, size_t* out_unit_len, uint32_t* out_unit_code)
+int jaUnitValidateUTF8(const uint8_t* byte, size_t n, size_t* out_unit_len, uint32_t* out_unit_code)
 {
-	size_t unit_len = jaUTF8UnitLength(*byte);
+	size_t unit_len = jaUnitLengthUTF8(*byte);
 
 	if (out_unit_len != NULL)
 		*out_unit_len = unit_len;
@@ -166,7 +166,7 @@ int jaUTF8ValidateUnit(const uint8_t* byte, size_t n, size_t* out_unit_len, uint
 
 static inline int sUTF8ValidateUnitSimple(const uint8_t* byte, const uint8_t* end, size_t* unit_len)
 {
-	*unit_len = jaUTF8UnitLength(*byte);
+	*unit_len = jaUnitLengthUTF8(*byte);
 
 	if (*unit_len == 1)
 		return 0;
@@ -211,7 +211,7 @@ static inline int sUTF8ValidateUnitSimple(const uint8_t* byte, const uint8_t* en
 }
 
 
-int jaUTF8ValidateString(const uint8_t* string, size_t n, size_t* out_bytes, size_t* out_units)
+int jaStringValidateUTF8(const uint8_t* string, size_t n, size_t* out_bytes, size_t* out_units)
 {
 	size_t bytes = 0;
 	size_t units = 0;

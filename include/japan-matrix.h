@@ -19,29 +19,28 @@
 
 #include "japan-vector.h"
 
-struct jaMatrix4
+struct jaMatrixF4
 {
 	float e[4][4];
 };
 
-JA_EXPORT struct jaMatrix4 jaMatrix4Clean();
-JA_EXPORT struct jaMatrix4 jaMatrix4Identity();
+JA_EXPORT struct jaMatrixF4 jaMatrixF4Clean();
+JA_EXPORT struct jaMatrixF4 jaMatrixF4Identity();
 
-JA_EXPORT struct jaMatrix4 jaMatrix4Translate(struct jaVector3 origin);
-JA_EXPORT struct jaMatrix4 jaMatrix4Orthographic(float left, float right, float bottom, float top, float near,
-                                                 float far);
-JA_EXPORT struct jaMatrix4 jaMatrix4Perspective(float y_fov, float aspect, float near, float far);
-JA_EXPORT struct jaMatrix4 jaMatrix4LookAt(struct jaVector3 eye, struct jaVector3 center, struct jaVector3 up);
+JA_EXPORT struct jaMatrixF4 jaMatrixTranslationF4(struct jaVectorF3 origin);
+JA_EXPORT struct jaMatrixF4 jaMatrixOrthographicF4(float left, float right, float bottom, float top, float near, float far);
+JA_EXPORT struct jaMatrixF4 jaMatrixPerspectiveF4(float y_fov, float aspect, float near, float far);
+JA_EXPORT struct jaMatrixF4 jaMatrixLookAtF4(struct jaVectorF3 eye, struct jaVectorF3 center, struct jaVectorF3 up);
 
-JA_EXPORT struct jaMatrix4 jaMatrix4Multiply(struct jaMatrix4 mat_a, struct jaMatrix4 mat_b);
-JA_EXPORT struct jaMatrix4 jaMatrix4RotateX(struct jaMatrix4 mat, float angle);
-JA_EXPORT struct jaMatrix4 jaMatrix4RotateY(struct jaMatrix4 mat, float angle);
-JA_EXPORT struct jaMatrix4 jaMatrix4RotateZ(struct jaMatrix4 mat, float angle);
-JA_EXPORT struct jaMatrix4 jaMatrix4Rotate(struct jaMatrix4 mat, struct jaVector3 v, float angle);
+JA_EXPORT struct jaMatrixF4 jaMatrixMultiplyF4(struct jaMatrixF4 mat_a, struct jaMatrixF4 mat_b);
+JA_EXPORT struct jaMatrixF4 jaMatrixRotateXF4(struct jaMatrixF4 mat, float angle);
+JA_EXPORT struct jaMatrixF4 jaMatrixRotateYF4(struct jaMatrixF4 mat, float angle);
+JA_EXPORT struct jaMatrixF4 jaMatrixRotateZF4(struct jaMatrixF4 mat, float angle);
+JA_EXPORT struct jaMatrixF4 jaMatrixRotateF4(struct jaMatrixF4 mat, struct jaVectorF3 v, float angle);
 
-JA_EXPORT struct jaMatrix4 jaMatrix4ScaleAnsio(struct jaMatrix4 mat, struct jaVector3 factor);
-JA_EXPORT struct jaMatrix4 jaMatrix4Scale(struct jaMatrix4 mat, float factor);
+JA_EXPORT struct jaMatrixF4 jaMatrixScaleAnsioF4(struct jaMatrixF4 mat, struct jaVectorF3 factor);
+JA_EXPORT struct jaMatrixF4 jaMatrixScaleF4(struct jaMatrixF4 mat, float factor);
 
-JA_EXPORT struct jaMatrix4 jaMatrix4Invert(struct jaMatrix4 mat);
+JA_EXPORT struct jaMatrixF4 jaMatrixInvertF4(struct jaMatrixF4 mat);
 
 #endif

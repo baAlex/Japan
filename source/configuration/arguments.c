@@ -102,7 +102,7 @@ void jaConfigurationArgumentsEx(struct jaConfiguration* config, enum jaEncode en
 		// Validate value
 		if (encode == JA_UTF8)
 		{
-			if (jaUTF8ValidateString((uint8_t*)argv[i + 1], UINT_MAX, NULL, NULL) != 0)
+			if (jaStringValidateUTF8((uint8_t*)argv[i + 1], UINT_MAX, NULL, NULL) != 0)
 			{
 				if (warnings_callback != NULL)
 					warnings_callback(JA_STATUS_UTF8_ERROR, i, trimmed_key + 1, argv[i + 1]);
@@ -113,7 +113,7 @@ void jaConfigurationArgumentsEx(struct jaConfiguration* config, enum jaEncode en
 		}
 		else
 		{
-			if (jaASCIIValidateString((uint8_t*)argv[i + 1], UINT_MAX, NULL) != 0)
+			if (jaStringValidateASCII((uint8_t*)argv[i + 1], UINT_MAX, NULL) != 0)
 			{
 				if (warnings_callback != NULL)
 					warnings_callback(JA_STATUS_ASCII_ERROR, i, trimmed_key + 1, argv[i + 1]);

@@ -19,50 +19,50 @@
 
 #include <stdbool.h>
 
-struct jaVector2
+struct jaVectorF2
 {
 	float x;
 	float y;
 };
 
-JA_EXPORT struct jaVector2 jaVector2Add(struct jaVector2 va, struct jaVector2 vb);
-JA_EXPORT struct jaVector2 jaVector2Subtract(struct jaVector2 va, struct jaVector2 vb);
-JA_EXPORT struct jaVector2 jaVector2Multiply(struct jaVector2 va, struct jaVector2 vb);
-JA_EXPORT struct jaVector2 jaVector2Divide(struct jaVector2 va, struct jaVector2 vb);
+JA_EXPORT struct jaVectorF2 jaVectorAddF2(struct jaVectorF2 va, struct jaVectorF2 vb);
+JA_EXPORT struct jaVectorF2 jaVectorSubtractF2(struct jaVectorF2 va, struct jaVectorF2 vb);
+JA_EXPORT struct jaVectorF2 jaVectorMultiplyF2(struct jaVectorF2 va, struct jaVectorF2 vb);
+JA_EXPORT struct jaVectorF2 jaVectorDivideF2(struct jaVectorF2 va, struct jaVectorF2 vb);
 
-JA_EXPORT struct jaVector2 jaVector2Invert(struct jaVector2 v);
-JA_EXPORT struct jaVector2 jaVector2Scale(struct jaVector2 v, float scale);
-JA_EXPORT struct jaVector2 jaVector2Normalize(struct jaVector2 v);
-JA_EXPORT float jaVector2Cross(struct jaVector2 va, struct jaVector2 vb);
+JA_EXPORT struct jaVectorF2 jaVectorInvertF2(struct jaVectorF2 v);
+JA_EXPORT struct jaVectorF2 jaVectorScaleF2(struct jaVectorF2 v, float scale);
+JA_EXPORT struct jaVectorF2 jaVectorNormalizeF2(struct jaVectorF2 v);
+JA_EXPORT float jaVectorCrossF2(struct jaVectorF2 va, struct jaVectorF2 vb);
 
-JA_EXPORT float jaVector2Length(struct jaVector2 v);
-JA_EXPORT float jaVector2Distance(struct jaVector2 va, struct jaVector2 vb);
-JA_EXPORT float jaVector2Dot(struct jaVector2 va, struct jaVector2 vb);
-JA_EXPORT bool jaVector2Equals(struct jaVector2 va, struct jaVector2 vb);
+JA_EXPORT float jaVectorLengthF2(struct jaVectorF2 v);
+JA_EXPORT float jaVectorDistanceF2(struct jaVectorF2 va, struct jaVectorF2 vb);
+JA_EXPORT float jaVectorDotF2(struct jaVectorF2 va, struct jaVectorF2 vb);
+JA_EXPORT bool jaVectorEqualsF2(struct jaVectorF2 va, struct jaVectorF2 vb);
 
-struct jaVector3
+struct jaVectorF3
 {
 	float x;
 	float y;
 	float z;
 };
 
-JA_EXPORT struct jaVector3 jaVector3Add(struct jaVector3 va, struct jaVector3 vb);
-JA_EXPORT struct jaVector3 jaVector3Subtract(struct jaVector3 va, struct jaVector3 vb);
-JA_EXPORT struct jaVector3 jaVector3Multiply(struct jaVector3 va, struct jaVector3 vb);
-JA_EXPORT struct jaVector3 jaVector3Divide(struct jaVector3 va, struct jaVector3 vb);
+JA_EXPORT struct jaVectorF3 jaVectorAddF3(struct jaVectorF3 va, struct jaVectorF3 vb);
+JA_EXPORT struct jaVectorF3 jaVectorSubtractF3(struct jaVectorF3 va, struct jaVectorF3 vb);
+JA_EXPORT struct jaVectorF3 jaVectorMultiplyF3(struct jaVectorF3 va, struct jaVectorF3 vb);
+JA_EXPORT struct jaVectorF3 jaVectorDivideF3(struct jaVectorF3 va, struct jaVectorF3 vb);
 
-JA_EXPORT struct jaVector3 jaVector3Invert(struct jaVector3 v);
-JA_EXPORT struct jaVector3 jaVector3Scale(struct jaVector3 v, float scale);
-JA_EXPORT struct jaVector3 jaVector3Normalize(struct jaVector3 v);
-JA_EXPORT struct jaVector3 jaVector3Cross(struct jaVector3 va, struct jaVector3 vb);
+JA_EXPORT struct jaVectorF3 jaVectorInvertF3(struct jaVectorF3 v);
+JA_EXPORT struct jaVectorF3 jaVectorScaleF3(struct jaVectorF3 v, float scale);
+JA_EXPORT struct jaVectorF3 jaVectorNormalizeF3(struct jaVectorF3 v);
+JA_EXPORT struct jaVectorF3 jaVectorCrossF3(struct jaVectorF3 va, struct jaVectorF3 vb);
 
-JA_EXPORT float jaVector3Length(struct jaVector3 v);
-JA_EXPORT float jaVector3Distance(struct jaVector3 va, struct jaVector3 vb);
-JA_EXPORT float jaVector3Dot(struct jaVector3 va, struct jaVector3 vb);
-JA_EXPORT bool jaVector3Equals(struct jaVector3 va, struct jaVector3 vb);
+JA_EXPORT float jaVectorLengthF3(struct jaVectorF3 v);
+JA_EXPORT float jaVectorDistanceF3(struct jaVectorF3 va, struct jaVectorF3 vb);
+JA_EXPORT float jaVectorDotF3(struct jaVectorF3 va, struct jaVectorF3 vb);
+JA_EXPORT bool jaVectorEqualsF3(struct jaVectorF3 va, struct jaVectorF3 vb);
 
-struct jaVector4
+struct jaVectorF4
 {
 	float x;
 	float y;
@@ -70,115 +70,115 @@ struct jaVector4
 	float w;
 };
 
-JA_EXPORT struct jaVector4 jaVector4Add(struct jaVector4 va, struct jaVector4 vb);
-JA_EXPORT struct jaVector4 jaVector4Subtract(struct jaVector4 va, struct jaVector4 vb);
-JA_EXPORT struct jaVector4 jaVector4Multiply(struct jaVector4 va, struct jaVector4 vb);
-JA_EXPORT struct jaVector4 jaVector4Divide(struct jaVector4 va, struct jaVector4 vb);
+JA_EXPORT struct jaVectorF4 jaVectorAddF4(struct jaVectorF4 va, struct jaVectorF4 vb);
+JA_EXPORT struct jaVectorF4 jaVectorSubtractF4(struct jaVectorF4 va, struct jaVectorF4 vb);
+JA_EXPORT struct jaVectorF4 jaVectorMultiplyF4(struct jaVectorF4 va, struct jaVectorF4 vb);
+JA_EXPORT struct jaVectorF4 jaVectorDivideF4(struct jaVectorF4 va, struct jaVectorF4 vb);
 
-JA_EXPORT struct jaVector4 jaVector4Invert(struct jaVector4 v);
-JA_EXPORT struct jaVector4 jaVector4Scale(struct jaVector4 v, float scale);
-JA_EXPORT struct jaVector4 jaVector4Normalize(struct jaVector4 v);
+JA_EXPORT struct jaVectorF4 jaVectorInvertF4(struct jaVectorF4 v);
+JA_EXPORT struct jaVectorF4 jaVectorScaleF4(struct jaVectorF4 v, float scale);
+JA_EXPORT struct jaVectorF4 jaVectorNormalizeF4(struct jaVectorF4 v);
 
-JA_EXPORT float jaVector4Length(struct jaVector4 v);
-JA_EXPORT float jaVector4Distance(struct jaVector4 va, struct jaVector4 vb);
-JA_EXPORT float jaVector4Dot(struct jaVector4 va, struct jaVector4 vb);
-JA_EXPORT bool jaVector4Equals(struct jaVector4 va, struct jaVector4 vb);
+JA_EXPORT float jaVectorLengthF4(struct jaVectorF4 v);
+JA_EXPORT float jaVectorDistanceF4(struct jaVectorF4 va, struct jaVectorF4 vb);
+JA_EXPORT float jaVectorDotF4(struct jaVectorF4 va, struct jaVectorF4 vb);
+JA_EXPORT bool jaVectorEqualsF4(struct jaVectorF4 va, struct jaVectorF4 vb);
 
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
 #define jaVectorAdd(va, vb)\
 	_Generic((va),\
-		struct jaVector2 : jaVector2Add,\
-		struct jaVector3 : jaVector3Add,\
-		struct jaVector4 : jaVector4Add,\
-		default : jaVector2Add\
+		struct jaVectorF2 : jaVectorAddF2,\
+		struct jaVectorF3 : jaVectorAddF3,\
+		struct jaVectorF4 : jaVectorAddF4,\
+		default : jaVectorAddF2\
 	)(va, vb)
 
 #define jaVectorSubtract(va, vb)\
 	_Generic((va),\
-		struct jaVector2 : jaVector2Subtract,\
-		struct jaVector3 : jaVector3Subtract,\
-		struct jaVector4 : jaVector4Subtract,\
-		default : jaVector2Subtract\
+		struct jaVectorF2 : jaVectorSubtractF2,\
+		struct jaVectorF3 : jaVectorSubtractF3,\
+		struct jaVectorF4 : jaVectorSubtractF4,\
+		default : jaVectorSubtractF2\
 	)(va, vb)
 
 #define jaVectorMultiply(va, vb)\
 	_Generic((va),\
-		struct jaVector2 : jaVector2Multiply,\
-		struct jaVector3 : jaVector3Multiply,\
-		struct jaVector4 : jaVector4Multiply,\
-		default : jaVector2Multiply\
+		struct jaVectorF2 : jaVectorMultiplyF2,\
+		struct jaVectorF3 : jaVectorMultiplyF3,\
+		struct jaVectorF4 : jaVectorMultiplyF4,\
+		default : jaVectorMultiplyF2\
 	)(va, vb)
 
 #define jaVectorDivide(va, vb)\
 	_Generic((va),\
-		struct jaVector2 : jaVector2Divide,\
-		struct jaVector3 : jaVector3Divide,\
-		struct jaVector4 : jaVector4Divide,\
-		default : jaVector2Divide\
+		struct jaVectorF2 : jaVectorDivideF2,\
+		struct jaVectorF3 : jaVectorDivideF3,\
+		struct jaVectorF4 : jaVectorDivideF4,\
+		default : jaVectorDivideF2\
 	)(va, vb)
 
 #define jaVectorInvert(v)\
 	_Generic((v),\
-		struct jaVector2 : jaVector2Invert,\
-		struct jaVector3 : jaVector3Invert,\
-		struct jaVector4 : jaVector4Invert,\
-		default : jaVector2Invert\
+		struct jaVectorF2 : jaVectorInvertF2,\
+		struct jaVectorF3 : jaVectorInvertF3,\
+		struct jaVectorF4 : jaVectorInvertF4,\
+		default : jaVectorInvertF2\
 	)(v)
 
 #define jaVectorScale(v, s)\
 	_Generic((v),\
-		struct jaVector2 : jaVector2Scale,\
-		struct jaVector3 : jaVector3Scale,\
-		struct jaVector4 : jaVector4Scale,\
-		default : jaVector2Scale\
+		struct jaVectorF2 : jaVectorScaleF2,\
+		struct jaVectorF3 : jaVectorScaleF3,\
+		struct jaVectorF4 : jaVectorScaleF4,\
+		default : jaVectorScaleF2\
 	)(v, s)
 
 #define jaVectorNormalize(v)\
 	_Generic((v),\
-		struct jaVector2 : jaVector2Normalize,\
-		struct jaVector3 : jaVector3Normalize,\
-		struct jaVector4 : jaVector4Normalize,\
-		default : jaVector2Normalize\
+		struct jaVectorF2 : jaVectorNormalizeF2,\
+		struct jaVectorF3 : jaVectorNormalizeF3,\
+		struct jaVectorF4 : jaVectorNormalizeF4,\
+		default : jaVectorNormalizeF2\
 	)(v)
 
 #define jaVectorCross(va, vb)\
 	_Generic((va),\
-		struct jaVector2 : jaVector2Cross,\
-		struct jaVector3 : jaVector3Cross,\
-		default : jaVector2Cross\
+		struct jaVectorF2 : jaVectorCrossF2,\
+		struct jaVectorF3 : jaVectorCrossF3,\
+		default : jaVectorCrossF2\
 	)(va, vb)
 
 #define jaVectorLength(v)\
 	_Generic((v),\
-		struct jaVector2 : jaVector2Length,\
-		struct jaVector3 : jaVector3Length,\
-		struct jaVector4 : jaVector4Length,\
-		default : jaVector2Length\
+		struct jaVectorF2 : jaVectorLengthF2,\
+		struct jaVectorF3 : jaVectorLengthF3,\
+		struct jaVectorF4 : jaVectorLengthF4,\
+		default : jaVectorLengthF2\
 	)(v)
 
 #define jaVectorDistance(va, vb)\
 	_Generic((va),\
-		struct jaVector2 : jaVector2Distance,\
-		struct jaVector3 : jaVector3Distance,\
-		struct jaVector4 : jaVector4Distance,\
-		default : jaVector2Distance\
+		struct jaVectorF2 : jaVectorDistanceF2,\
+		struct jaVectorF3 : jaVectorDistanceF3,\
+		struct jaVectorF4 : jaVectorDistanceF4,\
+		default : jaVectorDistanceF2\
 	)(va, vb)
 
 #define jaVectorDot(va, vb)\
 	_Generic((va),\
-		struct jaVector2 : jaVector2Dot,\
-		struct jaVector3 : jaVector3Dot,\
-		struct jaVector4 : jaVector4Dot,\
-		default : jaVector2Dot\
+		struct jaVectorF2 : jaVectorDotF2,\
+		struct jaVectorF3 : jaVectorDotF3,\
+		struct jaVectorF4 : jaVectorDotF4,\
+		default : jaVectorDotF2\
 	)(va, vb)
 
 #define jaVectorEquals(va, vb)\
 	_Generic((va),\
-		struct jaVector2 : jaVector2Equals,\
-		struct jaVector3 : jaVector3Equals,\
-		struct jaVector4 : jaVector4Equals,\
-		default : jaVector2Equals\
+		struct jaVectorF2 : jaVectorEqualsF2,\
+		struct jaVectorF3 : jaVectorEqualsF3,\
+		struct jaVectorF4 : jaVectorEqualsF4,\
+		default : jaVectorEqualsF2\
 	)(va, vb)
 
 #endif

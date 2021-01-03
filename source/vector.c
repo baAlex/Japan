@@ -34,74 +34,74 @@ SOFTWARE.
 #include "japan-vector.h"
 
 
-inline struct jaVector2 jaVector2Add(struct jaVector2 a, struct jaVector2 b)
+inline struct jaVectorF2 jaVectorAddF2(struct jaVectorF2 a, struct jaVectorF2 b)
 {
-	return (struct jaVector2){(a.x + b.x), (a.y + b.y)};
+	return (struct jaVectorF2){(a.x + b.x), (a.y + b.y)};
 }
 
 
-inline struct jaVector2 jaVector2Subtract(struct jaVector2 a, struct jaVector2 b)
+inline struct jaVectorF2 jaVectorSubtractF2(struct jaVectorF2 a, struct jaVectorF2 b)
 {
-	return (struct jaVector2){(a.x - b.x), (a.y - b.y)};
+	return (struct jaVectorF2){(a.x - b.x), (a.y - b.y)};
 }
 
 
-inline struct jaVector2 jaVector2Multiply(struct jaVector2 a, struct jaVector2 b)
+inline struct jaVectorF2 jaVectorMultiplyF2(struct jaVectorF2 a, struct jaVectorF2 b)
 {
-	return (struct jaVector2){(a.x * b.x), (a.y * b.y)};
+	return (struct jaVectorF2){(a.x * b.x), (a.y * b.y)};
 }
 
 
-inline struct jaVector2 jaVector2Divide(struct jaVector2 a, struct jaVector2 b)
+inline struct jaVectorF2 jaVectorDivideF2(struct jaVectorF2 a, struct jaVectorF2 b)
 {
-	return (struct jaVector2){(a.x / b.x), (a.y / b.y)};
+	return (struct jaVectorF2){(a.x / b.x), (a.y / b.y)};
 }
 
 
-inline struct jaVector2 jaVector2Invert(struct jaVector2 v)
+inline struct jaVectorF2 jaVectorInvertF2(struct jaVectorF2 v)
 {
-	return (struct jaVector2){(-v.x), (-v.y)};
+	return (struct jaVectorF2){(-v.x), (-v.y)};
 }
 
 
-inline struct jaVector2 jaVector2Scale(struct jaVector2 v, float scale)
+inline struct jaVectorF2 jaVectorScaleF2(struct jaVectorF2 v, float scale)
 {
-	return (struct jaVector2){(v.x * scale), (v.y * scale)};
+	return (struct jaVectorF2){(v.x * scale), (v.y * scale)};
 }
 
 
-inline struct jaVector2 jaVector2Normalize(struct jaVector2 v)
+inline struct jaVectorF2 jaVectorNormalizeF2(struct jaVectorF2 v)
 {
-	float length = jaVector2Length(v);
-	return (struct jaVector2){(v.x / length), (v.y / length)};
+	float length = jaVectorLengthF2(v);
+	return (struct jaVectorF2){(v.x / length), (v.y / length)};
 }
 
 
-inline float jaVector2Cross(struct jaVector2 a, struct jaVector2 b)
+inline float jaVectorCrossF2(struct jaVectorF2 a, struct jaVectorF2 b)
 {
 	return (a.x * b.y) - (a.y * b.x);
 }
 
 
-inline float jaVector2Length(struct jaVector2 v)
+inline float jaVectorLengthF2(struct jaVectorF2 v)
 {
 	return sqrtf(powf(v.x, 2.0f) + powf(v.y, 2.0f));
 }
 
 
-inline float jaVector2Distance(struct jaVector2 a, struct jaVector2 b)
+inline float jaVectorDistanceF2(struct jaVectorF2 a, struct jaVectorF2 b)
 {
 	return sqrtf(powf(b.x - a.x, 2.0f) + powf(b.y - a.y, 2.0f));
 }
 
 
-inline float jaVector2Dot(struct jaVector2 a, struct jaVector2 b)
+inline float jaVectorDotF2(struct jaVectorF2 a, struct jaVectorF2 b)
 {
 	return (a.x * b.x) + (a.y * b.y);
 }
 
 
-inline bool jaVector2Equals(struct jaVector2 a, struct jaVector2 b)
+inline bool jaVectorEqualsF2(struct jaVectorF2 a, struct jaVectorF2 b)
 {
 	if (fabsf(a.x - b.x) > JA_EQUALS_EPSILON || fabsf(a.y - b.y) > JA_EQUALS_EPSILON)
 		return false;
@@ -110,74 +110,74 @@ inline bool jaVector2Equals(struct jaVector2 a, struct jaVector2 b)
 }
 
 
-inline struct jaVector3 jaVector3Add(struct jaVector3 a, struct jaVector3 b)
+inline struct jaVectorF3 jaVectorAddF3(struct jaVectorF3 a, struct jaVectorF3 b)
 {
-	return (struct jaVector3){(a.x + b.x), (a.y + b.y), (a.z + b.z)};
+	return (struct jaVectorF3){(a.x + b.x), (a.y + b.y), (a.z + b.z)};
 }
 
 
-inline struct jaVector3 jaVector3Subtract(struct jaVector3 a, struct jaVector3 b)
+inline struct jaVectorF3 jaVectorSubtractF3(struct jaVectorF3 a, struct jaVectorF3 b)
 {
-	return (struct jaVector3){(a.x - b.x), (a.y - b.y), (a.z - b.z)};
+	return (struct jaVectorF3){(a.x - b.x), (a.y - b.y), (a.z - b.z)};
 }
 
 
-inline struct jaVector3 jaVector3Multiply(struct jaVector3 a, struct jaVector3 b)
+inline struct jaVectorF3 jaVectorMultiplyF3(struct jaVectorF3 a, struct jaVectorF3 b)
 {
-	return (struct jaVector3){(a.x * b.x), (a.y * b.y), (a.z * b.z)};
+	return (struct jaVectorF3){(a.x * b.x), (a.y * b.y), (a.z * b.z)};
 }
 
 
-inline struct jaVector3 jaVector3Divide(struct jaVector3 a, struct jaVector3 b)
+inline struct jaVectorF3 jaVectorDivideF3(struct jaVectorF3 a, struct jaVectorF3 b)
 {
-	return (struct jaVector3){(a.x / b.x), (a.y / b.y), (a.z / b.z)};
+	return (struct jaVectorF3){(a.x / b.x), (a.y / b.y), (a.z / b.z)};
 }
 
 
-inline struct jaVector3 jaVector3Invert(struct jaVector3 v)
+inline struct jaVectorF3 jaVectorInvertF3(struct jaVectorF3 v)
 {
-	return (struct jaVector3){(-v.x), (-v.y), (-v.z)};
+	return (struct jaVectorF3){(-v.x), (-v.y), (-v.z)};
 }
 
 
-inline struct jaVector3 jaVector3Scale(struct jaVector3 v, float scale)
+inline struct jaVectorF3 jaVectorScaleF3(struct jaVectorF3 v, float scale)
 {
-	return (struct jaVector3){(v.x * scale), (v.y * scale), (v.z * scale)};
+	return (struct jaVectorF3){(v.x * scale), (v.y * scale), (v.z * scale)};
 }
 
 
-inline struct jaVector3 jaVector3Normalize(struct jaVector3 v)
+inline struct jaVectorF3 jaVectorNormalizeF3(struct jaVectorF3 v)
 {
-	float length = jaVector3Length(v);
-	return (struct jaVector3){(v.x / length), (v.y / length), (v.z / length)};
+	float length = jaVectorLengthF3(v);
+	return (struct jaVectorF3){(v.x / length), (v.y / length), (v.z / length)};
 }
 
 
-inline struct jaVector3 jaVector3Cross(struct jaVector3 a, struct jaVector3 b)
+inline struct jaVectorF3 jaVectorCrossF3(struct jaVectorF3 a, struct jaVectorF3 b)
 {
-	return (struct jaVector3){(a.y * b.z - a.z * b.y), (a.z * b.x - a.x * b.z), (a.x * b.y - a.y * b.x)};
+	return (struct jaVectorF3){(a.y * b.z - a.z * b.y), (a.z * b.x - a.x * b.z), (a.x * b.y - a.y * b.x)};
 }
 
 
-inline float jaVector3Length(struct jaVector3 v)
+inline float jaVectorLengthF3(struct jaVectorF3 v)
 {
 	return sqrtf(powf(v.x, 2.0f) + powf(v.y, 2.0f) + powf(v.z, 2.0f));
 }
 
 
-inline float jaVector3Distance(struct jaVector3 a, struct jaVector3 b)
+inline float jaVectorDistanceF3(struct jaVectorF3 a, struct jaVectorF3 b)
 {
 	return sqrtf(powf(b.x - a.x, 2.0f) + powf(b.y - a.y, 2.0f) + powf(b.z - a.z, 2.0f));
 }
 
 
-inline float jaVector3Dot(struct jaVector3 a, struct jaVector3 b)
+inline float jaVectorDotF3(struct jaVectorF3 a, struct jaVectorF3 b)
 {
 	return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
 }
 
 
-inline bool jaVector3Equals(struct jaVector3 a, struct jaVector3 b)
+inline bool jaVectorEqualsF3(struct jaVectorF3 a, struct jaVectorF3 b)
 {
 	if (fabsf(a.x - b.x) > JA_EQUALS_EPSILON || fabsf(a.y - b.y) > JA_EQUALS_EPSILON ||
 	    fabsf(a.z - b.z) > JA_EQUALS_EPSILON)
@@ -187,68 +187,68 @@ inline bool jaVector3Equals(struct jaVector3 a, struct jaVector3 b)
 }
 
 
-inline struct jaVector4 jaVector4Add(struct jaVector4 a, struct jaVector4 b)
+inline struct jaVectorF4 jaVectorAddF4(struct jaVectorF4 a, struct jaVectorF4 b)
 {
-	return (struct jaVector4){(a.x + b.x), (a.y + b.y), (a.z + b.z), (a.w + b.w)};
+	return (struct jaVectorF4){(a.x + b.x), (a.y + b.y), (a.z + b.z), (a.w + b.w)};
 }
 
 
-inline struct jaVector4 jaVector4Subtract(struct jaVector4 a, struct jaVector4 b)
+inline struct jaVectorF4 jaVectorSubtractF4(struct jaVectorF4 a, struct jaVectorF4 b)
 {
-	return (struct jaVector4){(a.x - b.x), (a.y - b.y), (a.z - b.z), (a.w - b.w)};
+	return (struct jaVectorF4){(a.x - b.x), (a.y - b.y), (a.z - b.z), (a.w - b.w)};
 }
 
 
-inline struct jaVector4 jaVector4Multiply(struct jaVector4 a, struct jaVector4 b)
+inline struct jaVectorF4 jaVectorMultiplyF4(struct jaVectorF4 a, struct jaVectorF4 b)
 {
-	return (struct jaVector4){(a.x * b.x), (a.y * b.y), (a.z * b.z), (a.w * b.w)};
+	return (struct jaVectorF4){(a.x * b.x), (a.y * b.y), (a.z * b.z), (a.w * b.w)};
 }
 
 
-inline struct jaVector4 jaVector4Divide(struct jaVector4 a, struct jaVector4 b)
+inline struct jaVectorF4 jaVectorDivideF4(struct jaVectorF4 a, struct jaVectorF4 b)
 {
-	return (struct jaVector4){(a.x / b.x), (a.y / b.y), (a.z / b.z), (a.w / b.w)};
+	return (struct jaVectorF4){(a.x / b.x), (a.y / b.y), (a.z / b.z), (a.w / b.w)};
 }
 
 
-inline struct jaVector4 jaVector4Invert(struct jaVector4 v)
+inline struct jaVectorF4 jaVectorInvertF4(struct jaVectorF4 v)
 {
-	return (struct jaVector4){(-v.x), (-v.y), (-v.z), (-v.w)};
+	return (struct jaVectorF4){(-v.x), (-v.y), (-v.z), (-v.w)};
 }
 
 
-inline struct jaVector4 jaVector4Scale(struct jaVector4 v, float scale)
+inline struct jaVectorF4 jaVectorScaleF4(struct jaVectorF4 v, float scale)
 {
-	return (struct jaVector4){(v.x * scale), (v.y * scale), (v.z * scale), (v.w * scale)};
+	return (struct jaVectorF4){(v.x * scale), (v.y * scale), (v.z * scale), (v.w * scale)};
 }
 
 
-inline struct jaVector4 jaVector4Normalize(struct jaVector4 v)
+inline struct jaVectorF4 jaVectorNormalizeF4(struct jaVectorF4 v)
 {
-	float length = jaVector4Length(v);
-	return (struct jaVector4){(v.x / length), (v.y / length), (v.z / length), (v.w / length)};
+	float length = jaVectorLengthF4(v);
+	return (struct jaVectorF4){(v.x / length), (v.y / length), (v.z / length), (v.w / length)};
 }
 
 
-inline float jaVector4Length(struct jaVector4 v)
+inline float jaVectorLengthF4(struct jaVectorF4 v)
 {
 	return sqrtf(powf(v.x, 2.0f) + powf(v.y, 2.0f) + powf(v.z, 2.0f) + powf(v.w, 2.0f));
 }
 
 
-inline float jaVector4Distance(struct jaVector4 a, struct jaVector4 b)
+inline float jaVectorDistanceF4(struct jaVectorF4 a, struct jaVectorF4 b)
 {
 	return sqrtf(powf(b.x - a.x, 2.0f) + powf(b.y - a.y, 2.0f) + powf(b.z - a.z, 2.0f) + powf(b.w - a.w, 2.0f));
 }
 
 
-inline float jaVector4Dot(struct jaVector4 a, struct jaVector4 b)
+inline float jaVectorDotF4(struct jaVectorF4 a, struct jaVectorF4 b)
 {
 	return (a.x * b.x) + (a.y * b.y) + (a.z * b.z) + (a.w * b.w);
 }
 
 
-inline bool jaVector4Equals(struct jaVector4 a, struct jaVector4 b)
+inline bool jaVectorEqualsF4(struct jaVectorF4 a, struct jaVectorF4 b)
 {
 	if (fabsf(a.x - b.x) > JA_EQUALS_EPSILON || fabsf(a.y - b.y) > JA_EQUALS_EPSILON ||
 	    fabsf(a.z - b.z) > JA_EQUALS_EPSILON || fabsf(a.w - b.w) > JA_EQUALS_EPSILON)

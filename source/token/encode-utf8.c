@@ -66,7 +66,7 @@ int UTF8Tokenizer(struct jaTokenizer* state)
 	// Cycle trough units
 	for (; state->input < state->input_end; state->input += unit_len)
 	{
-		if (jaUTF8ValidateUnit(state->input, (size_t)(state->input_end - state->input), &unit_len, &code) != 0)
+		if (jaUnitValidateUTF8(state->input, (size_t)(state->input_end - state->input), &unit_len, &code) != 0)
 		{
 			jaStatusSet(&state->st, "jaTokenize", JA_STATUS_UTF8_ERROR, "character \\%02X", *state->input);
 			return 1;

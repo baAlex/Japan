@@ -38,7 +38,7 @@ static void sBufferIteration(uint8_t* buffer, size_t total_buffer_len, FILE* fp_
 	again:
 		for (size_t i = 0; i < buffer_len; i++)
 		{
-			if (jaUTF8ValidateUnit(buffer + i, buffer_len - i, &unit_bytes, NULL) == 0)
+			if (jaUnitValidateUTF8(buffer + i, buffer_len - i, &unit_bytes, NULL) == 0)
 			{
 				fwrite((buffer + i), 1, unit_bytes, fp_out);
 				i += unit_bytes - 1;
@@ -169,7 +169,7 @@ void StringEncodeTest1_KuhnOneShot(void** cmocka_state)
 	while (1)
 	{
 		size_t validated_bytes = 0;
-		jaUTF8ValidateString(buffer + i, buffer_len - i, &validated_bytes, NULL);
+		jaStringValidateUTF8(buffer + i, buffer_len - i, &validated_bytes, NULL);
 
 		if (validated_bytes != 0)
 		{

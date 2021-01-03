@@ -161,7 +161,7 @@ static int sStoreFloat(float* dest, const char* to_store, float min, float max, 
 				return 1;
 		}
 
-	*dest = jaClampFloat(value, min, max);
+	*dest = jaClampF(value, min, max);
 	*changes = (old_value == *dest) ? false : true;
 	return 0;
 }
@@ -192,7 +192,7 @@ static int sStoreInt(int* dest, const char* to_store, int min, int max, bool* ch
 	if (value > INT_MAX || value < INT_MIN)
 		return 1;
 
-	*dest = jaClampInt((int)value, min, max);
+	*dest = jaClampI((int)value, min, max);
 	*changes = (old_value == *dest) ? false : true;
 	return 0;
 }
@@ -239,7 +239,7 @@ struct jaCvar* jaCvarCreateInt(struct jaConfiguration* config, const char* name,
 
 	if (cvar != NULL)
 	{
-		cvar->value.i = jaClampInt(default_value, min, max);
+		cvar->value.i = jaClampI(default_value, min, max);
 		cvar->min.i = min;
 		cvar->max.i = max;
 	}
@@ -255,7 +255,7 @@ struct jaCvar* jaCvarCreateFloat(struct jaConfiguration* config, const char* nam
 
 	if (cvar != NULL)
 	{
-		cvar->value.f = jaClampFloat(default_value, min, max);
+		cvar->value.f = jaClampF(default_value, min, max);
 		cvar->min.f = min;
 		cvar->max.f = max;
 	}

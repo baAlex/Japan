@@ -46,27 +46,28 @@
 JA_EXPORT float jaDegToRad(float value);
 JA_EXPORT float jaRadToDeg(float value);
 
-JA_EXPORT int jaMaxInt(int a, int b);
-JA_EXPORT size_t jaMaxSizeT(size_t a, size_t b);
+JA_EXPORT int jaMaxI(int a, int b);
+JA_EXPORT size_t jaMaxZ(size_t a, size_t b);
 
-JA_EXPORT int jaMinInt(int a, int b);
-JA_EXPORT size_t jaMinSizeT(size_t a, size_t b);
+JA_EXPORT int jaMinI(int a, int b);
+JA_EXPORT size_t jaMinZ(size_t a, size_t b);
 
-JA_EXPORT int jaClampInt(int v, int min, int max);
-JA_EXPORT size_t jaClampSizeT(size_t v, size_t min, size_t max);
-JA_EXPORT float jaClampFloat(float v, float min, float max);
+JA_EXPORT int jaClampI(int v, int min, int max);
+JA_EXPORT size_t jaClampZ(size_t v, size_t min, size_t max);
+
+JA_EXPORT float jaClampF(float v, float min, float max);
 
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
-#define jaMax(a, b) _Generic((a), int : jaMaxInt, size_t : jaMaxSizeT, float : fmaxf, default : jaMaxInt)(a, b)
-#define jaMin(a, b) _Generic((a), int : jaMinInt, size_t : jaMinSizeT, float : fminf, default : jaMinInt)(a, b)
+#define jaMax(a, b) _Generic((a), int : jaMaxI, size_t : jaMaxZ, float : fmaxf, default : jaMaxI)(a, b)
+#define jaMin(a, b) _Generic((a), int : jaMinI, size_t : jaMinZ, float : fminf, default : jaMinI)(a, b)
 
 #define jaClamp(value, min, max)\
 	_Generic((value),\
-		int : jaClampInt,\
-		size_t : jaClampSizeT,\
-		float : jaClampFloat,\
-		default : jaClampInt\
+		int : jaClampI,\
+		size_t : jaClampZ,\
+		float : jaClampF,\
+		default : jaClampI\
 	)(value, min, max)
 
 #endif

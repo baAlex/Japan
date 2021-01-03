@@ -61,7 +61,7 @@ int ASCIITokenizer(struct jaTokenizer* state)
 
 	for (; state->input < state->input_end; state->input += 1)
 	{
-		if (jaASCIIValidateUnit(*state->input) != 0)
+		if (jaUnitValidateASCII(*state->input) != 0)
 		{
 			jaStatusSet(&state->st, "ASCIITokenizer", JA_STATUS_ASCII_ERROR, "character \\%02X", *state->input);
 			return 1;

@@ -46,31 +46,31 @@ inline float jaRadToDeg(float value)
 }
 
 
-inline int jaMaxInt(int a, int b)
+inline int jaMaxI(int a, int b)
 {
 	return (a > b) ? a : b;
 }
 
 
-inline size_t jaMaxSizeT(size_t a, size_t b)
+inline size_t jaMaxZ(size_t a, size_t b)
 {
 	return (a > b) ? a : b;
 }
 
 
-inline int jaMinInt(int a, int b)
+inline int jaMinI(int a, int b)
 {
 	return (a < b) ? a : b;
 }
 
 
-inline size_t jaMinSizeT(size_t a, size_t b)
+inline size_t jaMinZ(size_t a, size_t b)
 {
 	return (a < b) ? a : b;
 }
 
 
-inline int jaClampInt(int v, int min, int max)
+inline int jaClampI(int v, int min, int max)
 {
 	if (v > max)
 		return max;
@@ -82,7 +82,7 @@ inline int jaClampInt(int v, int min, int max)
 }
 
 
-inline size_t jaClampSizeT(size_t v, size_t min, size_t max)
+inline size_t jaClampZ(size_t v, size_t min, size_t max)
 {
 	if (v > max)
 		return max;
@@ -94,7 +94,7 @@ inline size_t jaClampSizeT(size_t v, size_t min, size_t max)
 }
 
 
-inline float jaClampFloat(float v, float min, float max)
+inline float jaClampF(float v, float min, float max)
 {
 	if (v > max)
 		return max;
